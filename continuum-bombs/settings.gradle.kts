@@ -30,10 +30,11 @@ stonecutter {
             version("$version-$it", version).buildscript = "build.$it.gradle.kts"
         }
 
-        // Fork: only the 1.20.1 Forge node is built.
-        match("1.20.1", "forge")
+        match("26.1", "fabric", "neoforge")
+        match("1.21.1", "fabric", "neoforge")
+        match("1.20.1", "fabric", "forge")
 
-        vcsVersion = "1.20.1-forge"
+        vcsVersion = "26.1-neoforge"
     }
 }
 
@@ -50,7 +51,9 @@ rootProject.name = "hbm"
 includeBuild("../Golem-Core") {
     dependencySubstitution {
         listOf(
-            "1.20.1-forge",
+            "26.1-fabric", "26.1-neoforge",
+            "1.21.1-fabric", "1.21.1-neoforge",
+            "1.20.1-fabric", "1.20.1-forge",
         ).forEach { node ->
             val (mc, loader) = node.split('-', limit = 2)
             substitute(module("dev.golem:golemcore-$loader-$mc")).using(project(":$node"))
