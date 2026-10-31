@@ -39,8 +39,9 @@ jobs:
           bash ./gradlew :1.20.1-forge:build -x test --no-daemon --max-workers=1 -Dorg.gradle.parallel=false -Dorg.gradle.caching=false -Dorg.gradle.jvmargs='-Xmx4g -XX:+UseSerialGC -Dfile.encoding=UTF-8' -Pkotlin.daemon.jvm.options=-Xmx1g 2>&1 | tee ../build.log
           rc=${PIPESTATUS[0]}
           if [ $rc -ne 0 ]; then
-            # surface the key error lines as annotations (the raw log is not downloadable from the assistant's side)
-            grep -nE "What went wrong|error:|Could not|FAILED|Execution failed|not found|Caused by|Where:" -A2 ../build.log | grep -v '^--$' | head -24 | cut -c1-300 | while IFS= read -r l; do echo "::error::$l"; done
+            # surface the real error as ONE annotation (GitHub shows max 10); skip the Fabric EnvType javac noise
+            msg=$(grep -vE "EnvType|^\s*reason:|unknown enum constant" ../build.log | grep -nE "error:|What went wrong|Execution failed|Could not|FAILED|Caused by|BUILD FAILED" -A3 | grep -v '^--$' | tail -40 | cut -c1-240 | sed 's/%/%25/g' | awk '{printf "%s%%0A", $0}')
+            echo "::error title=Gradle failure::$msg"
           fi
           exit $rc
       - uses: actions/upload-artifact@v4
