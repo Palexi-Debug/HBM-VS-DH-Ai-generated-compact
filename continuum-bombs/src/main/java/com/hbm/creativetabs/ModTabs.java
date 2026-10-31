@@ -177,9 +177,18 @@ public final class ModTabs {
 
     /** Applies upstream's weapon-quality rule at the shared tab boundary, for every loader. */
     public static boolean shouldDisplay(ResourceKey<CreativeModeTab> tab, Item item) {
-        if (!get(HbmTab.WEAPONS).getKey().equals(tab)) return true;
-        return !(item instanceof ItemGunBaseNT gun)
-                || gun.isCreativeTabVisible();
+        // FORK (bombs only): the creative tabs show nothing but the nukes and their parts, and only in the bomb tab.
+        if (!get(HbmTab.BOMBS).getKey().equals(tab)) return false;
+        return isNukeItem(item);
+    }
+
+    /** The nukes ({@code nuke_*}) and the core, igniter, propellant and charge parts they are assembled from. */
+    private static final java.util.regex.Pattern NUKE_ITEM = java.util.regex.Pattern.compile(
+            "nuke_.*|(boy|man|gadget|mike|tsar|fleija|solinium|prototype|n2|balefire)_.*");
+
+    static boolean isNukeItem(Item item) {
+        net.minecraft.resources.ResourceLocation id = net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(item);
+        return id != null && Constants.MOD_ID.equals(id.getNamespace()) && NUKE_ITEM.matcher(id.getPath()).matches();
     }
 
     /** Forces class initialization so the static registrations above run. */
