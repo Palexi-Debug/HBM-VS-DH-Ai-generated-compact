@@ -46,26 +46,36 @@ public final class ModTabs {
     private static final EnumMap<HbmTab, RegistryObject<CreativeModeTab>> TAB_OBJECTS = new EnumMap<>(HbmTab.class);
 
     /** Tab key -> registration-order item handles. Final display ordering is resolved by {@link #displayStacks}. */
-    public static final Map<ResourceKey<CreativeModeTab>, List<RegistryObject<? extends Item>>> CONTENTS = new ByTabKey<>(LISTS);
+    public static final Map<ResourceKey<CreativeModeTab>, List<RegistryObject<? extends Item>>> CONTENTS = new ByTabKey<>(LISTS, concat());
 
     private static final EnumMap<HbmTab, List<Supplier<List<ItemStack>>>> STACK_LISTS = new EnumMap<>(HbmTab.class);
     /** Tab key -> custom display batches (e.g. one fluid bucket per fluid), resolved by {@link #displayStacks}. */
-    public static final Map<ResourceKey<CreativeModeTab>, List<Supplier<List<ItemStack>>>> STACK_CONTENTS = new ByTabKey<>(STACK_LISTS);
+    public static final Map<ResourceKey<CreativeModeTab>, List<Supplier<List<ItemStack>>>> STACK_CONTENTS = new ByTabKey<>(STACK_LISTS, concat());
 
     static {
         for (HbmTab tab : HbmTab.values()) {
-            List<RegistryObject<? extends Item>> contents = new ArrayList<>();
-            LISTS.put(tab, contents);
-            List<Supplier<List<ItemStack>>> stacks = new ArrayList<>();
-            STACK_LISTS.put(tab, stacks);
-            RegistryObject<CreativeModeTab> ro = TABS.register(tab.id, () ->
-                    CreativeModeTab.builder(CreativeModeTab.Row.TOP, 0)
-                            .title(Component.translatable("itemGroup.hbm." + tab.id))
-                            // Icon = first registered entry in this tab, or iron ingot as a fallback.
-                            .icon(() -> contents.isEmpty() ? new ItemStack(Items.IRON_INGOT) : new ItemStack(contents.get(0).get()))
-                            .build());
-            TAB_OBJECTS.put(tab, ro);
+            LISTS.put(tab, new ArrayList<>());
+            STACK_LISTS.put(tab, new ArrayList<>());
         }
+        // FORK (bombs only): a single creative tab, the bomb tab. Every other HbmTab is an alias of it, so content that
+        // is still listed under another tab ends up here and is then cut down to the nukes (see shouldDisplay).
+        List<RegistryObject<? extends Item>> bombContents = LISTS.get(HbmTab.BOMBS);
+        RegistryObject<CreativeModeTab> bombsTab = TABS.register(HbmTab.BOMBS.id, () ->
+                CreativeModeTab.builder(CreativeModeTab.Row.TOP, 0)
+                        .title(Component.translatable("itemGroup.hbm." + HbmTab.BOMBS.id))
+                        // Icon = first registered entry in this tab, or iron ingot as a fallback.
+                        .icon(() -> bombContents.isEmpty() ? new ItemStack(Items.IRON_INGOT) : new ItemStack(bombContents.get(0).get()))
+                        .build());
+        for (HbmTab tab : HbmTab.values()) TAB_OBJECTS.put(tab, bombsTab);
+    }
+
+    /** Concatenates the lists of tabs that share one tab object. */
+    private static <T> java.util.function.BinaryOperator<List<T>> concat() {
+        return (a, b) -> {
+            List<T> merged = new ArrayList<>(a);
+            merged.addAll(b);
+            return merged;
+        };
     }
 
     /**
@@ -75,10 +85,12 @@ public final class ModTabs {
     private static final class ByTabKey<V> extends AbstractMap<ResourceKey<CreativeModeTab>, V> {
 
         private final EnumMap<HbmTab, V> byTab;
+        private final java.util.function.BinaryOperator<V> merge;
         private volatile Map<ResourceKey<CreativeModeTab>, V> byKey;
 
-        ByTabKey(EnumMap<HbmTab, V> byTab) {
+        ByTabKey(EnumMap<HbmTab, V> byTab, java.util.function.BinaryOperator<V> merge) {
             this.byTab = byTab;
+            this.merge = merge;
         }
 
         private Map<ResourceKey<CreativeModeTab>, V> resolved() {
@@ -86,7 +98,7 @@ public final class ModTabs {
             if (map == null) {
                 map = new LinkedHashMap<>();
                 for (Map.Entry<HbmTab, V> entry : byTab.entrySet()) {
-                    map.put(TAB_OBJECTS.get(entry.getKey()).getKey(), entry.getValue());
+                    map.merge(TAB_OBJECTS.get(entry.getKey()).getKey(), entry.getValue(), merge);
                 }
                 byKey = map = Collections.unmodifiableMap(map);
             }
@@ -148,11 +160,7 @@ public final class ModTabs {
     public static List<ItemStack> displayStacks(ResourceKey<CreativeModeTab> tab) {
         var contents = CONTENTS.get(tab);
         if (contents == null) return List.of();
-        HbmTab group = null;
-        for (var candidate : HbmTab.values()) if (get(candidate).getKey().equals(tab)) {
-            group = candidate;
-            break;
-        }
+        HbmTab group = HbmTab.BOMBS; // FORK (bombs only): the one remaining tab
         var replacements = DISPLAY_STACKS.getOrDefault(group, Map.of());
         var result = new ArrayList<ItemStack>();
         for (var handle : contents) {
@@ -160,11 +168,19 @@ public final class ModTabs {
             if (!shouldDisplay(tab, item)) continue;
             var replacement = replacements.get(handle);
             if (replacement == null) result.add(new ItemStack(item));
-            else result.addAll(replacement.get());
+            else for (var stack : replacement.get()) if (shouldDisplay(tab, stack.getItem())) result.add(stack);
         }
-        for (var supplier : STACK_CONTENTS.get(tab)) result.addAll(supplier.get());
+        for (var supplier : STACK_CONTENTS.get(tab)) {
+            for (var stack : supplier.get()) if (shouldDisplay(tab, stack.getItem())) result.add(stack);
+        }
         var order = ORDER.get(group);
-        return order == null ? result : order.apply(result, stack -> BuiltInRegistries.ITEM.getKey(stack.getItem()).toString());
+        if (order == null) return result;
+        try {
+            return order.apply(result, stack -> BuiltInRegistries.ITEM.getKey(stack.getItem()).toString());
+        } catch (RuntimeException ex) {
+            // the ordering rules name items this fork no longer lists: keep registration order
+            return result;
+        }
     }
 
     public static void accept(ResourceKey<CreativeModeTab> tab, Consumer<ItemStack> output) {
