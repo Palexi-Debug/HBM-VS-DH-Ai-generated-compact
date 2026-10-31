@@ -187,7 +187,7 @@ public final class ModTabs {
             "nuke_.*|(boy|man|gadget|mike|tsar|fleija|solinium|prototype|n2|balefire)_.*");
 
     static boolean isNukeItem(Item item) {
-        net.minecraft.resources.ResourceLocation id = net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(item);
+        var id = BuiltInRegistries.ITEM.getKey(item); // `var`: the id type is ResourceLocation below 26.1 and Identifier from 26.1
         return id != null && Constants.MOD_ID.equals(id.getNamespace()) && NUKE_ITEM.matcher(id.getPath()).matches();
     }
 
