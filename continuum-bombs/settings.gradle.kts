@@ -30,9 +30,11 @@ stonecutter {
             version("$version-$it", version).buildscript = "build.$it.gradle.kts"
         }
 
-        match("26.1", "fabric", "neoforge")
-        match("1.21.1", "fabric", "neoforge")
-        match("1.20.1", "fabric", "forge")
+        // Fork: 26.1-neoforge stays registered only because Stonecutter's sources are written in its state
+        // (it is the active node); only 1.20.1-forge is built. The Fabric nodes are dropped (obfuscated Fabric
+        // nodes need prebuilt Golem Core jars at configuration time).
+        match("26.1", "neoforge")
+        match("1.20.1", "forge")
 
         vcsVersion = "26.1-neoforge"
     }
@@ -51,9 +53,8 @@ rootProject.name = "hbm"
 includeBuild("../Golem-Core") {
     dependencySubstitution {
         listOf(
-            "26.1-fabric", "26.1-neoforge",
-            "1.21.1-fabric", "1.21.1-neoforge",
-            "1.20.1-fabric", "1.20.1-forge",
+            "26.1-neoforge",
+            "1.20.1-forge",
         ).forEach { node ->
             val (mc, loader) = node.split('-', limit = 2)
             substitute(module("dev.golem:golemcore-$loader-$mc")).using(project(":$node"))
