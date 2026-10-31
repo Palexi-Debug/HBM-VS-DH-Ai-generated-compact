@@ -527,6 +527,11 @@ public class ContaminationUtil {
         }
 
         if (hazard == HazardType.RADIATION) {
+            // FORK (bombs only): every radiation dose, whatever its source, is applied by Mekanism's radiation system.
+            return com.hbm.compat.mekanism.MekanismRadiation.radiate(entity, amount);
+        }
+
+        if (hazard == HazardType.RADIATION) {
             double radEnv = HbmLivingProps.getRadEnv(entity);
             HbmLivingProps.setRadEnv(entity, radEnv + amount);
         }

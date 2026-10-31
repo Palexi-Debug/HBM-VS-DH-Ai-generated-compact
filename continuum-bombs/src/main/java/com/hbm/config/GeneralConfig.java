@@ -30,7 +30,7 @@ public final class GeneralConfig {
     private GeneralConfig() {}
 
     /** GENERAL SWITCH: enables the radiation system. */
-    public static boolean enableRads = true;
+    public static boolean enableRads = false; // FORK (bombs only): HBM's radiation system is off, Mekanism's is used
     /** 1.7 {@code 1.06_enableRadHotspotSpawn}: lets the Sellafield crater ("radiation hotspot") generate. */
     public static boolean enableRad = true;
     /** 1.7 {@code 1.32_enableImpactWorldProvider}: the post-impact sky, fog, light and star changes. */
