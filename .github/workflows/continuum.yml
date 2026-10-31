@@ -24,6 +24,11 @@ jobs:
             21
             25
       - uses: gradle/actions/setup-gradle@v4
+      - name: Add swap and show resources
+        run: |
+          sudo swapoff -a || true
+          sudo fallocate -l 10G /swapfile && sudo chmod 600 /swapfile && sudo mkswap /swapfile && sudo swapon /swapfile
+          free -h; nproc
       - name: Build 1.20.1 Forge
         env:
           CI: "false"
@@ -31,7 +36,7 @@ jobs:
         shell: bash
         run: |
           set +e
-          bash ./gradlew :1.20.1-forge:build -x test --no-daemon 2>&1 | tee ../build.log
+          bash ./gradlew :1.20.1-forge:build -x test --no-daemon --max-workers=1 -Dorg.gradle.parallel=false -Dorg.gradle.caching=false -Dorg.gradle.jvmargs='-Xmx4g -XX:+UseSerialGC -Dfile.encoding=UTF-8' -Pkotlin.daemon.jvm.options=-Xmx1g 2>&1 | tee ../build.log
           rc=${PIPESTATUS[0]}
           if [ $rc -ne 0 ]; then
             # surface the key error lines as annotations (the raw log is not downloadable from the assistant's side)
