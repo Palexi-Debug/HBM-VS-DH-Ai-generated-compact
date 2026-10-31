@@ -124,6 +124,17 @@ public final class RadiationConfig {
         disableHydro = CommonConfig.createConfigBool(config, CATEGORY_HAZ, "HAZ_04_disableHydroactive", "When turned off, all hydroactive hazards are disabled", false);
         disableBlinding = CommonConfig.createConfigBool(config, CATEGORY_HAZ, "HAZ_05_disableBlinding", "When turned off, all blinding hazards are disabled", false);
         disableFibrosis = CommonConfig.createConfigBool(config, CATEGORY_HAZ, "HAZ_06_disableFibrosis", "When turned off, all fibrosis hazards are disabled", false);
+        // FORK (bombs only): the item hazards of HBM's other content (explosive gunpowder in lava, hot, cold, asbestos,
+        // coal dust, hydroactive, blinding, fibrosis) are always off, whatever an existing config file says. Radiation is
+        // not touched here.
+        disableAsbestos = true;
+        disableCoal = true;
+        disableHot = true;
+        disableCold = true;
+        disableExplosive = true;
+        disableHydro = true;
+        disableBlinding = true;
+        disableFibrosis = true;
 
         final String CATEGORY_POL = CommonConfig.CATEGORY_POLLUTION;
         enablePollution = CommonConfig.createConfigBool(config, CATEGORY_POL, "POL_00_enablePollution", "If disabled, none of the polltuion related things will work", true);
