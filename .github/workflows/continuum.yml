@@ -28,7 +28,16 @@ jobs:
         env:
           CI: "false"
         working-directory: continuum-bombs
-        run: bash ./gradlew :1.20.1-forge:build -x test --no-daemon --stacktrace
+        shell: bash
+        run: |
+          set +e
+          bash ./gradlew :1.20.1-forge:build -x test --no-daemon 2>&1 | tee ../build.log
+          rc=${PIPESTATUS[0]}
+          if [ $rc -ne 0 ]; then
+            # surface the key error lines as annotations (the raw log is not downloadable from the assistant's side)
+            grep -nE "What went wrong|error:|Could not|FAILED|Execution failed|not found|Caused by|Where:" -A2 ../build.log | grep -v '^--$' | head -24 | cut -c1-300 | while IFS= read -r l; do echo "::error::$l"; done
+          fi
+          exit $rc
       - uses: actions/upload-artifact@v4
         if: always()
         with:
