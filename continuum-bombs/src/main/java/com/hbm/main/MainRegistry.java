@@ -239,10 +239,10 @@ public final class MainRegistry {
         ModItemModels.declare();
         ModMaterialTags.declare();
         ModDamageTypes.declare();
-        // FORK-CUT (worldgen/structures): ModBiomeModifiers.declare();
-        // FORK-CUT (worldgen/structures): LegacyDungeonDeclarations.declare(); // WG-D: legacy dungeon structures + scattered-block features (before BiomeFeatures.install)
-        // FORK-CUT (worldgen/structures): ModMobSpawns.init(); // 1.7 EntityMappings natural spawns + placements (before BiomeFeatures.install)
-        // FORK-CUT (worldgen/structures): BiomeFeatures.install(); // Fabric: the same biome modifiers through BiomeModifications (no-op elsewhere)
+        ModBiomeModifiers.declare();
+        LegacyDungeonDeclarations.declare(); // WG-D: legacy dungeon structures + scattered-block features (before BiomeFeatures.install)
+        ModMobSpawns.init(); // 1.7 EntityMappings natural spawns + placements (before BiomeFeatures.install)
+        BiomeFeatures.install(); // Fabric: the same biome modifiers through BiomeModifications (no-op elsewhere)
         ModCraftingRecipes.declare();
         ModArmorTableBlocks.init();
         ModWeaponTableBlocks.init();
@@ -348,14 +348,14 @@ public final class MainRegistry {
         ModMissileItems.init(); // launchable missiles + the designators that aim them
         ModWandItems.init(); // creative wand_k / wand_s / wand_d
         AdvancementCommandContent.init(); // 1.7 achievements as advancements (triggers, icons) + ntm* commands
-        // FORK-CUT (worldgen/structures): ModFeatures.init(); // worldgen feature types (1.7 ores, strata, MapGen terrain, surface features)
+        ModFeatures.init(); // worldgen feature types (1.7 ores, strata, MapGen terrain, surface features)
         BossSpawnHandler.init(); // 1.7 meteor strikes and showers, rolled every level tick
         SpecialPlayers.init(); // 1.7 onPlayerRespawn: Dr_Nostalgia's hat and Beta
         BobmazonSignHandler.init();
         HbmPlayerProps.init(); // 1.7 onPlayerClone: reputation, shield, fbi/rad marks survive respawn
-        // FORK-CUT (worldgen/structures): NTMWorldGenerator.init(); // NBT structures: hbm:nbt structure type, piece type, 1.7 spawn registrations
-        // FORK-CUT (worldgen/structures): NTMComponentStructures.init(); // features/bunker/meteor_dungeon spawns + hardcoded piece types (WG-C)
-        // FORK-CUT (worldgen/structures): LegacyDungeonStructure.init(); // WG-D: 1.7 HbmWorldGen legacy dungeons (hbm:legacy_dungeon) + scattered-block feature types
+        NTMWorldGenerator.init(); // NBT structures: hbm:nbt structure type, piece type, 1.7 spawn registrations
+        NTMComponentStructures.init(); // features/bunker/meteor_dungeon spawns + hardcoded piece types (WG-C)
+        LegacyDungeonStructure.init(); // WG-D: 1.7 HbmWorldGen legacy dungeons (hbm:legacy_dungeon) + scattered-block feature types
         ModBiomes.init(); // crater biome keys, backed by worldgen biome JSON
         ModBlockEntities.init();
         ModRBMKBlockEntities.init();
