@@ -44,6 +44,14 @@ jobs:
             echo "::error title=Gradle failure::$msg"
           fi
           exit $rc
+      - name: Inspect jar
+        if: always()
+        run: |
+          J=$(ls continuum-bombs/versions/1.20.1-forge/build/libs/*.jar 2>/dev/null | grep -v -e sources -e dev | head -1)
+          [ -z "$J" ] && J=$(ls continuum-bombs/**/build/libs/*.jar 2>/dev/null | head -1)
+          echo "jar: $J"
+          unzip -l "$J" > /tmp/jar.txt
+          echo "::notice title=Jar contents::$(echo "files: $(wc -l < /tmp/jar.txt); worldgen: $(grep -c 'data/hbm/worldgen/' /tmp/jar.txt); biome_modifier: $(grep -c 'biome_modifier/' /tmp/jar.txt); structure nbt: $(grep -c '\.nbt' /tmp/jar.txt); size: $(du -h "$J" | cut -f1)")"
       - uses: actions/upload-artifact@v4
         if: always()
         with:

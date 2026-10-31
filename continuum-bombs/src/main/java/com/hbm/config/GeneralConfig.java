@@ -118,7 +118,7 @@ public final class GeneralConfig {
     // 1.7 keys in hbm.cfg
 
     /** 1.7 {@code 1.20_enableGuns}: false makes the new-system guns ignore every keybind (no firing or reloading). */
-    public static boolean enableGuns = true;
+    public static boolean enableGuns = false; // FORK (bombs only): guns cannot fire
     /** 1.7 {@code 1.22_enableCrosshairs}: written by 1.7 but read by nothing there either. */
     public static boolean enableCrosshairs = true;
     /** 1.7 {@code 1.33_enableStatReRegistering}: false skips the mask man's "crystallizer crafted" stat condition. */
@@ -179,7 +179,7 @@ public final class GeneralConfig {
         DungeonConfig.enableVaults = config.get(CATEGORY_GENERAL, "1.15_enableVaultSpawn", true, "Allows locked safes to spawn").getBoolean(true);
         enableCataclysm = config.get(CATEGORY_GENERAL, "1.17_enableCataclysm", false, "Causes satellites to fall whenever a mob dies").getBoolean(false);
         enableExtendedLogging = config.get(CATEGORY_GENERAL, "1.18_enableExtendedLogging", false, "Logs uses of the detonator, nuclear explosions, missile launches, grenades, etc.").getBoolean(false);
-        enableGuns = config.get(CATEGORY_GENERAL, "1.20_enableGuns", true, "Prevents new system guns to be fired").getBoolean(true);
+        enableGuns = config.get(CATEGORY_GENERAL, "1.20_enableGuns", false, "Prevents new system guns to be fired").getBoolean(false);
         TerrainConfig.enableVirus = config.get(CATEGORY_GENERAL, "1.21_enableVirus", false, "Allows virus blocks to spread").getBoolean(false);
         enableCrosshairs = config.get(CATEGORY_GENERAL, "1.22_enableCrosshairs", true, "Shows custom crosshairs when an NTM gun is being held").getBoolean(true);
         enableSkyboxes = config.get(CATEGORY_GENERAL, "1.31_enableSkyboxes", true, "If enabled, will try to use NTM's custom skyboxes.").getBoolean(true);
