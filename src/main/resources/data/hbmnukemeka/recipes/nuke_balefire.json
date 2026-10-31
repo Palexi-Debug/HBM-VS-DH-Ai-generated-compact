@@ -1,0 +1,19 @@
+{
+  "type": "mekanism:combining",
+  "mainInput": {
+    "amount": 3,
+    "ingredient": {
+      "item": "hbmnukemeka:exotic_core"
+    }
+  },
+  "extraInput": {
+    "amount": 8,
+    "ingredient": {
+      "item": "mekanism:pellet_polonium"
+    }
+  },
+  "output": {
+    "item": "hbm:nuke_balefire",
+    "count": 1
+  }
+}

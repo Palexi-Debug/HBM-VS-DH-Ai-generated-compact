@@ -1,0 +1,48 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="LGPL-3.0-or-later"
+
+[[mods]]
+modId="${mod_id}"
+version="${mod_version}"
+displayName="HBM Nukes via Mekanism"
+description='''
+Addon for HBM's Nuclear Tech Mod: Continuum (1.20.1 Forge).
+Adds Mekanism Combiner recipes for the Continuum nukes and draws the explosion
+mushroom cloud in Distant Horizons LODs beyond the normal render distance.
+'''
+
+[[dependencies.${mod_id}]]
+    modId="forge"
+    mandatory=true
+    versionRange="[47,)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.${mod_id}]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.20.1,1.21)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.${mod_id}]]
+    modId="mekanism"
+    mandatory=true
+    versionRange="[10.4,)"
+    ordering="AFTER"
+    side="BOTH"
+
+[[dependencies.${mod_id}]]
+    modId="hbm"
+    mandatory=true
+    versionRange="[1.0,)"
+    ordering="AFTER"
+    side="BOTH"
+
+[[dependencies.${mod_id}]]
+    modId="distanthorizons"
+    mandatory=false
+    versionRange="[2.3,)"
+    ordering="AFTER"
+    side="CLIENT"

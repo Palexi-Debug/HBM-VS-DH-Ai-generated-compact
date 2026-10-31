@@ -1,0 +1,19 @@
+{
+  "type": "mekanism:combining",
+  "mainInput": {
+    "amount": 8,
+    "ingredient": {
+      "item": "mekanism:ingot_steel"
+    }
+  },
+  "extraInput": {
+    "amount": 2,
+    "ingredient": {
+      "item": "mekanism:ingot_refined_obsidian"
+    }
+  },
+  "output": {
+    "item": "hbmnukemeka:bomb_casing",
+    "count": 1
+  }
+}

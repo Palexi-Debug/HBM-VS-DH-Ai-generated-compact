@@ -1,0 +1,19 @@
+{
+  "type": "mekanism:combining",
+  "mainInput": {
+    "amount": 8,
+    "ingredient": {
+      "item": "mekanism:ingot_uranium"
+    }
+  },
+  "extraInput": {
+    "amount": 2,
+    "ingredient": {
+      "item": "mekanism:ingot_lead"
+    }
+  },
+  "output": {
+    "item": "hbmnukemeka:fissile_core",
+    "count": 1
+  }
+}

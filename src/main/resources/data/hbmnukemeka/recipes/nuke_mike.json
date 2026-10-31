@@ -1,0 +1,19 @@
+{
+  "type": "mekanism:combining",
+  "mainInput": {
+    "amount": 1,
+    "ingredient": {
+      "item": "hbmnukemeka:bomb_casing"
+    }
+  },
+  "extraInput": {
+    "amount": 1,
+    "ingredient": {
+      "item": "hbmnukemeka:thermonuclear_stage"
+    }
+  },
+  "output": {
+    "item": "hbm:nuke_mike",
+    "count": 1
+  }
+}

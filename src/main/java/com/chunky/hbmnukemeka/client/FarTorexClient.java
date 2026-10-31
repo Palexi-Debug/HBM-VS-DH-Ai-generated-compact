@@ -1,0 +1,100 @@
+package com.chunky.hbmnukemeka.client;
+
+import com.chunky.hbmnukemeka.HbmNukeMeka;
+import com.chunky.hbmnukemeka.net.TorexPacket;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.ModList;
+
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
+/**
+ * Client side bookkeeping for far away torex clouds. The state arrives from the server in
+ * {@link TorexPacket}s; the Distant Horizons part lives in {@link DhTorexRenderer} and is only touched when
+ * Distant Horizons is installed, so the mod also runs without it.
+ */
+public final class FarTorexClient {
+
+    /** Last known state of one torex plus when it was received (client game time). */
+    static final class State {
+        TorexPacket.Entry entry;
+        long receivedAt;
+    }
+
+    private static final Map<Integer, State> STATES = new HashMap<>();
+    private static boolean dhPresent;
+    private static boolean dhBroken;
+    private static ClientLevel lastLevel;
+
+    private FarTorexClient() {}
+
+    public static void init() {
+        dhPresent = ModList.get().isLoaded("distanthorizons");
+        MinecraftForge.EVENT_BUS.register(new FarTorexClient.Ticker());
+        HbmNukeMeka.LOGGER.info("Distant Horizons {}", dhPresent ? "found, far torex rendering on" : "not installed");
+    }
+
+    public static void onPacket(TorexPacket packet) {
+        ClientLevel level = Minecraft.getInstance().level;
+        if (level == null) return;
+        long now = level.getGameTime();
+        Map<Integer, State> next = new HashMap<>();
+        for (TorexPacket.Entry e : packet.entries) {
+            State s = STATES.get(e.entityId());
+            if (s == null) s = new State();
+            s.entry = e;
+            s.receivedAt = now;
+            next.put(e.entityId(), s);
+        }
+        // anything the server no longer lists is gone
+        for (Iterator<Map.Entry<Integer, State>> it = STATES.entrySet().iterator(); it.hasNext(); ) {
+            Map.Entry<Integer, State> old = it.next();
+            if (!next.containsKey(old.getKey()) && dhPresent && !dhBroken) {
+                safe(() -> DhTorexRenderer.remove(old.getKey()));
+            }
+        }
+        STATES.clear();
+        STATES.putAll(next);
+    }
+
+    private static void safe(Runnable r) {
+        try {
+            r.run();
+        } catch (Throwable t) {
+            // a Distant Horizons API mismatch must never crash the game
+            dhBroken = true;
+            HbmNukeMeka.LOGGER.error("Distant Horizons far torex rendering disabled after an error", t);
+        }
+    }
+
+    public static final class Ticker {
+        @SubscribeEvent
+        public void onClientTick(TickEvent.ClientTickEvent event) {
+            if (event.phase != TickEvent.Phase.END) return;
+            Minecraft mc = Minecraft.getInstance();
+            ClientLevel level = mc.level;
+            if (level != lastLevel) {
+                // dimension change or disconnect: forget everything
+                if (dhPresent && !dhBroken) safe(DhTorexRenderer::clear);
+                STATES.clear();
+                lastLevel = level;
+            }
+            if (level == null || !dhPresent || dhBroken) return;
+            // refresh the geometry once per second, the packets arrive every half second
+            if (level.getGameTime() % 20 != 0) return;
+            final long now = level.getGameTime();
+            for (State s : STATES.values()) {
+                final TorexPacket.Entry e = s.entry;
+                // the real entity renders while the client tracks it, Distant Horizons only draws the far ones
+                final boolean nearAndRendered = level.getEntity(e.entityId()) != null;
+                final int age = e.age() + (int) (now - s.receivedAt);
+                safe(() -> DhTorexRenderer.update(level, e, age, nearAndRendered));
+            }
+        }
+    }
+}

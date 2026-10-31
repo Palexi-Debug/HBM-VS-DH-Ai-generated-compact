@@ -1,0 +1,19 @@
+{
+  "type": "mekanism:combining",
+  "mainInput": {
+    "amount": 1,
+    "ingredient": {
+      "item": "hbmnukemeka:bomb_casing"
+    }
+  },
+  "extraInput": {
+    "amount": 2,
+    "ingredient": {
+      "item": "hbmnukemeka:fissile_core"
+    }
+  },
+  "output": {
+    "item": "hbm:nuke_boy",
+    "count": 1
+  }
+}

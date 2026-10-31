@@ -1,0 +1,19 @@
+{
+  "type": "mekanism:combining",
+  "mainInput": {
+    "amount": 1,
+    "ingredient": {
+      "item": "hbmnukemeka:fissile_core"
+    }
+  },
+  "extraInput": {
+    "amount": 4,
+    "ingredient": {
+      "item": "mekanism:alloy_atomic"
+    }
+  },
+  "output": {
+    "item": "hbmnukemeka:thermonuclear_stage",
+    "count": 1
+  }
+}

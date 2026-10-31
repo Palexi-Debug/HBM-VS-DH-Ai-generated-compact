@@ -1,0 +1,19 @@
+{
+  "type": "mekanism:combining",
+  "mainInput": {
+    "amount": 1,
+    "ingredient": {
+      "item": "hbmnukemeka:exotic_core"
+    }
+  },
+  "extraInput": {
+    "amount": 1,
+    "ingredient": {
+      "item": "hbmnukemeka:bomb_casing"
+    }
+  },
+  "output": {
+    "item": "hbm:nuke_fleija",
+    "count": 1
+  }
+}

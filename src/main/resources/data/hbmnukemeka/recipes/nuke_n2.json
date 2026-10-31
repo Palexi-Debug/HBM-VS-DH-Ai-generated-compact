@@ -1,0 +1,19 @@
+{
+  "type": "mekanism:combining",
+  "mainInput": {
+    "amount": 1,
+    "ingredient": {
+      "item": "hbmnukemeka:bomb_casing"
+    }
+  },
+  "extraInput": {
+    "amount": 16,
+    "ingredient": {
+      "item": "mekanism:pellet_polonium"
+    }
+  },
+  "output": {
+    "item": "hbm:nuke_n2",
+    "count": 1
+  }
+}
