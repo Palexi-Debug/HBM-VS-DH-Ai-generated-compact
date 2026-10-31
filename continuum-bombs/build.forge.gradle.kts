@@ -331,3 +331,19 @@ if (propOrNull("kubejs.run") == "true" && propOrNull("deps.kubejs") != null) {
         tasks.matching { it.name in tasksOfRun }.configureEach { dependsOn(copy) }
     }
 }
+
+// FORK (bombs only): world generation is switched off by not shipping its datapack content. The worldgen types stay
+// registered in code (data generation and the registry loader need them), but nothing places ores, dungeons, structures
+// or HBM mobs: no configured/placed features, structures, template pools or biome modifiers end up in the jar.
+tasks.jar {
+    exclude(
+        "data/hbm/worldgen/configured_feature/**",
+        "data/hbm/worldgen/placed_feature/**",
+        "data/hbm/worldgen/structure/**",
+        "data/hbm/worldgen/structure_set/**",
+        "data/hbm/worldgen/template_pool/**",
+        "data/hbm/worldgen/processor_list/**",
+        "data/hbm/forge/biome_modifier/**",
+        "data/hbm/neoforge/biome_modifier/**",
+    )
+}
