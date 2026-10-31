@@ -1,0 +1,171 @@
+package com.hbm.blocks.bomb;
+
+import com.hbm.config.BombConfig;
+import dev.golem.core.gui.Menus;
+import dev.golem.core.world.CompatBlock;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.Mirror;
+import dev.golem.core.registry.TickingBlock;
+import com.hbm.entity.effect.EntityNukeTorex;
+import com.hbm.entity.logic.EntityNukeExplosionMK5;
+import com.hbm.interfaces.IBomb;
+import com.hbm.tileentity.bomb.TileEntityNukeMan;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.RenderShape;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.phys.BlockHitResult;
+import org.jspecify.annotations.Nullable;
+
+import java.util.UUID;
+
+/**
+ * The Fat Man ({@code nuke_man}) bomb block. Ported from 1.12.2. Renders {@code INVISIBLE} (its OBJ
+ * model is drawn by a {@code BlockEntityRenderer}); right-click opens the assembly GUI, and a redstone
+ * signal detonates it when {@link TileEntityNukeMan#isReady()}. Detonation spawns an
+ * {@link EntityNukeExplosionMK5} of radius {@link BombConfig#manRadius}.
+ *
+ * <p>{@code FACING} (2–5, the old ForgeDirection horizontal ordinals N/S/W/E) drives the model yaw.
+ */
+public class NukeMan extends CompatBlock implements TickingBlock, IBomb {
+
+    public static final IntegerProperty FACING = IntegerProperty.create("facing", 2, 5);
+
+    public NukeMan(Properties properties) {
+        super(properties);
+        this.registerDefaultState(this.stateDefinition.any().setValue(FACING, 2));
+    }
+
+    @Override
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+        builder.add(FACING);
+    }
+
+    @Override
+    public RenderShape getRenderShape(BlockState state) {
+        return RenderShape.INVISIBLE;
+    }
+
+    @Override
+    @Nullable
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+        return new TileEntityNukeMan(pos, state);
+    }
+
+    @Override
+    @Nullable
+    public BlockState getStateForPlacement(BlockPlaceContext context) {
+        // NukeMan has its own legacy placement map, not BlockHorizontal's opposite-facing rule.
+        int facing = switch (context.getHorizontalDirection()) {
+            case SOUTH -> 5;
+            case WEST -> 3;
+            case NORTH -> 4;
+            default -> 2; // EAST
+        };
+        return this.defaultBlockState().setValue(FACING, facing);
+    }
+
+    @Override
+    public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
+        super.setPlacedBy(level, pos, state, placer, stack);
+        if (placer instanceof Player player && level.getBlockEntity(pos) instanceof TileEntityNukeMan nuke) {
+            nuke.placerID = player.getUUID();
+        }
+    }
+
+    @Override
+    protected InteractionResult onUseWithoutItem(BlockState state, Level level, BlockPos pos, Player player,
+                                                 BlockHitResult hit) {
+        if (!level.isClientSide() && !player.isShiftKeyDown() && player instanceof ServerPlayer serverPlayer) {
+            if (level.getBlockEntity(pos) instanceof MenuProvider provider) {
+                Menus.openWithPos(serverPlayer, provider, pos);
+            }
+        }
+        return player.isShiftKeyDown() ? InteractionResult.TRY_WITH_EMPTY_HAND : InteractionResult.SUCCESS;
+    }
+
+    @Override
+    protected void onNeighborChanged(BlockState state, Level level, BlockPos pos,
+                                     Block block, boolean movedByPiston) {
+        if (!level.isClientSide() && level.hasNeighborSignal(pos)) {
+            explode(level, pos, null);
+        }
+    }
+
+    @Override
+    public BombReturnCode explode(Level level, BlockPos pos, @Nullable Entity detonator) {
+        return explode(level, pos, detonator, detonator == null ? null : detonator.getUUID());
+    }
+
+    @Override
+    public BombReturnCode explode(Level level, BlockPos pos, @Nullable Entity detonator,
+                                  @Nullable UUID detonatorId) {
+        if (level.isClientSide()) return BombReturnCode.UNDEFINED;
+        if (!(level.getBlockEntity(pos) instanceof TileEntityNukeMan entity)) return BombReturnCode.UNDEFINED;
+
+        if (entity.isReady()) {
+            UUID placer = entity.placerID;
+            entity.clearSlots();
+            level.removeBlock(pos, false);
+            ignite(level, detonatorId, pos, placer);
+            return BombReturnCode.DETONATED;
+        }
+        return BombReturnCode.ERROR_MISSING_COMPONENT;
+    }
+
+    private void ignite(Level level, @Nullable UUID detonatorId, BlockPos pos, @Nullable UUID placer) {
+        detonate(level, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5,
+                detonatorId != null ? detonatorId : placer);
+    }
+
+    /**
+     * The Fat Man's blast at a point: what a triggered block does at its centre, also reached by a Fat Man that left
+     * its block (a dropped bomb detonating where it lands).
+     */
+    public static void detonate(Level level, double x, double y, double z, @Nullable UUID detonator) {
+        level.playSound(null, x, y, z,
+                SoundEvents.GENERIC_EXPLODE.value(),
+                SoundSource.BLOCKS, 1.0F,
+                level.getRandom().nextFloat() * 0.1F + 0.9F);
+
+        EntityNukeExplosionMK5 mk5 = EntityNukeExplosionMK5.statFac(level, BombConfig.manRadius, x, y, z);
+        mk5.detonator = detonator;
+        if (level.addFreshEntity(mk5)) mk5.startChunkLoading();
+
+        // The mushroom cloud (which carries the shockwave ring, condensation collar, flare, flash + the
+        // client sky flash / detonation sound / HUD white-out + shake). Gated like the original, and it
+        // only affects visuals; the blast and crater above run regardless.
+        if (BombConfig.enableNukeClouds) {
+            EntityNukeTorex torex = EntityNukeTorex.statFac(level, x, y, z, BombConfig.manRadius);
+            if (level.addFreshEntity(torex)) torex.startChunkLoading();
+        }
+    }
+
+    @Override
+    public BlockState rotate(BlockState state, Rotation rotation) {
+        return state.setValue(FACING,
+                rotation.rotate(Direction.from3DDataValue(state.getValue(FACING))).get3DDataValue());
+    }
+
+    @Override
+    public BlockState mirror(BlockState state, Mirror mirror) {
+        return state.setValue(FACING,
+                mirror.mirror(Direction.from3DDataValue(state.getValue(FACING))).get3DDataValue());
+    }
+}

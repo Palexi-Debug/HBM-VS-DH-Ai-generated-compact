@@ -1,0 +1,71 @@
+package com.hbm.potion;
+
+import com.hbm.Constants;
+import dev.golem.core.registry.DeferredRegister;
+import dev.golem.core.registry.RegistryObject;
+import dev.golem.core.world.CompatMobEffect;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectCategory;
+import com.hbm.registration.Reg;
+import net.minecraft.world.entity.LivingEntity;
+
+/** HBM status effects, matching the 1.7.10 {@code HbmPotion} registry. */
+public final class ModEffects {
+
+    private ModEffects() {}
+
+    public static final DeferredRegister<MobEffect> EFFECTS =
+            DeferredRegister.create(Registries.MOB_EFFECT, Constants.MOD_ID);
+    private static final Reg REG = Reg.of(EFFECTS);
+
+    /** Colour = the old {@code HbmPotion.radiation} liquid colour (8700200). */
+    public static final RegistryObject<MobEffect> RADIATION =
+            REG.register(Registries.MOB_EFFECT, "radiation", () -> new HbmEffectRadiation(MobEffectCategory.HARMFUL, 8700200));
+
+    public static final RegistryObject<MobEffect> TAINT = effect("taint", MobEffectCategory.HARMFUL, 8388736,
+            HbmEffect.Kind.TAINT);
+    public static final RegistryObject<MobEffect> BANG = effect("bang", MobEffectCategory.HARMFUL, 1118481,
+            HbmEffect.Kind.BANG);
+    // Colours are 1.7 HbmPotion.init's (mutation shares taint's purple; radx and radaway share 0xBB4B00).
+    public static final RegistryObject<MobEffect> MUTATION = effect("mutation", MobEffectCategory.BENEFICIAL,
+            0x800080, null);
+    public static final RegistryObject<MobEffect> RADX = effect("radx", MobEffectCategory.BENEFICIAL, 0xBB4B00,
+            null);
+    public static final RegistryObject<MobEffect> LEAD = effect("lead", MobEffectCategory.HARMFUL, 0x767682,
+            HbmEffect.Kind.LEAD);
+    public static final RegistryObject<MobEffect> RADAWAY = effect("radaway", MobEffectCategory.BENEFICIAL,
+            0xBB4B00, HbmEffect.Kind.RADAWAY);
+    /** Commented out in 1.7 HbmPotion; kept registered here (its id may already be in worlds), never applied by 1.7 content. */
+    public static final RegistryObject<MobEffect> TELEKINESIS = effect("telekinesis", MobEffectCategory.HARMFUL,
+            0x00F3FF, HbmEffect.Kind.TELEKINESIS);
+    public static final RegistryObject<MobEffect> PHOSPHORUS = effect("phosphorus", MobEffectCategory.HARMFUL,
+            0xFFFF00, HbmEffect.Kind.PHOSPHORUS);
+    public static final RegistryObject<MobEffect> STABILITY = effect("stability", MobEffectCategory.BENEFICIAL,
+            0xD0D0D0, null);
+    public static final RegistryObject<MobEffect> POTION_SICKNESS = effect("potionsickness",
+            MobEffectCategory.BENEFICIAL, 0xFF8080, HbmEffect.Kind.POTION_SICKNESS);
+    public static final RegistryObject<MobEffect> DEATH = effect("death", MobEffectCategory.BENEFICIAL, 0x111111,
+            null);
+
+    private static RegistryObject<MobEffect> effect(String id, MobEffectCategory category, int color,
+                                                    HbmEffect.Kind kind) {
+        return REG.register(Registries.MOB_EFFECT, id, () -> kind == null
+                ? new PassiveHbmEffect(category, color)
+                : new HbmEffect(category, color, kind));
+    }
+
+    /** Effects with no per-tick action still need a concrete HBM type for their registry identity. */
+    private static final class PassiveHbmEffect extends CompatMobEffect {
+        private PassiveHbmEffect(MobEffectCategory category, int color) {
+            super(category, color);
+        }
+
+        @Override
+        protected boolean applyCompatEffectTick(LivingEntity entity, int amplifier) {
+            return true;
+        }
+    }
+
+    public static void init() {}
+}

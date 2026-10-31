@@ -1,0 +1,327 @@
+package com.hbm.tileentity.machine.oil;
+
+import com.hbm.api.redstoneoverradio.IRORInteractive;
+import com.hbm.api.redstoneoverradio.IRORValueProvider;
+import com.hbm.api.energymk2.IEnergyProviderMK2;
+import com.hbm.api.environment.Environment;
+import com.hbm.api.fluidmk2.IFluidStandardReceiverMK2;
+import com.hbm.blocks.machine.ModMachineBlocks;
+import com.hbm.inventory.UpgradeManagerNT;
+import com.hbm.inventory.container.ContainerMachineGasFlare;
+import com.hbm.inventory.fluid.FluidCombustion;
+import com.hbm.inventory.fluid.FluidType;
+import com.hbm.inventory.fluid.Fluids;
+import com.hbm.inventory.fluid.tank.FluidTankNTM;
+import com.hbm.inventory.fluid.trait.FT_Polluting;
+import com.hbm.inventory.fluid.trait.FluidTrait;
+import com.hbm.inventory.fluid.trait.FluidReleaseType;
+import com.hbm.inventory.fluid.trait.FluidTraitSimple;
+import com.hbm.items.machine.IItemFluidId;
+import com.hbm.items.machine.ItemMachineUpgrade.UpgradeType;
+import com.hbm.lib.DirPos;
+import com.hbm.lib.Library;
+import com.hbm.sound.ModSounds;
+import com.hbm.tileentity.IUpgradeInfoProvider;
+import com.hbm.tileentity.ModBlockEntities;
+import com.hbm.tileentity.TileEntityMachineBase;
+import com.hbm.tileentity.machine.MachineFluidContainerIO;
+import com.hbm.util.TickPhase;
+import dev.golem.core.world.Effects;
+import java.util.HashMap;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.WorldlyContainer;
+import net.minecraft.core.Direction;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.chat.Component;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import dev.golem.core.data.DataIn;
+import dev.golem.core.data.DataOut;
+import net.minecraft.world.phys.AABB;
+
+import java.util.List;
+import com.hbm.tileentity.TilePort.PortDef;
+import com.hbm.tileentity.TilePortShapes;
+
+/**
+ * Gas Flare (Flare Stack), a 1:1 port of the 1.12.2 {@code TileEntityMachineGasFlare}: a 12-tall 3×3
+ * chimney that either <b>vents</b> gaseous fluids (no power) or <b>burns</b> flammable fluids for power.
+ * 6 slots (0 battery-to-charge, 1 to 2 fluid container drain, 3 fluid identifier, 4/5 upgrades: SPEED = rate,
+ * EFFECT = yield). maxPower 100k (1.7.10; 1.12.2 raised it to 1M). {@code isOn}/{@code doesBurn} toggle via GUI buttons.
+ *
+ * <p>Vent: {@code min(50·(1+speed), fill)} mB, no power. Burn: {@code min(10·(1+speed), fill)} mB, then
+ * {@code power += flammableEnergy·eject/1000/penalty · (1 + yield/3)}, penalty 5 gaseous / 10 liquid.
+ * Effects use vanilla particle stand-ins for the custom gas-tower and flamethrower particles:
+ * a smoke column while venting, FLAME + LARGE_SMOKE at the tip while burning; burning also sets
+ * fire to entities in the flame AABB. Every fifth tick the vented or burned fluid's {@code FT_Polluting}
+ * table is applied to {@code eject * 5} mB, as in 1.7.
+ */
+public class TileEntityMachineGasFlare extends TileEntityMachineBase
+        implements MenuProvider, IEnergyProviderMK2, IFluidStandardReceiverMK2, IUpgradeInfoProvider, IRORInteractive,
+        IRORValueProvider, WorldlyContainer {
+
+    public static final long maxPower = 100000;
+    public final UpgradeManagerNT upgradeManager = new UpgradeManagerNT(this);
+    public long power;
+    public FluidTankNTM tank;
+    public boolean isOn = false;
+    public boolean doesBurn = false;
+    /** HE burned into power this tick. */
+    public int output;
+
+    public TileEntityMachineGasFlare(BlockPos pos, BlockState state) {
+        super(ModBlockEntities.MACHINE_GAS_FLARE.get(), pos, state, 6);
+        tank = new FluidTankNTM(Fluids.GAS, 64000);
+    }
+
+    @Override
+    public String getDefaultName() {
+        return "container.gasFlare";
+    }
+
+    public long getPowerScaled(long i) {
+        return (power * i) / maxPower;
+    }
+
+    public static void serverTick(Level level, BlockPos pos, BlockState state, TileEntityMachineGasFlare te) {
+        te.setupAllPorts(te.getPorts());
+        te.updatePortPOFIFO();
+
+        if (te.tank.setType(te.inventory, 3, 3)) te.setChanged();
+        MachineFluidContainerIO.load(te.tank, te.inventory, 1, 2);
+
+        te.output = 0;
+        int maxVent = 50;
+        int maxBurn = 10;
+
+        if (te.isOn && te.tank.getFill() > 0) {
+            te.upgradeManager.checkSlots(te.inventory, 4, 5);
+            int burn = te.upgradeManager.getLevel(UpgradeType.SPEED);
+            int yield = te.upgradeManager.getLevel(UpgradeType.EFFECT);
+
+            maxVent += maxVent * burn;
+            maxBurn += maxBurn * burn;
+
+            FluidType type = te.tank.getTankType();
+            boolean flammable = FluidCombustion.isFlammable(type);
+
+            // hbm-space: a flame that gets no air vents instead of burning (com.hbm.api.environment.Environment)
+            if (!te.doesBurn || !flammable
+                    || !Environment.breatheAir(level, pos, Math.min(maxBurn, te.tank.getFill()))) {
+                // vent path (gaseous only)
+                if (FluidTraitSimple.isGaseousAny(type)) {
+                    int eject = Math.min(maxVent, te.tank.getFill());
+                    te.tank.setFill(te.tank.getFill() - eject);
+
+                    if (TickPhase.every(level, pos, 7)) {
+                        level.playSound(null, pos.getX(), pos.getY() + 11, pos.getZ(), SoundEvents.FIRE_EXTINGUISH, SoundSource.BLOCKS, te.getVolume(1.5F), 0.5F);
+                    }
+
+                    if (TickPhase.every(level, pos, 5) && eject > 0) {
+                        FluidTrait.onRelease(level, pos, type, FluidReleaseType.SPILL, eject * 5);
+                    }
+
+                    // hbm-space CelestialBody.emitGas: the vented gas goes into the planet's air
+                    Environment.releaseGas(level, pos, type, eject);
+                }
+            } else {
+                // burn path (flammable)
+                int eject = Math.min(maxBurn, te.tank.getFill());
+                te.tank.setFill(te.tank.getFill() - eject);
+
+                int penalty = FluidTraitSimple.isGaseousAny(type) ? 5 : 10;
+
+                long powerProd = FluidCombustion.getFlammableEnergy(type) * eject / 1_000;
+                powerProd /= penalty;
+                powerProd += powerProd * yield / 3;
+
+                te.output = (int) powerProd;
+                te.power = Math.min(te.power + powerProd, maxPower);
+
+                AABB flameBox = new AABB(pos.getX() - 1, pos.getY() + 12, pos.getZ() - 2, pos.getX() + 2, pos.getY() + 17, pos.getZ() + 2);
+                List<Entity> list = level.getEntitiesOfClass(Entity.class, flameBox);
+                for (Entity e : list) {
+                    Effects.ignite(e, 5);
+                    e.hurt(level.damageSources().onFire(), 5F);
+                }
+                if (TickPhase.every(level, pos, 3)) {
+                    level.playSound(null, pos.getX(), pos.getY() + 11, pos.getZ(), ModSounds.FLAMETHROWER_SHOOT.get(), SoundSource.BLOCKS, te.getVolume(1.5F), 0.75F);
+                }
+
+                if (TickPhase.every(level, pos, 5) && eject > 0) {
+                    FluidTrait.onRelease(level, pos, type, FluidReleaseType.BURN, eject * 5);
+                }
+            }
+        }
+
+        te.power = Library.chargeItemsFromTE(te.inventory, 0, te.power, maxPower);
+        te.networkPackNT();
+    }
+
+    /** Client: vanilla-particle stand-ins for the custom gas-tower / flame particles. */
+    public static void clientTick(Level level, BlockPos pos, BlockState state, TileEntityMachineGasFlare te) {
+        if (!te.isOn || te.tank.getFill() <= 0) return;
+        FluidType type = te.tank.getTankType();
+        boolean flammable = FluidCombustion.isFlammable(type);
+
+        if ((!te.doesBurn || !flammable) && FluidTraitSimple.isGaseousAny(type)) {
+            level.addParticle(ParticleTypes.CAMPFIRE_COSY_SMOKE, pos.getX() + 0.5, pos.getY() + 11, pos.getZ() + 0.5,
+                    level.getRandom().nextGaussian() * 0.02, 0.05, level.getRandom().nextGaussian() * 0.02);
+        } else if (te.doesBurn && flammable) {
+            level.addParticle(ParticleTypes.FLAME, pos.getX() + 0.5, pos.getY() + 11.75, pos.getZ() + 0.5,
+                    level.getRandom().nextGaussian() * 0.05, 0.1, level.getRandom().nextGaussian() * 0.05);
+            level.addParticle(ParticleTypes.LARGE_SMOKE, pos.getX() + 0.5, pos.getY() + 12.5, pos.getZ() + 0.5,
+                    0, 0.1, 0);
+        }
+    }
+
+    protected PortDef[] cachedPorts;
+    public PortDef[] getPorts() { if (cachedPorts == null) cachedPorts = TilePortShapes.flare(worldPosition.getX(), worldPosition.getY(), worldPosition.getZ()); return cachedPorts; }
+
+    public DirPos[] getConPos() { return PortDef.connections(getPorts()); }
+
+    /** GUI buttons: 0 = valve (isOn), 1 = ignition (doesBurn). */
+    @Override
+    public void handleButtonPacket(int value, int meta) {
+        switch (value) {
+            case 0 -> this.isOn = !this.isOn;
+            case 1 -> this.doesBurn = !this.doesBurn;
+        }
+        setChanged();
+    }
+
+    @Override
+    public boolean isItemValidForSlot(int slot, ItemStack stack) {
+        if (slot == 0) return Library.isBattery(stack);
+        if (slot == 3) return stack.getItem() instanceof IItemFluidId;
+        if (slot >= 4 && slot <= 5) return Library.isMachineUpgrade(stack);
+        // Slot 2 (emptied-container out) stays TRUE: the machine fills it via inventory.insertItem,
+        // which validates against this method; the menu's take-only slot blocks the player.
+        return true;
+    }
+
+    @Override
+    protected int[] getUpgradeSlotRange() {
+        return new int[]{4, 5};
+    }
+
+    @Override public long getPower() { return power; }
+    @Override public void setPower(long i) { power = i; }
+    @Override public long getMaxPower() { return maxPower; }
+
+    @Override public FluidTankNTM[] getReceivingTanks() { return new FluidTankNTM[]{tank}; }
+    @Override public FluidTankNTM[] getAllTanks() { return new FluidTankNTM[]{tank}; }
+
+    @Override
+    public boolean canProvideInfo(UpgradeType type, int level, boolean extendedInfo) {
+        return type == UpgradeType.SPEED || type == UpgradeType.EFFECT;
+    }
+
+    @Override
+    public void provideInfo(UpgradeType type, int level, List<Component> info, boolean extendedInfo) {
+        info.add(IUpgradeInfoProvider.getStandardLabel(ModMachineBlocks.machine_flare.get()));
+        if (type == UpgradeType.SPEED) {
+            info.add(Component.translatable(KEY_CONSUMPTION, "+" + (level * 100) + "%").withStyle(ChatFormatting.GREEN));
+        }
+        if (type == UpgradeType.EFFECT) {
+            info.add(Component.translatable(KEY_EFFICIENCY, "+" + (100 * level / 3) + "%").withStyle(ChatFormatting.GREEN));
+        }
+    }
+
+    @Override
+    public HashMap<UpgradeType, Integer> getValidUpgrades() {
+        HashMap<UpgradeType, Integer> upgrades = new HashMap<>();
+        upgrades.put(UpgradeType.SPEED, 3);
+        upgrades.put(UpgradeType.EFFECT, 3);
+        return upgrades;
+    }
+
+    @Override
+    public Component getDisplayName() {
+        return Component.translatable("container.gasFlare");
+    }
+
+    @Override
+    public AbstractContainerMenu createMenu(int containerId, Inventory playerInventory, Player player) {
+        return new ContainerMachineGasFlare(containerId, playerInventory, this);
+    }
+
+    @Override
+    public void serialize(RegistryFriendlyByteBuf buf) {
+        super.serialize(buf);
+        buf.writeLong(this.power);
+        buf.writeBoolean(isOn);
+        buf.writeBoolean(doesBurn);
+        tank.serialize(buf);
+    }
+
+    @Override
+    public void deserialize(RegistryFriendlyByteBuf buf) {
+        super.deserialize(buf);
+        this.power = buf.readLong();
+        this.isOn = buf.readBoolean();
+        this.doesBurn = buf.readBoolean();
+        tank.deserialize(buf);
+    }
+
+    @Override
+    protected void saveData(DataOut output) {
+        super.saveData(output);
+        output.putLong("powerTime", power);
+        output.putBoolean("isOn", isOn);
+        output.putBoolean("doesBurn", doesBurn);
+        tank.writeToNBT(output, "gas");
+    }
+
+    @Override
+    protected void loadData(DataIn input) {
+        super.loadData(input);
+        power = input.getLongOr("powerTime", 0L);
+        isOn = input.getBooleanOr("isOn", false);
+        doesBurn = input.getBooleanOr("doesBurn", false);
+        tank.readFromNBT(input, "gas");
+    }
+
+    @Override
+    public String[] getFunctionInfo() {
+        return new String[]{PREFIX_VALUE + "flowstate", PREFIX_VALUE + "ignitionstate", PREFIX_VALUE + "output",
+                PREFIX_VALUE + "power", PREFIX_VALUE + "fluid",
+                PREFIX_FUNCTION + "setflowstate" + NAME_SEPARATOR + "state",
+                PREFIX_FUNCTION + "setignitionstate" + NAME_SEPARATOR + "state"};
+    }
+
+    @Override
+    public String provideRORValue(String name) {
+        if ((PREFIX_VALUE + "flowstate").equals(name)) return isOn ? "1" : "0";
+        if ((PREFIX_VALUE + "ignitionstate").equals(name)) return doesBurn ? "1" : "0";
+        if ((PREFIX_VALUE + "output").equals(name)) return "" + output;
+        if ((PREFIX_VALUE + "power").equals(name)) return "" + power;
+        if ((PREFIX_VALUE + "fluid").equals(name)) return "" + tank.getFill();
+        return null;
+    }
+
+    @Override
+    public String runRORFunction(String name, String[] params) {
+        if ((PREFIX_FUNCTION + "setflowstate").equals(name) && params.length == 1) {
+            isOn = IRORInteractive.parseBool(params[0]);
+            markChanged();
+        } else if ((PREFIX_FUNCTION + "setignitionstate").equals(name) && params.length == 1) {
+            doesBurn = IRORInteractive.parseBool(params[0]);
+            markChanged();
+        }
+        return null;
+    }
+    @Override public int[] getSlotsForFace(Direction side) { return new int[0]; }
+    @Override public boolean canPlaceItemThroughFace(int slot, ItemStack stack, Direction side) { return false; }
+    @Override public boolean canTakeItemThroughFace(int slot, ItemStack stack, Direction side) { return false; }
+}

@@ -1,0 +1,23 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.hbm.mixin",
+  "refmap": "${mod_id}.refmap.json",
+  "compatibilityLevel": "${mixin_compatibility}",
+  "mixins": [
+    "FireBlockAccessor",
+    "MixinItemEntity",
+    "MixinLivingEntity",
+    "MixinPlayer",
+    "MixinServerLevel"
+  ],
+  "client": [
+    "MixinGui",
+    "MixinHumanoidModel",
+    "MixinBiome"
+  ],
+  "server": [],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

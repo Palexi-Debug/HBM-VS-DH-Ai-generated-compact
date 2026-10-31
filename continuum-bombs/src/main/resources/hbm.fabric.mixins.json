@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.hbm.mixin",
+  "refmap": "${mod_id}.refmap.json",
+  "compatibilityLevel": "${mixin_compatibility}",
+  "mixins": [],
+  "client": [${fabric_client_mixins}],
+  "server": [],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
+  

@@ -1,0 +1,62 @@
+package com.hbm.items.armor;
+
+import com.hbm.handler.ArmorModHandler;
+import com.hbm.handler.JetpackHandler;
+import com.hbm.items.HbmArmorMaterials;
+import com.hbm.items.ModDataComponents;
+import dev.golem.core.world.ArmorSlot;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+
+import java.util.List;
+
+/** Wearable chest jetpack base, also accepted as the legacy chestplate armor module. */
+public abstract class JetpackBase extends ArmorFSB {
+
+    protected JetpackBase(Properties properties) {
+        super(HbmArmorMaterials.JETPACK, ArmorSlot.CHESTPLATE, properties);
+    }
+
+    public static int getFuel(ItemStack stack) {
+        return ModDataComponents.JETPACK_FUEL.getOr(stack, 0);
+    }
+
+    public static void setFuel(ItemStack stack, int fuel) {
+        ModDataComponents.JETPACK_FUEL.set(stack, Math.max(0, fuel));
+    }
+
+    @Override
+    public void armorTick(Level level, Player player, ItemStack stack) {
+        if (player.isFallFlying() && !isActive(player)) return;
+        tickFlight(level, player, stack);
+    }
+
+    protected abstract void tickFlight(Level level, Player player, ItemStack stack);
+
+    protected void useUpFuel(Player player, ItemStack stack, int rate) {
+        if (rate > 0 && player.tickCount % rate == 0) setFuel(stack, getFuel(stack) - 1);
+    }
+
+    @Override
+    public void addInformation(ItemStack stack, List<Component> tooltip) {
+        super.addInformation(stack, tooltip);
+        tooltip.add(Component.literal("Can be worn on its own!").withStyle(ChatFormatting.GOLD));
+    }
+
+    /** The old module table treats every JetpackBase as the chestplate-only module. */
+    public final int moduleSlot() {
+        return ArmorModHandler.plate_only;
+    }
+
+    public final boolean isActive(Player player) {
+        return JetpackHandler.isJetpackActive(player);
+    }
+
+    /** Fueled packs override ItemArmorMod's plain name with the old red indented installed-mod line. */
+    public void addArmorModDescription(List<Component> tooltip, ItemStack stack, ItemStack armor) {
+        tooltip.add(Component.literal("  ").append(stack.getHoverName().copy().withStyle(ChatFormatting.RED)));
+    }
+}

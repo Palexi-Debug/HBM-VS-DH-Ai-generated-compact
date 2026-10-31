@@ -1,0 +1,154 @@
+package com.hbm.blocks.machine;
+
+import com.hbm.capability.ICapabilityBlock;
+import com.hbm.capability.MachineCaps;
+import com.hbm.lib.ForgeDirection;
+import com.hbm.api.block.IToolable;
+import com.hbm.api.energymk2.IEnergyConnectorBlock;
+import com.hbm.api.fluidmk2.IFluidConnectorBlockMK2;
+import com.hbm.blocks.multiblock.BlockMultiblockMachine;
+import com.hbm.blocks.multiblock.MultiblockSurface;
+import com.hbm.explosion.vanillant.ExplosionVNT;
+import com.hbm.explosion.vanillant.IBlockExplodedVNT;
+import com.hbm.interfaces.ILookOverlay;
+import com.hbm.tileentity.ModBlockEntities;
+import com.hbm.tileentity.machine.oil.TileEntityMachineRefinery;
+import java.util.function.BiConsumer;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.WorldlyContainer;
+import net.minecraft.world.WorldlyContainerHolder;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Explosion;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
+import org.jspecify.annotations.Nullable;
+
+/**
+ * Refinery block, 1:1 port of the 1.12.2 {@code MachineRefinery}: a 3×3×9 footprint on the folded core
+ * (dims {@code {8,0,1,1,1,1}}, offset 1) with the 4 base corners marked as extras (the fluid ports).
+ */
+public class MachineRefinery extends BlockMultiblockMachine implements IEnergyConnectorBlock, IFluidConnectorBlockMK2, WorldlyContainerHolder,
+        IBlockExplodedVNT, IToolable, ILookOverlay, ICapabilityBlock {
+
+    public MachineRefinery(Properties properties) {
+        super(properties);
+    }
+
+    @Override
+    protected BlockEntity createCoreBlockEntity(BlockPos pos, BlockState state) {
+        return new TileEntityMachineRefinery(pos, state);
+    }
+
+    @Override
+    public int[] getDimensions() {
+        return new int[]{8, 0, 1, 1, 1, 1};
+    }
+
+    @Override
+    public int getOffset() {
+        return 1;
+    }
+
+    @Override
+    @Nullable
+    public WorldlyContainer getContainer(BlockState state, LevelAccessor level, BlockPos pos) {
+        BlockPos core = MultiblockSurface.coreOfAny(level, pos);
+        return core != null && level.getBlockEntity(core) instanceof TileEntityMachineRefinery te ? te : null;
+    }
+
+    /** The four base corners are the port ring. */
+    @Override
+    protected void visitCells(BlockPos core, Direction facing, CellVisitor visitor) {
+        super.visitCells(core, facing, visitor);
+        for (int dx = -1; dx <= 1; dx += 2) {
+            for (int dz = -1; dz <= 1; dz += 2) {
+                visitor.cell(core.offset(dx, 0, dz), outwardMask(dx, dz, 1));
+            }
+        }
+    }
+
+    @Override
+    protected void visitPassiveCells(BlockPos core, Direction facing, PassiveCellVisitor visitor) {
+        int domains = PASSIVE_POWER_IN | PASSIVE_FLUID_IN | PASSIVE_ITEMS;
+        for (int dx = -1; dx <= 1; dx += 2) {
+            for (int dz = -1; dz <= 1; dz += 2) {
+                visitor.passiveCell(core.offset(dx, 0, dz), MASK_ALL, domains);
+            }
+        }
+    }
+
+    // 1.7 explosion damage and blowtorch repair (MachineExplosionDamage)
+
+    /** 1.7 {@code onBlockExploded}: vanilla explosions. */
+    @Override
+    protected boolean onExplosion(BlockState state, ServerLevel level, BlockPos pos,
+                                  Explosion explosion,
+                                  BiConsumer<ItemStack, BlockPos> onHit) {
+        return MachineExplosionDamage.hit(level, pos, explosion, explosion.getDirectSourceEntity())
+                || super.onExplosion(state, level, pos, explosion, onHit);
+    }
+
+    /** 1.7 {@code onBlockExploded}: HBM's own (VNT) explosions. */
+    @Override
+    public boolean onVNTExploded(ServerLevel level, BlockPos pos, BlockState state,
+                                 ExplosionVNT explosion) {
+        return MachineExplosionDamage.hit(level, pos, explosion, explosion.exploder);
+    }
+
+    @Override
+    public boolean onScrew(Level level, Player player, BlockPos pos, Direction side,
+                           Vec3 hit, InteractionHand hand, ToolType tool) {
+        if (tool != ToolType.TORCH) return false;
+        return MachineExplosionDamage.repair(level, pos, player);
+    }
+
+    @Override
+    public ILookOverlay.@Nullable Data getLookOverlay(Level level, BlockPos pos,
+                                                                        Player player) {
+        return MachineExplosionDamage.overlay(level, pos, player, getName().getString());
+    }
+
+    /** 1.7: a blown-open machine opens no GUI. */
+    @Override
+    protected InteractionResult useAtCore(BlockState state, Level level, BlockPos core,
+            Player player, BlockHitResult hit) {
+        if (MachineExplosionDamage.blownOpen(level, core)) return InteractionResult.TRY_WITH_EMPTY_HAND;
+        return super.useAtCore(state, level, core, player, hit);
+    }
+
+    @Override
+    public int[][] getAllPorts(ForgeDirection dir) {
+        return rotatePorts(new int[][] {
+                {1, 0, 1, ForgeDirection.EAST.ordinal()},
+                {1, 0, 1, ForgeDirection.SOUTH.ordinal()},
+                {1, 0, -1, ForgeDirection.EAST.ordinal()},
+                {1, 0, -1, ForgeDirection.NORTH.ordinal()},
+                {-1, 0, 1, ForgeDirection.WEST.ordinal()},
+                {-1, 0, 1, ForgeDirection.SOUTH.ordinal()},
+                {-1, 0, -1, ForgeDirection.WEST.ordinal()},
+                {-1, 0, -1, ForgeDirection.NORTH.ordinal()},
+        }, dir);
+    }
+    @Override
+    protected boolean carriesData() {
+        return true;
+    }
+
+    /** Live connection rules of the corresponding 1.7 tile, shared by native and foreign contacts. */
+    private static final MachineCaps CAPS = MachineCaps.blockKeyed().powerIn().fluidIn().fluidOut().items().itemsAtCells().fe()
+            .fluidFaces(BlockEntity.class, (be, side) -> side != Direction.DOWN);
+
+    @Override
+    public MachineCaps caps() { return CAPS; }
+}

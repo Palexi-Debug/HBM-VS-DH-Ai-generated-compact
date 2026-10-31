@@ -1,0 +1,84 @@
+package com.hbm.client;
+
+import dev.golem.core.Ids;
+import com.hbm.Constants;
+import com.hbm.inventory.fluid.FluidType;
+import com.hbm.inventory.fluid.Fluids;
+import dev.golem.core.gui.GuiDraw;
+import dev.golem.core.render.Sprites;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+
+/**
+ * The fluid droplet sprites, computed while the atlas is stitched instead of shipped as files.
+ *
+ * <p>One greyscale droplet ({@code hbm:items/fluid_icon}) is recoloured onto every registered
+ * fluid's own {@link FluidType#getColor()}, giving {@code hbm:items/fluid_icon_<fluid>} for each of
+ * them. The band declared here is the art's full range, so the remap is exactly the multiply that
+ * {@link com.hbm.items.machine.ItemFluidIcon} gets from its item tint. A droplet drawn from a sprite
+ * and one drawn as a stack must be the same picture, since a recipe screen shows both at once.
+ *
+ * <p>That item is used wherever there is an item slot, JEI's grids above all. These sprites are for
+ * everywhere there is not (a fixed corner of a machine screen, an overlay, a category icon), where a
+ * droplet is drawn at an x and a y. {@link #draw} is that call.
+ *
+ * <p>The sprite ids come from {@link FluidType#getIconSprite()}, built from the same lowercase key this
+ * declares each permutation under, so a fluid and its droplet are always named alike. Adding a fluid to
+ * {@link Fluids} mints its droplet with no file to draw.
+ */
+public final class FluidSprites {
+
+    private FluidSprites() {}
+
+    /** The greyscale droplet every fluid's icon is recoloured from. */
+    public static final String ART = Constants.MOD_ID + ":" + FluidType.ICON_ART;
+
+    /** The band the droplet art is drawn in: its full range, which makes the remap a plain multiply. */
+    private static final int ART_LIGHT = 0xFFFFFF;
+    private static final int ART_DARK = 0x000000;
+
+    /** The size an item slot draws an icon at, and so the size a droplet is expected at. */
+    private static final int ICON_SIZE = 16;
+
+    /** Declares every HBM fluid's droplet. Client only, before the first resource load. */
+    public static void install() {
+        Fluids.init();
+        install(Constants.MOD_ID);
+    }
+
+    /**
+     * Declares the droplet of every fluid registered in {@code namespace}: {@code <namespace>:items/fluid_icon_<key>},
+     * the id {@link FluidType#getIconSprite()} names. The output sits next to its source art, so an addon ships the
+     * greyscale droplet as {@code assets/<namespace>/textures/items/fluid_icon.png} (a copy of HBM's, or its own) and
+     * calls this from its client set-up after registering its fluids, before the first resource load.
+     */
+    public static void install(String namespace) {
+        Sprites.Remap remap = Sprites.remap(Sprites.Atlas.ITEMS).texture(namespace + ":" + FluidType.ICON_ART)
+                .band(ART_LIGHT, ART_DARK);
+        int count = 0;
+        for (FluidType fluid : Fluids.getAll()) {
+            if (!fluid.getNamespace().equals(namespace)) continue;
+            remap.tint(fluid.getKey(), fluid.getColor());
+            count++;
+        }
+        if (count == 0) return;
+        remap.declare();
+        Constants.LOG.info("Declared {} {} fluid droplet sprite(s) for load-time generation", count, namespace);
+    }
+
+    /** Draws {@code fluid}'s droplet at the size an item slot would have drawn it. */
+    public static void draw(GuiGraphicsExtractor graphics, FluidType fluid, int x, int y) {
+        draw(graphics, fluid, x, y, ICON_SIZE, ICON_SIZE);
+    }
+
+    /** Draws {@code fluid}'s droplet stretched into a rectangle of its own. */
+    public static void draw(GuiGraphicsExtractor graphics, FluidType fluid, int x, int y, int width, int height) {
+        var art = Sprites.sprite(Sprites.Atlas.ITEMS, Ids.parse(ART));
+        var u0 = art.getU0();
+        var v0 = art.getV0();
+        var u1 = art.getU1();
+        var v1 = art.getV1();
+        GuiDraw.blitUv(graphics, art.atlasLocation(), x, y, width, height, u0, v0, u1, v1,
+                Math.round(art.contents().width() / (u1 - u0)), Math.round(art.contents().height() / (v1 - v0)),
+                false, 0xFF000000 | fluid.clientMetadata().getColor());
+    }
+}

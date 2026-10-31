@@ -1,0 +1,484 @@
+package com.hbm.client.render;
+
+import com.hbm.Constants;
+import com.hbm.blocks.generic.BlockBobble.BobbleType;
+import com.hbm.blocks.generic.BlockTrinket;
+import com.hbm.blocks.generic.BobbleFigure;
+import com.hbm.client.jetpack.JetpackClientVisuals;
+import com.hbm.client.model.WavefrontObj;
+import com.hbm.client.render.skinlayer.BobbleSkinModel;
+import com.hbm.items.ModConsumableTailItems;
+import com.hbm.items.ModWeaponModItems;
+import com.hbm.items.weapon.sedna.factory.GunFactory;
+import com.hbm.tileentity.deco.TileEntityBobble;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
+import dev.golem.core.Ids;
+import dev.golem.core.client.DynamicTextures;
+import dev.golem.core.client.ProfileSkins;
+import dev.golem.core.render.CameraInfo;
+import dev.golem.core.render.CompatItemRenderState;
+import dev.golem.core.render.CompatRenderState;
+import dev.golem.core.render.CompatRenderTypes;
+import dev.golem.core.render.SubmitSink;
+import dev.golem.core.render.gem.Gem;
+import dev.golem.core.render.gem.GemBER;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.ItemDisplayContext;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.Vec3;
+
+/**
+ * 1.7 {@code RenderBobble}: a quarter-scale figure on its socket, turned {@code -(22.5 * rotation + 90)} about Y.
+ * The socket, then the figure - the posed player model ({@code renderGuy}, whose head bobs on the wall clock), the
+ * glowing pellet, the fumo or the drillgon - then the person's props ({@code renderPost}) and the name engraved in
+ * the socket, red for VT.
+ *
+ * <p>1.7 drew the figure with blending on and culling off; it is submitted alpha-tested and double-sided, which
+ * the skins' fully opaque or fully clear texels render identically. Fullbright parts (the pellet, Mellow's and
+ * Abel's glow skins) use the maximum packed light, as {@code setLightmapTextureCoords(240, 240)} did.
+ */
+public final class RenderBobble extends GemBER<TileEntityBobble, RenderBobble.State> {
+
+    public static final class State extends CompatRenderState {
+        public float yaw;
+        public int type;
+        public long time;
+        public final CompatItemRenderState item = new CompatItemRenderState();
+    }
+
+    private static final int FULLBRIGHT = 0xF000F0;
+
+    private static Identifier tex(String path) {
+        return Ids.of(Constants.MOD_ID, path);
+    }
+
+    static final Identifier SOCKET = tex("textures/models/trinkets/socket.png");
+    static final Identifier GLOW = tex("textures/models/trinkets/glow.png");
+    static final Identifier LAMP = tex("textures/blocks/fluorescent_lamp.png");
+    static final Identifier MELLOW_GLOW = tex("textures/models/trinkets/mellowrpg8_glow.png");
+    static final Identifier ABEL_GLOW = tex("textures/models/trinkets/abel_glow.png");
+    static final Identifier HEV_HELMET = tex("textures/armor/hev_helmet.png");
+    static final Identifier HAT = tex("textures/armor/hat.png");
+    static final Identifier NI4NI = tex("textures/models/weapons/n_i_4_n_i.png");
+    static final Identifier SHIMMER_AXE = tex("textures/models/shimmer_axe.png");
+    static final Identifier MININUKE = tex("textures/models/weapons/fatman_mininuke.png");
+    static final Identifier SACRED_DRAGON = tex("textures/models/weapons/double_barrel_sacred_dragon.png");
+    static final Identifier LASER_PISTOL = tex("textures/models/weapons/laser_pistol.png");
+    static final Identifier EGON_HOSE = tex("textures/models/weapons/egon_hose.png");
+    static final Identifier EGON_DISPLAY = tex("textures/models/weapons/egon_display.png");
+
+    private final WavefrontObj bobble = WavefrontObj.load(tex("models/trinkets/bobble.obj"));
+    private final WavefrontObj hev = WavefrontObj.load(tex("models/armor/hev.obj"));
+    private final WavefrontObj hat = WavefrontObj.load(tex("models/armor/hat.obj"));
+    private final WavefrontObj ni4ni = WavefrontObj.load(tex("models/weapons/n_i_4_n_i.obj"));
+    private final WavefrontObj shimmerAxe = WavefrontObj.load(tex("models/shimmer_axe.obj"));
+    private final WavefrontObj fatman = WavefrontObj.load(tex("models/weapons/fatman.obj"));
+    private final WavefrontObj doubleBarrel = WavefrontObj.load(tex("models/weapons/sacred_dragon.obj"));
+    private final WavefrontObj leafia = WavefrontObj.load(tex("models/trinkets/leafia.obj"));
+    private final WavefrontObj clawd = WavefrontObj.load(tex("models/trinkets/clawd.obj"));
+    private final WavefrontObj laserPistol = WavefrontObj.load(tex("models/weapons/laser_pistol.obj"));
+    private final WavefrontObj egon = WavefrontObj.load(tex("models/weapons/egon_hose.obj"));
+    private final WavefrontObj egonPack = WavefrontObj.load(tex("models/weapons/egon.obj"));
+    static final Identifier EGON_PACK = tex("textures/models/weapons/egon.png");
+
+    /** 1.12.2 {@code skinModelCache}: one voxelized figure per skin, built the first frame the skin is in. */
+    private static final Map<UUID, BobbleSkinModel> SKIN_MODELS =
+            new HashMap<>();
+    private static final Identifier GRAY_SKIN = tex("bobble_gray_skin");
+    private static boolean grayRegistered;
+
+    /** 1.12.2 {@code ClientHttpHandler.preinit}: start fetching every skinned figure's skin at client start. */
+    public static void preloadSkins() {
+        for (BobbleType type : BobbleType.VALUES) {
+            if (type.skinUuid != null) ProfileSkins.preload(UUID.fromString(type.skinUuid));
+        }
+    }
+    private final Font font = Minecraft.getInstance().font;
+
+    @Override
+    protected void setup(Gem.Model<State> declaration) {
+    }
+
+    @Override
+    public State createRenderState() {
+        return new State();
+    }
+
+    @Override
+    public void extract(TileEntityBobble te, State state, float partialTicks, Vec3 cameraPosition) {
+        state.yaw = -(22.5F * te.getBlockState().getValue(BlockTrinket.ROTATION) + 90F);
+        state.type = te.typeOrdinal();
+        state.time = System.currentTimeMillis();
+        extractHeld(state, te.getLevel());
+    }
+
+    /** The prop the figure holds: VAER's cigarette, FRIZZLE's doubloons, ADAM29's can. */
+    private static void extractHeld(State state, net.minecraft.world.level.@org.jspecify.annotations.Nullable Level level) {
+        ItemStack held = switch (BobbleFigure.NAMES[state.type]) {
+            case "VAER" -> new ItemStack(BuiltInRegistries.ITEM.getValue(tex("cigarette")));
+            case "FRIZZLE" -> ModWeaponModItems.weapon_mod_special.stack(GunFactory.EnumModSpecial.DOUBLOONS);
+            case "ADAM29" -> new ItemStack(ModConsumableTailItems.can_redbomb.get());
+            default -> ItemStack.EMPTY;
+        };
+        if (held.isEmpty()) state.item.clear();
+        else state.item.extract(level, held, ItemDisplayContext.NONE);
+    }
+
+    private static @org.jspecify.annotations.Nullable RenderBobble itemRenderer;
+    private final State itemState = new State();
+
+    /**
+     * 1.7 {@code ItemRenderLibrary}'s bobblehead item: {@code RenderBobble.instance.renderBobble(type)}, the whole
+     * figure the placed block draws - socket, figure, props, glow skins and the engraved name - at the item's pose.
+     */
+    public static void renderItem(PoseStack pose, SubmitSink sink, int type, int light) {
+        if (itemRenderer == null) itemRenderer = new RenderBobble();
+        State state = itemRenderer.itemState;
+        state.type = Math.floorMod(type, BobbleFigure.NAMES.length);
+        state.time = System.currentTimeMillis();
+        extractHeld(state, Minecraft.getInstance().level);
+        itemRenderer.renderBobble(pose, sink, state, light);
+    }
+
+    @Override
+    protected void submitUndeclared(State state, PoseStack pose, SubmitSink sink, CameraInfo camera) {
+        pose.pushPose();
+        pose.translate(0.5D, 0D, 0.5D);
+        float scale = 0.25F;
+        pose.scale(scale, scale, scale);
+        pose.mulPose(Axis.YP.rotationDegrees(state.yaw));
+        renderBobble(pose, sink, state, state.lightCoords);
+        pose.popPose();
+    }
+
+    private void renderBobble(PoseStack pose, SubmitSink sink, State state, int light) {
+        int type = state.type;
+        part(pose, sink, bobble, CompatRenderTypes.entityCutoutCull(SOCKET), "Socket", light);
+
+        Identifier skin = tex("textures/models/" + BobbleFigure.texture(type) + ".png");
+        switch (BobbleFigure.body(type)) {
+            case PELLET -> renderPellet(pose, sink, skin, state);
+            case FUMO -> renderFumo(pose, sink, skin, state, light);
+            case DRILLGON -> part(pose, sink, bobble, CompatRenderTypes.entityCutoutCull(skin), "Drillgon", light);
+            case LEAFIA -> part(pose, sink, leafia, CompatRenderTypes.entityCutoutCull(skin), "thislooksbad", light);
+            case CLAWD -> part(pose, sink, clawd, CompatRenderTypes.entityCutoutCull(skin), "Clawd", light);
+            case SKIN -> renderSkinGuy(pose, sink, state, light);
+            case GUY -> renderGuy(pose, sink, skin, state, light);
+        }
+
+        pose.pushPose();
+        renderPost(pose, sink, state, light);
+        pose.popPose();
+
+        renderSocket(pose, sink, state, light);
+    }
+
+    private void renderGuy(PoseStack pose, SubmitSink sink, Identifier skin, State state, int light) {
+        int type = state.type;
+        guy(pose, sink, skin, BobbleFigure.pose(type), BobbleFigure.NAMES[type], BobbleFigure.suffix(type), state.time, light, state);
+    }
+
+    /** 1.7 {@code renderGuy} for one figure: {@code name} picks the per-person extras, {@code state} holds a held prop. */
+    private void guy(PoseStack pose, SubmitSink sink, Identifier skin, BobbleFigure.Pose figure, String name, String suffix,
+                     long time, int light, @org.jspecify.annotations.Nullable State state) {
+        RenderType culled = CompatRenderTypes.entityCutoutCull(skin);
+        RenderType open = CompatRenderTypes.entityCutoutNoCull(skin);
+
+        pose.pushPose();
+        pose.mulPose(Axis.YP.rotationDegrees((float) figure.body()));
+
+        if (name.equals("PEEP")) part(pose, sink, bobble, culled, "PeepTail", light);
+
+        double[][] rot = {figure.leftLeg(), figure.rightLeg(), figure.leftArm(), figure.rightArm()};
+        for (int limb = 0; limb < 4; limb++) {
+            double[] p = BobbleFigure.PIVOTS[limb];
+            pose.pushPose();
+            pose.translate(p[0], p[1], p[2]);
+            pose.mulPose(Axis.XP.rotationDegrees((float) rot[limb][0]));
+            pose.mulPose(Axis.YP.rotationDegrees((float) rot[limb][1]));
+            pose.mulPose(Axis.ZP.rotationDegrees((float) rot[limb][2]));
+            pose.translate(-p[0], -p[1], -p[2]);
+            part(pose, sink, bobble, open, BobbleFigure.LIMBS[limb] + suffix, light);
+            pose.popPose();
+        }
+
+        part(pose, sink, bobble, open, "Body" + suffix, light);
+
+        double speed = 0.005;
+        double amplitude = 1;
+        double[] head = figure.head();
+        pose.pushPose();
+        pose.translate(0D, 1.75D, 0D);
+        pose.mulPose(Axis.XP.rotationDegrees((float) (Math.sin(time * speed) * amplitude)));
+        pose.mulPose(Axis.ZP.rotationDegrees((float) (Math.sin(time * speed + (Math.PI * 0.5)) * amplitude)));
+        pose.mulPose(Axis.XP.rotationDegrees((float) head[0]));
+        pose.mulPose(Axis.YP.rotationDegrees((float) head[1]));
+        pose.mulPose(Axis.ZP.rotationDegrees((float) head[2]));
+        pose.translate(0D, -1.75D, 0D);
+        part(pose, sink, bobble, open, "Head" + suffix, light);
+
+        if (name.equals("VT")) part(pose, sink, bobble, open, "Horn", light);
+        if (name.equals("PEEP")) part(pose, sink, bobble, open, "PeepHat", light);
+
+        if (name.equals("VAER") && state != null) {
+            pose.translate(0.25D, 1.9D, 0.075D);
+            pose.mulPose(Axis.ZP.rotationDegrees(-60F));
+            pose.scale(0.5F, 0.5F, 0.5F);
+            renderItem(pose, sink, state, light);
+        }
+
+        if (name.equals("NOS")) {
+            pose.translate(0D, 1.75D, 0D);
+            pose.mulPose(Axis.XP.rotationDegrees(180F));
+            float s = 0.095F;
+            pose.scale(s, s, s);
+            all(pose, sink, hat, CompatRenderTypes.entityCutoutNoCull(HAT), light);
+        }
+        pose.popPose();
+        pose.popPose();
+    }
+
+    /**
+     * 1.12.2 {@code renderSkinGuy}: the figure voxelized from the person's Mojang skin, grey while it loads or if it
+     * cannot be fetched.
+     */
+    private void renderSkinGuy(PoseStack pose, SubmitSink sink, State state, int light) {
+        UUID id = UUID.fromString(BobbleType.of(state.type).skinUuid);
+        var loaded = ProfileSkins.get(id);
+        BobbleSkinModel model;
+        Identifier texture;
+        if (loaded != null) {
+            model = SKIN_MODELS.computeIfAbsent(id, k -> new BobbleSkinModel(loaded.argb()));
+            texture = loaded.texture();
+        } else {
+            ProfileSkins.preload(id);
+            if (!grayRegistered) {
+                DynamicTextures.register(GRAY_SKIN, 64, 64,
+                        BobbleSkinModel.GRAY_SKIN);
+                grayRegistered = true;
+            }
+            model = BobbleSkinModel.gray();
+            texture = GRAY_SKIN;
+        }
+        if (BobbleFigure.NAMES[state.type].equals("SILENTYETI")) {
+            renderSilentYeti(pose, sink, model, texture, state, light);
+            return;
+        }
+        model.render(pose, sink, texture, state.time, BobbleFigure.pose(state.type), light);
+    }
+
+    /**
+     * SilentYeti: lifted and leaning into the glider's thrust, wings spread, aiming a laser pistol one-handed. The figure and its gear share
+     * one frame so the gear follows the lean. Literals stay in this body so a debugger can hot-swap them.
+     */
+    private void renderSilentYeti(PoseStack pose, SubmitSink sink, BobbleSkinModel model, Identifier texture, State state,
+                                  int light) {
+        pose.pushPose();
+        pose.translate(0D, 0.1D, 0D); // lift: tiptoes still on the socket
+        pose.mulPose(Axis.ZP.rotationDegrees(-10F)); // lean forward (+x is the figure's front, -z his left)
+        model.render(pose, sink, texture, state.time, BobbleFigure.pose(state.type), light);
+
+        pose.pushPose();
+        pose.translate(0D, 1.75D, 0D); // the neck, where a worn glider hangs from
+        pose.mulPose(Axis.YP.rotationDegrees(-90F));
+        pose.mulPose(Axis.ZP.rotationDegrees(180F)); // into the y-down player-model space the worn glider is set in
+        pose.translate(0F, 0.9F, 1.25F); // JetpackClientVisuals.applyGliderRoot, unsneaked
+        pose.mulPose(Axis.YP.rotationDegrees(180F));
+        pose.mulPose(Axis.ZP.rotationDegrees(180F));
+        pose.scale(0.25F, 0.25F, 0.25F);
+        JetpackClientVisuals.submitGliderOpen(pose, sink, light);
+        pose.popPose();
+
+        pose.pushPose();
+        // the laser pistol in his right fist (+z), barrel along the forearm (placed from BobbleFigure's SILENTYETI right
+        // arm; change them together); its static parts, as LaserPistolWeaponRenderer draws an unanimated one
+        pose.translate(0.591D, 1.601D, 0.578D);
+        pose.mulPose(Axis.YP.rotationDegrees(-18.4F));
+        pose.mulPose(Axis.ZP.rotationDegrees(-11.4F));
+        pose.mulPose(Axis.YP.rotationDegrees(90F));
+        pose.scale(0.053F, 0.053F, 0.053F);
+        RenderType gun = CompatRenderTypes.entityCutoutCull(LASER_PISTOL);
+        part(pose, sink, laserPistol, gun, "Gun", light);
+        part(pose, sink, laserPistol, gun, "Latch", light);
+        pose.popPose();
+
+        pose.popPose();
+    }
+
+    private void renderPellet(PoseStack pose, SubmitSink sink, Identifier skin, State state) {
+        part(pose, sink, bobble, CompatRenderTypes.entityCutoutCull(skin), "Pellet", FULLBRIGHT);
+        float alpha = 0.1F + (float) Math.sin(state.time * 0.001D) * 0.05F;
+        int color = ((int) (alpha * 255F) & 0xFF) << 24 | 0xFFFF00;
+        sink.submitCustomGeometry(pose, CompatRenderTypes.weaponSmoke(),
+                (p, buffer) -> bobble.renderPartColor("PelletShine", p, buffer, color));
+    }
+
+    private void renderFumo(PoseStack pose, SubmitSink sink, Identifier skin, State state, int light) {
+        part(pose, sink, bobble, CompatRenderTypes.entityCutoutCull(skin), "Fumo", light);
+        double speed = 0.005;
+        double amplitude = 1;
+        pose.pushPose();
+        pose.translate(0D, 0.75D, 0D);
+        pose.mulPose(Axis.XP.rotationDegrees((float) (Math.sin(state.time * speed) * amplitude)));
+        pose.mulPose(Axis.ZP.rotationDegrees((float) (Math.sin(state.time * speed + (Math.PI * 0.5)) * amplitude)));
+        pose.translate(0D, -0.75D, 0D);
+        part(pose, sink, bobble, CompatRenderTypes.entityCutoutNoCull(skin), "FumoHead", light);
+        pose.popPose();
+    }
+
+    private void renderPost(PoseStack pose, SubmitSink sink, State state, int light) {
+        switch (BobbleFigure.NAMES[state.type]) {
+            case "BLUEHAT" -> {
+                float scale = 0.0625F;
+                pose.translate(0D, 0.875D, -0.5D);
+                pose.mulPose(Axis.YP.rotationDegrees(-90F));
+                pose.mulPose(Axis.ZP.rotationDegrees(-160F));
+                pose.scale(scale, scale, scale);
+                part(pose, sink, hev, CompatRenderTypes.entityCutoutCull(HEV_HELMET), "Head", light);
+            }
+            case "FRIZZLE" -> {
+                pose.pushPose();
+                pose.translate(0.8D, 1.6D, 0.4D);
+                pose.scale(0.125F, 0.125F, 0.125F);
+                pose.mulPose(Axis.YP.rotationDegrees(90F));
+                pose.mulPose(Axis.XP.rotationDegrees(10F));
+                RenderType gun = CompatRenderTypes.entityCutoutCull(NI4NI);
+                for (String part : new String[]{"FrameDark", "Grip", "FrameLight", "Cylinder", "Barrel"})
+                    part(pose, sink, ni4ni, gun, part, light);
+                pose.popPose();
+                pose.translate(0.3D, 1.4D, -0.2D);
+                pose.mulPose(Axis.XP.rotationDegrees(-100F));
+                pose.scale(0.5F, 0.5F, 0.5F);
+                renderItem(pose, sink, state, light);
+            }
+            case "ADAM29" -> {
+                pose.translate(0.4D, 1.15D, 0.4D);
+                pose.scale(0.5F, 0.5F, 0.5F);
+                renderItem(pose, sink, state, light);
+            }
+            case "PHEO" -> {
+                pose.translate(0.5D, 1.15D, 0.45D);
+                pose.mulPose(Axis.XP.rotationDegrees(-60F));
+                pose.scale(2F, 2F, 2F);
+                all(pose, sink, shimmerAxe, CompatRenderTypes.entityCutoutCull(SHIMMER_AXE), light);
+            }
+            case "BOB" -> {
+                pose.pushPose();
+                pose.translate(0F, 0.6875F, 0.625F);
+                pose.mulPose(Axis.XP.rotationDegrees(-90F));
+                pose.scale(0.125F, 0.125F, 0.125F);
+                pose.translate(-6F, 0F, 0F);
+                for (int i = -1; i <= 1; i++) {
+                    pose.translate(3F, 0F, 0F);
+                    part(pose, sink, fatman, CompatRenderTypes.entityCutoutCull(MININUKE), "MiniNuke", light);
+                }
+                pose.popPose();
+                pose.pushPose();
+                pose.translate(0.25F, 0.3125F, -0.5F);
+                pose.mulPose(Axis.XP.rotationDegrees(-90F));
+                pose.mulPose(Axis.YP.rotationDegrees(90F));
+                pose.scale(0.1F, 0.1F, 0.1F);
+                RenderType dragon = CompatRenderTypes.entityCutoutCull(SACRED_DRAGON);
+                for (String part : new String[]{"Stock", "BarrelShort", "Buckle", "Lever"})
+                    part(pose, sink, doubleBarrel, dragon, part, light);
+                pose.popPose();
+            }
+            case "MELLOW" -> {
+                renderGuy(pose, sink, MELLOW_GLOW, state, FULLBRIGHT);
+                part(pose, sink, bobble, CompatRenderTypes.plasmaGlow(LAMP), "Fluoro", FULLBRIGHT);
+                part(pose, sink, bobble, CompatRenderTypes.plasmaGlow(GLOW), "Glow", FULLBRIGHT);
+            }
+            case "ABEL" -> renderGuy(pose, sink, ABEL_GLOW, state, FULLBRIGHT);
+            case "GOLEM" -> {
+                // the backpack, where EgonBackpackRenderLayer hangs it from a player's body
+                pose.pushPose();
+                pose.translate(0D, 1.75D, 0D); // the neck
+                pose.mulPose(Axis.YP.rotationDegrees(-90F));
+                pose.mulPose(Axis.ZP.rotationDegrees(180F)); // into the y-down player-model body space
+                pose.translate(0F, 0.75F, 0F);
+                pose.scale(0.0625F, 0.0625F, 0.0625F);
+                pose.mulPose(Axis.ZP.rotationDegrees(180F));
+                pose.mulPose(Axis.YP.rotationDegrees(90F));
+                all(pose, sink, egonPack, CompatRenderTypes.entityCutoutNoCull(EGON_PACK), light);
+                pose.popPose();
+                // the gluon gun at the hip, its back end by his right hip and its muzzle ahead and to his left, tipped
+                // down, upright as a player holds it: lever on top, side handle out to his left, both in his hands, which
+                // stay clear of his face (BobbleFigure's GOLEM arms are solved against this placement); drawn as
+                // ItemRenderGunEgon draws it
+                pose.translate(0.335D, 1.315D, 0.197D);
+                pose.mulPose(Axis.YP.rotationDegrees(23.4F));
+                pose.mulPose(Axis.ZP.rotationDegrees(-22.7F));
+                pose.mulPose(Axis.YP.rotationDegrees(90F));
+                pose.scale(0.13F, 0.13F, 0.13F);
+                part(pose, sink, egon, CompatRenderTypes.entityCutoutCull(EGON_HOSE), "Main", light);
+                part(pose, sink, egon, CompatRenderTypes.entityCutoutCull(EGON_HOSE), "Lever", light);
+                part(pose, sink, egon, CompatRenderTypes.entityCutoutCull(EGON_DISPLAY), "Screen", light);
+            }
+            default -> { }
+        }
+    }
+
+    /** 1.7 {@code renderItemIn2D}: the icon over (0,0)..(1,1), 1/16 deep behind z = 0. */
+    private void renderItem(PoseStack pose, SubmitSink sink, State state, int light) {
+        if (state.item.isEmpty()) return;
+        pose.pushPose();
+        pose.translate(0.5D, 0.5D, -0.03125D);
+        sink.submitItem(pose, state.item, light, OverlayTexture.NO_OVERLAY, 0);
+        pose.popPose();
+    }
+
+    private void renderSocket(PoseStack pose, SubmitSink sink, State state, int light) {
+        BobbleType type = BobbleType.of(state.type);
+        label(pose, sink, type.label, type == BobbleType.VT ? 0xFFFF0000 : 0xFFFFFFFF, light);
+    }
+
+    /** 1.7 {@code renderSocket}'s engraving: {@code text} in the socket's front. */
+    private void label(PoseStack pose, SubmitSink sink, String text, int color, int light) {
+        float f3 = 0.01F;
+        pose.translate(0.63D, 0.175F, 0.0D);
+        pose.scale(f3, -f3, f3);
+        pose.translate(0D, 0D, font.width(text) * 0.5D);
+        pose.mulPose(Axis.YP.rotationDegrees(90F));
+        pose.translate(0F, 1F, 0F);
+        sink.submitText(pose, font, 0F, 0F, Component.literal(text).getVisualOrderText(), false,
+                Font.DisplayMode.POLYGON_OFFSET, light, color, 0);
+    }
+
+    /**
+     * An addon's bobblehead drawn with HBM's figure (ADDON-API-INVENTORY C-24): the socket, then (when {@code guy}) the
+     * player figure in {@code skin} at rest - 1.7 {@code renderGuy} with no per-person pose, its head bobbing on
+     * {@code time} (wall-clock milliseconds), the layered skin parts unless {@code layers} is false - and {@code label}
+     * engraved in white. Without {@code guy} the caller draws its own figure. The pose stack is the figure's space, as
+     * HBM's renderer sets it up (block centre, quarter scale, turned {@code -(22.5 * rotation + 90)}).
+     */
+    public static void renderFigure(PoseStack pose, SubmitSink sink, Identifier skin, boolean layers, boolean guy, String label,
+                                    long time, int light) {
+        if (itemRenderer == null) itemRenderer = new RenderBobble();
+        RenderBobble renderer = itemRenderer;
+        part(pose, sink, renderer.bobble, CompatRenderTypes.entityCutoutCull(SOCKET), "Socket", light);
+        if (guy) renderer.guy(pose, sink, skin, BobbleFigure.pose(0), "", layers ? "" : "17", time, light, null);
+        pose.pushPose();
+        renderer.label(pose, sink, label, 0xFFFFFFFF, light);
+        pose.popPose();
+    }
+
+    private static void part(PoseStack pose, SubmitSink sink, WavefrontObj model, RenderType type, String name, int light) {
+        sink.submitCustomGeometry(pose, type,
+                (p, buffer) -> model.renderPart(name, p, buffer, light, OverlayTexture.NO_OVERLAY));
+    }
+
+    private static void all(PoseStack pose, SubmitSink sink, WavefrontObj model, RenderType type, int light) {
+        sink.submitCustomGeometry(pose, type,
+                (p, buffer) -> model.renderAll(p, buffer, light, OverlayTexture.NO_OVERLAY));
+    }
+}

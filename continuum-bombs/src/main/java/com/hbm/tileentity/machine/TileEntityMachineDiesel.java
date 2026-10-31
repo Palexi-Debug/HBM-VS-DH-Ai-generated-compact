@@ -1,0 +1,288 @@
+package com.hbm.tileentity.machine;
+
+import com.hbm.api.energymk2.IBatteryItem;
+import com.hbm.api.energymk2.IEnergyProviderMK2;
+import com.hbm.api.environment.Environment;
+import com.hbm.api.fluidmk2.IFluidStandardTransceiverMK2;
+import com.hbm.inventory.fluid.trait.FluidReleaseType;
+import com.hbm.items.ModItems;
+import com.hbm.sound.ModProductionSounds;
+import com.hbm.util.TickPhase;
+import com.hbm.inventory.FluidContainerRegistry;
+import com.hbm.inventory.container.ContainerMachineDiesel;
+import com.hbm.inventory.fluid.FluidCombustion;
+import com.hbm.inventory.fluid.FluidCombustion.FuelGrade;
+import com.hbm.inventory.fluid.FluidType;
+import com.hbm.inventory.fluid.Fluids;
+import com.hbm.inventory.fluid.tank.FluidTankNTM;
+import com.hbm.items.machine.IItemFluidId;
+import com.hbm.lib.Library;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.stream.JsonWriter;
+import com.hbm.tileentity.IConfigurableMachine;
+import com.hbm.tileentity.ModBlockEntities;
+import com.hbm.tileentity.TileEntityMachinePolluting;
+import java.io.IOException;
+import java.util.EnumMap;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.WorldlyContainer;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import dev.golem.core.data.DataIn;
+import dev.golem.core.data.DataOut;
+import com.hbm.sound.AudioWrapper;
+import com.hbm.sound.MachineAudio;
+import com.hbm.sound.ModSounds;
+import net.minecraft.sounds.SoundSource;
+import com.hbm.tileentity.TilePort.PortDef;
+import com.hbm.tileentity.TilePortShapes;
+
+/**
+ * Diesel Generator, a straight port of 1.7.10's {@code TileEntityMachineDiesel} (1.7). Burns any
+ * {@code FT_Combustible} fluid at 1 mB/tick into HE and pushes it to the 6 neighbours. Power per tick =
+ * {@code combustionEnergy/1000 · gradeEfficiency}, grade efficiency MEDIUM 0.5 / HIGH 0.75 / AERO 0.1 (LOW
+ * refuses); buffer 50,000 HE, fuel tank 16,000 mB. It only runs while switched on with the GUI button
+ * ({@code isOn}) and no redstone signal. 4 slots: 0 to 1 fuel container drain, 2 battery-to-charge, 3 fluid
+ * identifier (changing the type empties the tank, as 1.7's {@code FluidTank.setType}).
+ * (1.12.2's 4,000 mB tank, ×10 NITAN power cap and identifier output slot are not in the 1.7 spec.)
+ *
+ * <p>Every fifth burning tick the fuel's {@code FT_Polluting} burn table goes into the 100 mB smoke tanks,
+ * which it offers to all six neighbours with its power.
+ */
+public class TileEntityMachineDiesel extends TileEntityMachinePolluting
+        implements MenuProvider, IEnergyProviderMK2, IFluidStandardTransceiverMK2, WorldlyContainer {
+
+    public static final int SLOT_COUNT = 4;
+    public static long maxPower = 50_000;
+    public static int fuelCap = 16_000;
+    /** 1.7 {@code fuelEfficiency}: a grade without an entry burns at 0, LOW never burns. */
+    public static final EnumMap<FuelGrade, Double> fuelEfficiency = new EnumMap<>(FuelGrade.class);
+    static {
+        fuelEfficiency.put(FuelGrade.MEDIUM, 0.5D);
+        fuelEfficiency.put(FuelGrade.HIGH, 0.75D);
+        fuelEfficiency.put(FuelGrade.AERO, 0.1D);
+    }
+
+    public static final IConfigurableMachine CONFIG = new IConfigurableMachine() {
+        @Override public String getConfigName() { return "dieselgen"; }
+
+        @Override public void readIfPresent(JsonObject obj) {
+            maxPower = IConfigurableMachine.grab(obj, "L:powerCap", maxPower);
+            fuelCap = IConfigurableMachine.grab(obj, "I:fuelCap", fuelCap);
+            if (obj.has("D[:efficiency")) {
+                JsonArray array = obj.get("D[:efficiency").getAsJsonArray();
+                for (FuelGrade grade : FuelGrade.values()) fuelEfficiency.put(grade, array.get(grade.ordinal()).getAsDouble());
+            }
+        }
+
+        @Override public void writeConfig(JsonWriter writer) throws IOException {
+            writer.name("L:powerCap").value(maxPower);
+            writer.name("I:fuelCap").value(fuelCap);
+            StringBuilder info = new StringBuilder("Fuel grades in order:");
+            for (FuelGrade grade : FuelGrade.values()) info.append(' ').append(grade.name());
+            writer.name("INFO").value(info.toString());
+            writer.name("D[:efficiency").beginArray().setIndent("");
+            for (FuelGrade grade : FuelGrade.values()) writer.value(fuelEfficiency.getOrDefault(grade, 0.0D));
+            writer.endArray().setIndent("  ");
+        }
+    };
+
+    public long power;
+    public long powerCap = maxPower;
+    public FluidTankNTM tank;
+    public boolean isOn = false;
+    public boolean wasOn = false;
+    private AudioWrapper audio;
+
+    private static final int[] SLOTS_TOP = {0};
+    private static final int[] SLOTS_BOTTOM = {1, 2};
+    private static final int[] SLOTS_SIDE = {2};
+
+    public TileEntityMachineDiesel(BlockPos pos, BlockState state) {
+        super(ModBlockEntities.MACHINE_DIESEL.get(), pos, state, SLOT_COUNT, 100);
+        tank = new FluidTankNTM(Fluids.DIESEL, fuelCap);
+    }
+
+    @Override
+    public String getDefaultName() {
+        return "container.machineDiesel";
+    }
+
+    public static void clientTick(Level level, BlockPos pos, BlockState state, TileEntityMachineDiesel te) {
+        te.audio = MachineAudio.tick(te.audio, te.wasOn, ModProductionSounds.ENGINE.get(), SoundSource.BLOCKS,
+                pos, te.getVolume(1F), 10F, 1.0F, 10);
+    }
+
+    public long getPowerScaled(long i) {
+        return powerCap <= 0 ? 0 : (power * i) / powerCap;
+    }
+
+    protected PortDef[] cachedPorts;
+    public PortDef[] getPorts() { if (cachedPorts == null) cachedPorts = TilePortShapes.around(worldPosition.getX(), worldPosition.getY(), worldPosition.getZ()); return cachedPorts; }
+
+    public static void serverTick(Level level, BlockPos pos, BlockState state, TileEntityMachineDiesel te) {
+        te.setupAllPorts(te.getPorts());
+        te.updatePortPOFIFO();
+
+        te.wasOn = false;
+
+        if (te.tank.setType(te.inventory, 3, 3)) te.setChanged();
+        if (MachineFluidContainerIO.load(te.tank, te.inventory, 0, 1)) te.setChanged();
+
+        te.power = Library.chargeItemsFromTE(te.inventory, 2, te.power, te.powerCap);
+        if (te.isOn) te.generate(level);
+        te.networkPackNT();
+    }
+
+    /** The smoke and engine-swing condition: switched on with burnable fuel, redstone or not. */
+    public boolean showsRunning() {
+        return isOn && hasAcceptableFuel() && tank.getFill() > 0;
+    }
+
+    public boolean hasAcceptableFuel() {
+        return getHEFromFuel() > 0;
+    }
+
+    public long getHEFromFuel() {
+        return getHEFromFuel(tank.getTankType());
+    }
+
+    public static long getHEFromFuel(FluidType type) {
+        FluidCombustion.Combustible fuel = FluidCombustion.getCombustible(type);
+        if (fuel != null && fuel.grade() != FuelGrade.LOW) {
+            return (long) ((double) fuel.energyPerBucket() / 1000L * fuelEfficiency.getOrDefault(fuel.grade(), 0D));
+        }
+        return 0;
+    }
+
+    private void generate(Level level) {
+        if (!this.isOn) return;
+        if (level.hasNeighborSignal(worldPosition)) return;
+        // hbm-space: if(!breatheAir(1)) return, after the fuel checks (com.hbm.api.environment.Environment)
+        if (hasAcceptableFuel() && tank.getFill() > 0
+                && Environment.breatheAir(level, worldPosition, 1)) {
+            this.wasOn = true;
+            tank.setFill(Math.max(tank.getFill() - 1, 0));
+
+            if (TickPhase.every(level, worldPosition, 5L)) {
+                super.pollute(tank.getTankType(), FluidReleaseType.BURN, 5F);
+            }
+
+            long he = getHEFromFuel();
+            power = Math.min(power + he, powerCap);
+        }
+    }
+
+    /** The GUI on/off switch (1.7 {@code receiveControl("turnOn")}); button id 0. */
+    @Override
+    public void handleButtonPacket(int value, int meta) {
+        if (value == 0) {
+            this.isOn = !this.isOn;
+            setChanged();
+        }
+    }
+
+    /** Slot 0 takes anything, as the 1.7 GUI's plain slot did; automation is gated in {@link #canPlaceItemThroughFace}. */
+    @Override
+    public boolean isItemValidForSlot(int slot, ItemStack stack) {
+        if (slot == 0) return true;
+        if (slot == 2) return Library.isBattery(stack);
+        if (slot == 3) return stack.getItem() instanceof IItemFluidId;
+        return slot == 1;
+    }
+
+    @Override
+    public int[] getSlotsForFace(Direction side) {
+        return side == Direction.DOWN ? SLOTS_BOTTOM : side == Direction.UP ? SLOTS_TOP : SLOTS_SIDE;
+    }
+
+    @Override
+    public boolean canPlaceItemThroughFace(int slot, ItemStack stack, Direction side) {
+        // 1.7 isItemValidForSlot: slot 0 only a registry container holding the tank's fluid
+        if (slot == 0) return FluidContainerRegistry.INSTANCE.contentOf(stack, tank.getTankType()) > 0;
+        return slot != 1 && isItemValidForSlot(slot, stack);
+    }
+
+    /** 1.7 {@code canExtractItem}: empty canisters/tanks from 1, fully charged batteries from 2. */
+    @Override
+    public boolean canTakeItemThroughFace(int slot, ItemStack stack, Direction side) {
+        if (slot == 1) return stack.getItem() == ModItems.canister_empty.get()
+                || stack.getItem() == ModItems.tank_steel.get();
+        if (slot == 2) return stack.getItem() instanceof IBatteryItem battery
+                && battery.getCharge(stack) == battery.getMaxCharge(stack);
+        return false;
+    }
+
+    // --- IEnergyProviderMK2 ---
+
+    @Override public long getPower() { return power; }
+    @Override public void setPower(long i) { power = i; }
+    @Override public long getMaxPower() { return maxPower; }
+
+    // --- IFluidStandardTransceiverMK2 ---
+
+    @Override public FluidTankNTM[] getReceivingTanks() { return new FluidTankNTM[]{tank}; }
+    @Override public FluidTankNTM[] getSendingTanks() { return this.getSmokeTanks(); }
+    @Override public FluidTankNTM[] getAllTanks() { return new FluidTankNTM[]{tank}; }
+
+    // --- MenuProvider ---
+
+    @Override
+    public Component getDisplayName() {
+        return Component.translatable("container.machineDiesel");
+    }
+
+    @Override
+    public AbstractContainerMenu createMenu(int containerId, Inventory playerInventory, Player player) {
+        return new ContainerMachineDiesel(containerId, playerInventory, this);
+    }
+
+    // --- sync + persistence ---
+
+    @Override
+    public void serialize(RegistryFriendlyByteBuf buf) {
+        super.serialize(buf);
+        buf.writeLong(power);
+        buf.writeLong(powerCap);
+        buf.writeBoolean(isOn);
+        buf.writeBoolean(wasOn);
+        tank.serialize(buf);
+    }
+
+    @Override
+    public void deserialize(RegistryFriendlyByteBuf buf) {
+        super.deserialize(buf);
+        power = buf.readLong();
+        powerCap = buf.readLong();
+        isOn = buf.readBoolean();
+        wasOn = buf.readBoolean();
+        tank.deserialize(buf);
+    }
+
+    @Override
+    protected void saveData(DataOut output) {
+        super.saveData(output);
+        output.putLong("powerTime", power);
+        output.putLong("powerCap", powerCap);
+        output.putBoolean("isOn", isOn);
+        tank.writeToNBT(output, "fuel");
+    }
+
+    @Override
+    protected void loadData(DataIn input) {
+        super.loadData(input);
+        power = input.getLongOr("powerTime", 0L);
+        powerCap = input.getLongOr("powerCap", maxPower);
+        isOn = input.getBooleanOr("isOn", false);
+        tank.readFromNBT(input, "fuel");
+    }
+}

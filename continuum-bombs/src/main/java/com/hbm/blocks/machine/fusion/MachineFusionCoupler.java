@@ -1,0 +1,42 @@
+package com.hbm.blocks.machine.fusion;
+
+import com.hbm.blocks.ITooltipProvider;
+import com.hbm.blocks.multiblock.BlockMultiblockMachine;
+import com.hbm.tileentity.ModBlockEntities;
+import com.hbm.tileentity.machine.fusion.TileEntityFusionCoupler;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import org.jspecify.annotations.Nullable;
+
+/**
+ * Fusion coupler: the bridge between a torus's plasma output and another torus's klystron input,
+ * letting reactors be chained. All the behaviour is in {@link TileEntityFusionCoupler}.
+ */
+public class MachineFusionCoupler extends BlockMultiblockMachine implements ITooltipProvider {
+
+    public MachineFusionCoupler(Properties properties) {
+        super(properties);
+    }
+
+    @Override
+    protected BlockEntity createCoreBlockEntity(BlockPos pos, BlockState state) {
+        return new TileEntityFusionCoupler(pos, state);
+    }
+
+    @Override public int[] getDimensions() { return new int[]{3, 0, 1, 1, 1, 1}; }
+
+    @Override public int getOffset() { return 0; }
+
+    /** 1.7 {@code MachineFusionCoupler.getAABBExtras}, read only by the placement highlight. */
+    @Override
+    public double[][] getAABBExtras() {
+        return new double[][] {
+            {1.5, 3.5, 1, -1, 1.5, 1.5},
+            {1.5, 3.5, 1, -1, -1.5, -1.5}
+        };
+    }
+}

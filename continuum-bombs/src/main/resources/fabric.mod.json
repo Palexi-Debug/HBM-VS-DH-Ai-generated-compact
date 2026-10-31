@@ -1,0 +1,54 @@
+{
+    "schemaVersion": 1,
+    "id": "${mod_id}",
+    "version": "${mod_version}",
+    "name": "${mod_name}",
+    "description": "${mod_description}@golem.credits@",
+    "contact": {
+        "homepage": "@golem.homepage@",
+        "sources": "@golem.sources@",
+        "issues": "@golem.issues@"
+    },
+    "authors": [
+        "${mod_author}"
+    ],
+    "license": "${mod_license}",
+    "icon": "assets/${mod_id}/icon.png",
+    "environment": "*",
+    "entrypoints": {
+        "golemcore:entry": [
+            "com.hbm.gametest.GameTestEntry",
+            "com.hbm.platform.fabric.FabricInit"
+        ],
+        "client": [
+            "com.hbm.client.HarnessQueriesFabricEntry",
+            "com.hbm.platform.fabric.FabricClientInit"
+        ],
+        "jei_mod_plugin": [
+            "com.hbm.handler.jei.HbmJeiPluginFabric"
+        ],
+        "rei_client": [
+            "com.hbm.handler.rei.HbmReiClientPlugin"
+        ],
+        "rei_common": [
+            "com.hbm.handler.rei.HbmReiCommonPlugin"
+        ],
+        "fabric-gametest": [
+            "com.hbm.platform.fabric.FabricGameTests"
+        ]
+    },
+    "mixins": [
+        "${mod_id}.mixins.json",
+        "${mod_id}.fabric.mixins.json"
+    ],
+    "depends": {
+        "fabricloader": ">=${fabric_loader}",
+        "fabric-api": "*",
+        "golemcore": ">=1.0.3",
+        "minecraft": "${minecraft_range}",
+        "java": ">=${java_version}"
+    },
+    "breaks": {
+        "gemrender": "<0.1.20"
+    }
+}

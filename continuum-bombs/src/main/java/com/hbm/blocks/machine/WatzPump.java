@@ -1,0 +1,28 @@
+package com.hbm.blocks.machine;
+
+import com.hbm.blocks.multiblock.BlockMultiblockMachine;
+import com.hbm.tileentity.machine.TileEntityWatzPump;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+
+/**
+ * The two-block coolant pump that caps a Watz column. Its presence three blocks above the bottom
+ * segment's core, plus a redstone signal two blocks above that, is what switches the reactor on. The
+ * pump has no logic of its own; the reactor looks it up.
+ */
+public class WatzPump extends BlockMultiblockMachine {
+
+    public WatzPump(Properties properties) {
+        super(properties);
+    }
+
+    @Override
+    protected BlockEntity createCoreBlockEntity(BlockPos pos, BlockState state) {
+        return new TileEntityWatzPump(pos, state);
+    }
+
+    @Override public int[] getDimensions() { return new int[]{1, 0, 0, 0, 0, 0}; }
+
+    @Override public int getOffset() { return 0; }
+}

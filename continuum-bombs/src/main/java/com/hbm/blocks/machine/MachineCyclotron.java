@@ -1,0 +1,166 @@
+package com.hbm.blocks.machine;
+
+import com.hbm.lib.ForgeDirection;
+import com.hbm.api.energymk2.IEnergyConnectorBlock;
+import com.hbm.api.fluidmk2.IFluidConnectorBlockMK2;
+import com.hbm.blocks.multiblock.BlockMultiblockMachine;
+import com.hbm.blocks.multiblock.MultiblockSurface;
+import com.hbm.sound.ModSounds;
+import com.hbm.tileentity.ModBlockEntities;
+import com.hbm.tileentity.machine.TileEntityMachineCyclotron;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.Container;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.WorldlyContainer;
+import net.minecraft.world.WorldlyContainerHolder;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
+import org.jspecify.annotations.Nullable;
+
+/** The standard 5×1×5 cyclotron multiblock. */
+public class MachineCyclotron extends BlockMultiblockMachine
+        implements IEnergyConnectorBlock, IFluidConnectorBlockMK2, WorldlyContainerHolder {
+
+    public MachineCyclotron(Properties properties) {
+        super(properties);
+    }
+
+    @Override
+    protected BlockEntity createCoreBlockEntity(BlockPos pos, BlockState state) {
+        return new TileEntityMachineCyclotron(pos, state);
+    }
+
+    @Override
+    @Nullable
+    public WorldlyContainer getContainer(BlockState state, LevelAccessor level, BlockPos pos) {
+        BlockPos core = MultiblockSurface.coreOfAny(level, pos);
+        if (core == null || !(level.getBlockEntity(core) instanceof TileEntityMachineCyclotron cyclotron)) return null;
+        return new SidedContainer(cyclotron, pos);
+    }
+
+    @Override
+    protected InteractionResult onUseItem(BlockState state, Level level, BlockPos pos, Player player,
+                                          InteractionHand hand, ItemStack stack, BlockHitResult hit) {
+        if (player.isShiftKeyDown()) return InteractionResult.TRY_WITH_EMPTY_HAND;
+
+        BlockPos core = MultiblockSurface.coreOfAny(level, pos);
+        if (core != null && level.getBlockEntity(core) instanceof TileEntityMachineCyclotron cyclotron) {
+            for (int i = 0; i < 4; i++) {
+                Item plug = TileEntityMachineCyclotron.getItemForPlug(i);
+                if (plug != null && stack.getItem() == plug && !cyclotron.getPlug(i)) {
+                    if (!level.isClientSide()) {
+                        stack.shrink(1);
+                        cyclotron.setPlug(i);
+                        level.playSound(null, pos, ModSounds.UPGRADE_PLUG.get(), SoundSource.BLOCKS, 1.5F, 1.0F);
+                    }
+                    return InteractionResult.SUCCESS;
+                }
+            }
+        }
+        return super.onUseItem(state, level, pos, player, hand, stack, hit);
+    }
+
+    @Override
+    protected InteractionResult onUseWithoutItem(BlockState state, Level level, BlockPos pos, Player player,
+                                                  BlockHitResult hit) {
+        if (player.isShiftKeyDown()) return InteractionResult.TRY_WITH_EMPTY_HAND;
+        return super.onUseWithoutItem(state, level, pos, player, hit);
+    }
+
+    @Override public int[] getDimensions() { return new int[]{2, 0, 2, 2, 2, 2}; }
+    @Override public int getOffset() { return 2; }
+
+    /** Carries the queried footprint cell into the old proxy-relative sided-inventory contract. */
+    private static final class SidedContainer implements WorldlyContainer {
+        private final TileEntityMachineCyclotron machine;
+        private final int[] slots;
+
+        private SidedContainer(TileEntityMachineCyclotron machine, BlockPos accessor) {
+            this.machine = machine;
+            this.slots = machine.getAccessibleSlotsFromSide(accessor);
+        }
+
+        @Override public int[] getSlotsForFace(Direction side) { return slots; }
+        @Override public int getContainerSize() { return machine.getContainerSize(); }
+        @Override public boolean isEmpty() { return machine.isEmpty(); }
+        @Override public ItemStack getItem(int slot) { return machine.getItem(slot); }
+        @Override public ItemStack removeItem(int slot, int amount) { return machine.removeItem(slot, amount); }
+        @Override public ItemStack removeItemNoUpdate(int slot) { return machine.removeItemNoUpdate(slot); }
+        @Override public void setItem(int slot, ItemStack stack) { machine.setItem(slot, stack); }
+        @Override public void setChanged() { machine.setChanged(); }
+        @Override public boolean stillValid(Player player) { return machine.stillValid(player); }
+        @Override public void clearContent() { machine.clearContent(); }
+        @Override public boolean canPlaceItem(int slot, ItemStack stack) { return machine.canPlaceItem(slot, stack); }
+
+        @Override
+        public boolean canPlaceItemThroughFace(int slot, ItemStack stack, Direction side) {
+            return contains(slot) && machine.isItemValidForSlot(slot, stack);
+        }
+
+        @Override
+        public boolean canTakeItemThroughFace(int slot, ItemStack stack, Direction side) {
+            return contains(slot) && machine.canExtractItem(slot, stack, 1);
+        }
+
+        private boolean contains(int slot) {
+            for (int allowed : slots) if (allowed == slot) return true;
+            return false;
+        }
+    }
+
+    /**
+     * Twelve perimeter cells, all of them ports. 1.7 names them in world axes; the ring is symmetric under a quarter
+     * turn, so the facing frame lands them in the same places.
+     */
+    @Override
+    protected void visitCells(BlockPos core, Direction facing, CellVisitor visitor) {
+        super.visitCells(core, facing, visitor);
+        for (int i = -1; i <= 1; i++) {
+            visitor.cell(core.offset(2, 0, i), MASK_EAST);
+            visitor.cell(core.offset(-2, 0, i), MASK_WEST);
+            visitor.cell(core.offset(i, 0, 2), MASK_SOUTH);
+            visitor.cell(core.offset(i, 0, -2), MASK_NORTH);
+        }
+    }
+
+    /** 1.7 stamps {@code inventory().power().fluid()} on all twelve, face centres included. */
+    @Override
+    protected void visitPassiveCells(BlockPos core, Direction facing, PassiveCellVisitor visitor) {
+        int domains = PASSIVE_POWER_IN | PASSIVE_FLUID_IN | PASSIVE_ITEMS;
+        for (int i = -1; i <= 1; i++) {
+            visitor.passiveCell(core.offset(2, 0, i), MASK_ALL, domains);
+            visitor.passiveCell(core.offset(-2, 0, i), MASK_ALL, domains);
+            visitor.passiveCell(core.offset(i, 0, 2), MASK_ALL, domains);
+            visitor.passiveCell(core.offset(i, 0, -2), MASK_ALL, domains);
+        }
+    }
+
+    @Override
+    public int[][] getAllPorts(ForgeDirection dir) {
+        return rotatePorts(new int[][] {
+                {2, 0, 1, ForgeDirection.EAST.ordinal()},
+                {2, 0, 0, ForgeDirection.EAST.ordinal()},
+                {2, 0, -1, ForgeDirection.EAST.ordinal()},
+                {-2, 0, 1, ForgeDirection.WEST.ordinal()},
+                {-2, 0, 0, ForgeDirection.WEST.ordinal()},
+                {-2, 0, -1, ForgeDirection.WEST.ordinal()},
+                {1, 0, 2, ForgeDirection.SOUTH.ordinal()},
+                {0, 0, 2, ForgeDirection.SOUTH.ordinal()},
+                {-1, 0, 2, ForgeDirection.SOUTH.ordinal()},
+                {1, 0, -2, ForgeDirection.NORTH.ordinal()},
+                {0, 0, -2, ForgeDirection.NORTH.ordinal()},
+                {-1, 0, -2, ForgeDirection.NORTH.ordinal()},
+        }, dir);
+    }
+}

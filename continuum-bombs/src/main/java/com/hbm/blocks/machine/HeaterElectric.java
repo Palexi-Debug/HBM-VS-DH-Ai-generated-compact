@@ -1,0 +1,100 @@
+package com.hbm.blocks.machine;
+
+import com.hbm.api.block.IToolable;
+import com.hbm.lib.ForgeDirection;
+import com.hbm.blocks.ITooltipProvider;
+import com.hbm.api.energymk2.IEnergyConnectorBlock;
+import com.hbm.blocks.multiblock.BlockMultiblockMachine;
+import com.hbm.blocks.multiblock.MultiblockSurface;
+import com.hbm.interfaces.ILookOverlay;
+import com.hbm.tileentity.ModBlockEntities;
+import com.hbm.tileentity.machine.TileEntityHeaterElectric;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import org.jspecify.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Electric heating unit (1.12.2 {@code heater_electric}): a dummyable power-to-heat converter; a heat
+ * consumer sits on its core. No GUI: the setting (0 to 10) is cycled with the screwdriver, and the look-overlay shows heat/consumption/output.
+ * Cables connect at the single rear power port.
+ */
+public class HeaterElectric extends BlockMultiblockMachine implements IEnergyConnectorBlock, ILookOverlay, ITooltipProvider, IToolable {
+
+    public HeaterElectric(Properties properties) {
+        super(properties);
+    }
+
+    @Override
+    protected BlockEntity createCoreBlockEntity(BlockPos pos, BlockState state) {
+        return new TileEntityHeaterElectric(pos, state);
+    }
+
+    @Override
+    public int[] getDimensions() {
+        return new int[]{0, 0, 1, 2, 1, 1};
+    }
+
+    @Override
+    public int getOffset() {
+        return 2;
+    }
+
+    /** The screwdriver cycles the heat setting up. */
+    @Override
+    public boolean onScrew(Level level, Player player, BlockPos pos, Direction side, Vec3 hit, InteractionHand hand, ToolType tool) {
+        if (tool != ToolType.SCREWDRIVER) return false;
+        if (level.isClientSide()) return true;
+        if (!(MultiblockSurface.coreEntity(level, pos) instanceof TileEntityHeaterElectric te)) return false;
+        te.toggleSettingUp();
+        return true;
+    }
+
+    @Override
+    public ILookOverlay.Data getLookOverlay(Level level, BlockPos pos, Player player) {
+        if (!(MultiblockSurface.coreEntity(level, pos) instanceof TileEntityHeaterElectric heater)) return null;
+
+        List<String> text = new ArrayList<>();
+        text.add(String.format("%,d", heater.heatEnergy) + " TU");
+        text.add("§7Setting: " + heater.setting);
+        text.add("§a-> §r" + heater.getConsumption() + " HE/t");
+        text.add("§c<- §r" + heater.getHeatGen() + " TU/t");
+        return new ILookOverlay.Data(this.getName().getString(), 0xffff00, 0x404000, text);
+    }
+
+    /** The cell two in front of the core is the whole power surface. */
+    @Override
+    protected void visitCells(BlockPos core, Direction facing, CellVisitor visitor) {
+        super.visitCells(core, facing, visitor);
+        visitor.cell(core.relative(facing, 2), MASK_SOUTH);
+    }
+
+    @Override
+    protected void visitPassiveCells(BlockPos core, Direction facing, PassiveCellVisitor visitor) {
+        visitor.passiveCell(core.relative(facing, 2), MASK_ALL, PASSIVE_POWER_IN);
+    }
+
+    @Override
+    public int[][] getAllPorts(ForgeDirection dir) {
+        return rotatePorts(new int[][] {
+                {0, 0, 2, ForgeDirection.SOUTH.ordinal()},
+        }, dir);
+    }
+
+    @Override
+    public double[][] getAABBExtras() {
+        return new double[][] {
+                {1, 1, 0.74, -0.06, 0.4, -0.4, 1},
+        };
+    }
+}

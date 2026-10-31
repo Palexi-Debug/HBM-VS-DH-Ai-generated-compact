@@ -1,0 +1,94 @@
+package com.hbm.entity.effect;
+
+import dev.golem.core.world.Explosions;
+import com.hbm.advancement.DetonationTrigger;
+import com.hbm.advancement.HbmCriteria;
+import dev.golem.core.data.DataIn;
+import dev.golem.core.data.DataOut;
+import dev.golem.core.data.SynchedData;
+import dev.golem.core.data.Tags;
+
+import com.hbm.util.ContaminationUtil;
+import dev.golem.core.data.CompatEntity;
+import java.util.ArrayList;
+import java.util.List;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Mth;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.levelgen.Heightmap;
+
+/** DRX's descending digamma spear. Its server effects do not depend on a renderer. */
+public class EntitySpear extends CompatEntity {
+    public int ticksInGround;
+
+    public EntitySpear(EntityType<EntitySpear> type, Level level) {
+        super(type, level);
+    }
+
+    @Override
+    protected void defineData(SynchedData data) {
+    }
+
+    @Override
+    public boolean shouldRenderAtSqrDistance(double distance) {
+        return true;
+    }
+
+    @Override
+    public void tick() {
+        xOld = getX();
+        yOld = getY();
+        zOld = getZ();
+        int x = Mth.floor(getX()), y = Mth.floor(getY()), z = Mth.floor(getZ());
+        if (level().getBlockState(new BlockPos(x, y - 1, z)).isAir()) {
+            setPos(getX(), getY() - 0.2D, getZ());
+            if (level() instanceof ServerLevel server) {
+                double blastX = getX() + random.nextGaussian() * 25D;
+                double blastZ = getZ() + random.nextGaussian() * 25D;
+                double blastY = server.getHeight(Heightmap.Types.MOTION_BLOCKING, Mth.floor(blastX), Mth.floor(blastZ)) + 2D;
+                Explosions.explode(server, this, blastX, blastY, blastZ, 7.5F, Level.ExplosionInteraction.NONE);
+                for (ServerPlayer player : server.players()) {
+                    ContaminationUtil.contaminate(player, ContaminationUtil.HazardType.DIGAMMA,
+                            ContaminationUtil.ContaminationType.DIGAMMA, 0.05D);
+                    // 1.7 digammaKauaiMoho, every player in the world on every blast
+                    HbmCriteria.detonation(player, DetonationTrigger.Kind.DIGAMMA_SPEAR);
+                }
+            }
+            if (level().getBlockState(new BlockPos(x, y - 3, z)).isAir()) ticksInGround = 0;
+        } else {
+            ticksInGround++;
+            if (level() instanceof ServerLevel server && ticksInGround > 100) {
+                List<Entity> entities = new ArrayList<>();
+                server.getAllEntities().forEach(entities::add);
+                for (Entity entity : entities) if (entity instanceof LivingEntity living) {
+                    // 1.7: only the DIGAMMA2 contamination (10 DRX, the lethal cap); the robes set
+                    // (ArmorUtil.checkForDigamma2) is the one thing that stops it, creative mode does not.
+                    ContaminationUtil.contaminate(living, ContaminationUtil.HazardType.DIGAMMA,
+                            ContaminationUtil.ContaminationType.DIGAMMA2, 10D);
+                }
+                discard();
+            }
+        }
+    }
+
+    @Override
+    protected boolean onHurt(DamageSource source, float damage) {
+        return false;
+    }
+
+    @Override
+    protected void loadData(DataIn input) {
+        ticksInGround = input.getIntOr("ticksInGround", 0);
+    }
+
+    @Override
+    protected void saveData(DataOut output) {
+        output.putInt("ticksInGround", ticksInGround);
+    }
+}
