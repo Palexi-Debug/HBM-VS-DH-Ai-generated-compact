@@ -63,8 +63,8 @@ public final class ModTabs {
         RegistryObject<CreativeModeTab> bombsTab = TABS.register(HbmTab.BOMBS.id, () ->
                 CreativeModeTab.builder(CreativeModeTab.Row.TOP, 0)
                         .title(Component.translatable("itemGroup.hbm." + HbmTab.BOMBS.id))
-                        // Icon = first registered entry in this tab, or iron ingot as a fallback.
-                        .icon(() -> bombContents.isEmpty() ? new ItemStack(Items.IRON_INGOT) : new ItemStack(bombContents.get(0).get()))
+                        // Icon = Little Boy (FORK).
+                        .icon(() -> new ItemStack(com.hbm.blocks.bomb.ModBombBlocks.nuke_boy.get().asItem())) // Little Boy
                         .build());
         for (HbmTab tab : HbmTab.values()) TAB_OBJECTS.put(tab, bombsTab);
     }
