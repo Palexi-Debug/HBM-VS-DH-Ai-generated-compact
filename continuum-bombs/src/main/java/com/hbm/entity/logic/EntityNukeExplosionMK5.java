@@ -202,8 +202,8 @@ public class EntityNukeExplosionMK5 extends CompatEntity {
         if (level().addFreshEntity(rain)) rain.startChunkLoading();
         // FORK (bombs only): the fallout zone is a decaying Mekanism radiation source at the blast centre.
         if (level() instanceof net.minecraft.server.level.ServerLevel serverLevel) {
-            com.hbm.compat.mekanism.MekanismRadiation.source(serverLevel, blockPosition(),
-                    this.radius * com.hbm.compat.mekanism.MekanismRadiation.FALLOUT_SV_PER_BLOCK);
+            com.hbm.compat.mekanism.MekanismRadiation.field(serverLevel, blockPosition(),
+                    this.radius * com.hbm.compat.mekanism.MekanismRadiation.FALLOUT_SV_PER_BLOCK, (int) this.radius);
         }
     }
 

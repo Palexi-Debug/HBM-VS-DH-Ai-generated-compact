@@ -120,6 +120,25 @@ public final class MekanismRadiation {
         throw new NoSuchMethodException(sb.toString());
     }
 
+    /** Extra distance in blocks the fallout field reaches beyond the centre source (rings of extra sources). */
+    public static int FALLOUT_EXTRA_BLOCKS = 20;
+
+    /** The centre source plus two rings of weaker sources, so the radiation reaches about FALLOUT_EXTRA_BLOCKS further out. */
+    public static void field(ServerLevel level, BlockPos centre, double svPerHour, int maxRadius) {
+        source(level, centre, svPerHour);
+        int ring = Math.min(FALLOUT_EXTRA_BLOCKS, Math.max(1, maxRadius));
+        for (int r = 1; r <= 2; r++) {
+            int dist = ring * r;
+            if (dist > Math.max(maxRadius, ring)) break;
+            double strength = svPerHour * (r == 1 ? 0.5D : 0.25D);
+            for (int i = 0; i < 8; i++) {
+                double a = i * Math.PI / 4.0D;
+                BlockPos p = centre.offset((int) Math.round(Math.cos(a) * dist), 0, (int) Math.round(Math.sin(a) * dist));
+                source(level, p, strength);
+            }
+        }
+    }
+
     /** Creates a decaying Mekanism radiation source, used for the fallout zone of a nuke. */
     public static void source(ServerLevel level, BlockPos pos, double svPerHour) {
         LOGGER.info("Mekanism radiation source requested at {} with {} Sv/h", pos, svPerHour);
