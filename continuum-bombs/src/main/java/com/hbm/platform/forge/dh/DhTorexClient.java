@@ -103,7 +103,7 @@ public final class DhTorexClient {
             }
             if (level == null || !dhPresent || dhBroken) return;
             // refresh the geometry once per second, the packets arrive every half second
-            if (level.getGameTime() % 20 != 0) return;
+            if (level.getGameTime() % 10 != 0) return;
             final long now = level.getGameTime();
             for (State s : STATES.values()) {
                 final DhTorexPacket.Entry e = s.entry;
