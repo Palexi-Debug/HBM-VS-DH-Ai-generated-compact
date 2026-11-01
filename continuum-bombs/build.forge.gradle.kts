@@ -353,11 +353,15 @@ tasks.jar {
         "assets/hbm/models/anim/**",
         "assets/hbm/models/armor/**",
         "assets/hbm/textures/armor/**",
-        "assets/hbm/sounds/weapon/**",
         "assets/hbm/sounds/music/**",
         "assets/hbm/sounds/alarm/**",
         "assets/hbm/sounds/turret/**",
         "assets/hbm/sounds/screm/**",
         "assets/hbm/manual/**",
     )
+    // weapon sounds go too, except the explosion/nuke ones the bombs play (nuclear_explosion, muke_explosion, ...)
+    exclude { e ->
+        e.relativePath.pathString.startsWith("assets/hbm/sounds/weapon/") &&
+            !e.name.matches(Regex("(explosion|nuclear|muke|robin).*"))
+    }
 }
