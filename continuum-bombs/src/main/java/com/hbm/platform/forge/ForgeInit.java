@@ -48,6 +48,10 @@ public final class ForgeInit {
         // resolved, so registering before the registries flush is fine).
         dev.golem.core.registry.Fuels.register(com.hbm.items.ModFuelItems.BURN_TIMES);
 
+        // Distant Horizons: the nuke torex is sent to every player of the dimension and drawn through DH's renderer
+        com.hbm.platform.forge.dh.DhTorexNet.register();
+        MinecraftForge.EVENT_BUS.register(new com.hbm.platform.forge.dh.DhTorexServer());
+
         if (FMLEnvironment.dist == Dist.CLIENT) {
             ForgeClientInit.init(modBus);
         }

@@ -130,6 +130,8 @@ repositories {
 
 dependencies {
     modImplementation("dev.golem:golemcore-forge-$mcVersion:${prop("deps.golemcore")}+$mcVersion")
+    // Distant Horizons API 3.0.0 (compile only; DH itself is an optional runtime mod): far nuke clouds
+    compileOnly("maven.modrinth:Xs0XTOVv:1uUP7LpX")
     compileOnly("org.spongepowered:mixin:0.8.5")
     annotationProcessor("org.spongepowered:mixin:0.8.5:processor")
     // Forge 1.20.1 does not bundle MixinExtras; Golem Core nests mixinextras-forge (Jar-in-Jar) and its dev runtime

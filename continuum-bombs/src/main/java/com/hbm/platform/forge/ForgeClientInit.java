@@ -26,6 +26,7 @@ final class ForgeClientInit {
 
     static void init(IEventBus modBus) {
         HbmPackets.registerClientHandlers();
+        com.hbm.platform.forge.dh.DhTorexClient.init(); // Distant Horizons far torex (no-op without DH)
         net.minecraftforge.common.MinecraftForge.EVENT_BUS.addListener(
                 (net.minecraftforge.client.event.ClientPlayerNetworkEvent.LoggingOut event) ->
                         com.hbm.handler.JetpackHandler.clearClientState());
