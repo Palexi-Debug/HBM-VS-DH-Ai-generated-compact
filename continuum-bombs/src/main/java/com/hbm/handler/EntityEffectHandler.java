@@ -309,6 +309,8 @@ public class EntityEffectHandler {
     }
 
     private static void handleContamination(LivingEntity entity) {
+        // FORK (bombs only): HBM's lingering contamination effects are not used; Mekanism owns all radiation.
+        if (true) return;
         Iterator<ContaminationEffect> iterator = HbmLivingProps.getCont(entity).iterator();
         while (iterator.hasNext()) {
             ContaminationEffect con = iterator.next();
@@ -327,6 +329,8 @@ public class EntityEffectHandler {
      * 1.7 read the 2D biome at the feet; the port reads the biome at the entity's block.
      */
     private static void craterBiomeRadiation(LivingEntity entity) {
+        // FORK (bombs only): the crater is irradiated by the Mekanism fallout source, not by a second HBM dose.
+        if (true) return;
         float radiation = craterBiomeRad(entity.level().getBiome(entity.blockPosition()), entity.isInWaterOrRain()); // 1.7 isWet
 
         if (radiation > 0) {

@@ -20,8 +20,8 @@ public final class MekanismRadiation {
 
     /** HBM rad to Mekanism Sv: 1000 rad (lethal in HBM) is 1 Sv. */
     public static double RAD_TO_SV = 0.001D;
-    /** Fallout source strength in Sv/h per block of blast radius (Fat Man, radius 175: about 875 Sv/h at the centre). */
-    public static double FALLOUT_SV_PER_BLOCK = 5.0D;
+    /** Fallout source strength in Sv/h per block of blast radius (Fat Man, radius 175: about 88 Sv/h at the centre). */
+    public static double FALLOUT_SV_PER_BLOCK = 0.5D;
 
     private static final Logger LOGGER = LogUtils.getLogger();
 
