@@ -118,6 +118,7 @@ public class TorexRenderer
         // 1.7: latch the HUD flash for the first 10 ticks, and the shake once with a 15-tick hurt tilt.
         long now = System.currentTimeMillis();
         if (cloud.tickCount < 10 && now - NukeScreenEffects.flashTimestamp > 1_000) {
+            NukeScreenEffects.flashStrength = 1F;
             NukeScreenEffects.flashTimestamp = now;
         }
         if (cloud.didPlaySound && !cloud.didShake && now - NukeScreenEffects.shakeTimestamp > 1_000) {
