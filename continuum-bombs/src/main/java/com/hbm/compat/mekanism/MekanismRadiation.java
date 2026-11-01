@@ -122,10 +122,15 @@ public final class MekanismRadiation {
 
     /** Creates a decaying Mekanism radiation source, used for the fallout zone of a nuke. */
     public static void source(ServerLevel level, BlockPos pos, double svPerHour) {
-        if (svPerHour <= 0 || !ensureResolved() || radiatePos == null) return;
+        LOGGER.info("Mekanism radiation source requested at {} with {} Sv/h", pos, svPerHour);
+        if (svPerHour <= 0 || !ensureResolved() || radiatePos == null) {
+            LOGGER.info("Mekanism radiation source skipped (bridge unavailable or disabled={})", disabled);
+            return;
+        }
         try {
             Class<?> type = radiatePos.getParameterTypes()[0];
             radiatePos.invoke(manager, where(type, level, pos), svPerHour);
+            LOGGER.info("Mekanism radiation source created at {}", pos);
         } catch (Throwable e) {
             fail("source " + radiatePos, e);
         }
