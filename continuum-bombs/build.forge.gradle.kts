@@ -345,5 +345,19 @@ tasks.jar {
         "data/hbm/worldgen/processor_list/**",
         "data/hbm/forge/biome_modifier/**",
         "data/hbm/neoforge/biome_modifier/**",
+        // Shrink: assets the bombs never load (weapons, doors, turrets, fusion, animations, armour, music, alarms).
+        "assets/hbm/models/weapons/**",
+        "assets/hbm/models/doors/**",
+        "assets/hbm/models/turrets/**",
+        "assets/hbm/models/fusion/**",
+        "assets/hbm/models/anim/**",
+        "assets/hbm/models/armor/**",
+        "assets/hbm/textures/armor/**",
+        "assets/hbm/sounds/weapon/**",
+        "assets/hbm/sounds/music/**",
+        "assets/hbm/sounds/alarm/**",
+        "assets/hbm/sounds/turret/**",
+        "assets/hbm/sounds/screm/**",
+        "assets/hbm/manual/**",
     )
 }
