@@ -1,19 +1,24 @@
 {
-  "type": "mekanism:combining",
-  "mainInput": {
-    "amount": 4,
-    "ingredient": {
-      "item": "mekanism:pellet_polonium"
-    }
+  "type": "mekanism:reaction",
+  "duration": 100,
+  "fluidInput": {
+    "amount": 500,
+    "tag": "minecraft:water"
   },
-  "extraInput": {
-    "amount": 2,
+  "gasInput": {
+    "amount": 500,
+    "gas": "mekanism:polonium"
+  },
+  "gasOutput": {
+    "amount": 500,
+    "gas": "mekanism:spent_nuclear_waste"
+  },
+  "itemInput": {
     "ingredient": {
       "item": "minecraft:tnt"
     }
   },
-  "output": {
-    "item": "hbm:n2_charge",
-    "count": 1
+  "itemOutput": {
+    "item": "hbm:n2_charge"
   }
 }

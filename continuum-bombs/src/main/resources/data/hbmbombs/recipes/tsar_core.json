@@ -1,19 +1,24 @@
 {
-  "type": "mekanism:combining",
-  "mainInput": {
-    "amount": 2,
+  "type": "mekanism:reaction",
+  "duration": 600,
+  "fluidInput": {
+    "amount": 1000,
+    "tag": "minecraft:water"
+  },
+  "gasInput": {
+    "amount": 1000,
+    "gas": "mekanism:plutonium"
+  },
+  "gasOutput": {
+    "amount": 1000,
+    "gas": "mekanism:spent_nuclear_waste"
+  },
+  "itemInput": {
     "ingredient": {
-      "item": "mekanism:pellet_antimatter"
+      "item": "hbm:man_core"
     }
   },
-  "extraInput": {
-    "amount": 16,
-    "ingredient": {
-      "item": "mekanism:pellet_plutonium"
-    }
-  },
-  "output": {
-    "item": "hbm:tsar_core",
-    "count": 1
+  "itemOutput": {
+    "item": "hbm:tsar_core"
   }
 }

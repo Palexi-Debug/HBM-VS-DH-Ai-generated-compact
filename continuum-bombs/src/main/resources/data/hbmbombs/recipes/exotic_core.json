@@ -1,12 +1,13 @@
 {
-  "type": "mekanism:metallurgic_infusing",
-  "chemicalInput": {
-    "amount": 100,
-    "tag": "mekanism:diamond"
+  "type": "mekanism:nucleosynthesizing",
+  "duration": 600,
+  "gasInput": {
+    "amount": 10,
+    "gas": "mekanism:antimatter"
   },
   "itemInput": {
     "ingredient": {
-      "item": "mekanism:pellet_antimatter"
+      "item": "mekanism:alloy_atomic"
     }
   },
   "output": {

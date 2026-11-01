@@ -1,19 +1,24 @@
 {
-  "type": "mekanism:combining",
-  "mainInput": {
-    "amount": 8,
+  "type": "mekanism:reaction",
+  "duration": 300,
+  "fluidInput": {
+    "amount": 1000,
+    "tag": "minecraft:water"
+  },
+  "gasInput": {
+    "amount": 1000,
+    "gas": "mekanism:plutonium"
+  },
+  "gasOutput": {
+    "amount": 1000,
+    "gas": "mekanism:spent_nuclear_waste"
+  },
+  "itemInput": {
     "ingredient": {
-      "item": "mekanism:pellet_plutonium"
+      "item": "mekanism:ingot_steel"
     }
   },
-  "extraInput": {
-    "amount": 2,
-    "ingredient": {
-      "item": "mekanism:ingot_lead"
-    }
-  },
-  "output": {
-    "item": "hbm:gadget_core",
-    "count": 1
+  "itemOutput": {
+    "item": "hbm:gadget_core"
   }
 }
