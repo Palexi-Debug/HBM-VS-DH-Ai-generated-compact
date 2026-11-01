@@ -26,6 +26,8 @@ public final class NukeScreenEffects {
 
     /** Set by the renderer during the flash window; drives the white-out fade. */
     public static long flashTimestamp;
+    /** 1 for the local blast; below 1 for a far Distant Horizons cloud (weaker the further away). */
+    public static float flashStrength = 1F;
     /** Set once by the renderer when the shockwave hits; drives the HUD shake. */
     public static long shakeTimestamp;
 
@@ -41,7 +43,7 @@ public final class NukeScreenEffects {
 
         // Plain translucent white fade; an additive (SRC_ALPHA, ONE) overlay reads worse.
         float brightness = remaining / (float) FLASH_DURATION;
-        int alpha = (int) (Mth.clamp(brightness, 0F, 1F) * 255F);
+        int alpha = (int) (Mth.clamp(brightness * flashStrength, 0F, 1F) * 255F);
         int color = (alpha << 24) | 0xFFFFFF;
 
         // Overfill by 200px each side so the shake (which also moves this layer) never bares an edge.

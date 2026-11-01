@@ -46,7 +46,10 @@ public final class DhTorexClient {
         Map<Integer, State> next = new HashMap<>();
         for (DhTorexPacket.Entry e : packet.entries) {
             State s = STATES.get(e.entityId());
-            if (s == null) s = new State();
+            if (s == null) {
+                s = new State();
+                farFlash(level, e);
+            }
             s.entry = e;
             s.receivedAt = now;
             next.put(e.entityId(), s);
@@ -60,6 +63,20 @@ public final class DhTorexClient {
         }
         STATES.clear();
         STATES.putAll(next);
+    }
+
+    /** Maximum distance in blocks at which a far blast still whites out the screen (weaker with distance). */
+    private static final double FLASH_RANGE = 4000.0D;
+
+    /** The blinding white flash for a blast the client does not track itself (it is beyond the entity range). */
+    private static void farFlash(ClientLevel level, DhTorexPacket.Entry e) {
+        if (e.age() > 40 || level.getEntity(e.entityId()) != null) return; // old cloud, or the real effect handles it
+        var player = Minecraft.getInstance().player;
+        if (player == null) return;
+        double dist = Math.sqrt(player.distanceToSqr(e.x(), e.y(), e.z()));
+        if (dist >= FLASH_RANGE) return;
+        com.hbm.client.NukeScreenEffects.flashStrength = (float) Math.max(0.1D, 1.0D - dist / FLASH_RANGE);
+        com.hbm.client.NukeScreenEffects.flashTimestamp = System.currentTimeMillis();
     }
 
     private static void safe(Runnable r) {
