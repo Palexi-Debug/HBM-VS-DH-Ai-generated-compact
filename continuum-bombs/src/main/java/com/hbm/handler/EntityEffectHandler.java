@@ -377,6 +377,8 @@ public class EntityEffectHandler {
     }
 
     private static void handleRadiation(LivingEntity entity) {
+        // FORK (bombs only): HBM's chunk/crater radiation, its flashes and aura are off; Mekanism owns all radiation.
+        if (!GeneralConfig.enableRads) return;
 
         if (ContaminationUtil.isRadImmune(entity))
             return;
