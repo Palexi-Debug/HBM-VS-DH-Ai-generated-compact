@@ -76,6 +76,21 @@ public final class ForgeInit {
                 RadiationSystemNT.onChunkUnloaded(level, chunk);
             }
         });
+        // FORK (bombs only): every crafting recipe of HBM is dropped after the recipe reload; the bombs are made with
+        // Mekanism recipes only. Runs as a reload listener added after the vanilla ones, so the RecipeManager is filled.
+        MinecraftForge.EVENT_BUS.addListener((net.minecraftforge.event.AddReloadListenerEvent event) -> {
+            var recipes = event.getServerResources().getRecipeManager();
+            event.addListener((net.minecraft.server.packs.resources.ResourceManagerReloadListener) rm -> {
+                var kept = new java.util.ArrayList<net.minecraft.world.item.crafting.Recipe<?>>();
+                int removed = 0;
+                for (var r : recipes.getRecipes()) {
+                    if (com.hbm.Constants.MOD_ID.equals(r.getId().getNamespace())) removed++;
+                    else kept.add(r);
+                }
+                recipes.replaceRecipes(kept);
+                com.hbm.Constants.LOG.info("[HBM] Removed {} HBM crafting recipes, Mekanism recipes only", removed);
+            });
+        });
         MinecraftForge.EVENT_BUS.addListener((ItemTooltipEvent event) -> {
             TooltipColours.apply(event.getItemStack(), event.getToolTip());
         });
