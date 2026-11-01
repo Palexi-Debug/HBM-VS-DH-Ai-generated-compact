@@ -78,7 +78,6 @@ public final class ForgeInit {
         });
         MinecraftForge.EVENT_BUS.addListener((ItemTooltipEvent event) -> {
             TooltipColours.apply(event.getItemStack(), event.getToolTip());
-            HazardSystem.addHazardInfo(event.getItemStack(), event.getEntity(), event.getToolTip());
         });
         MinecraftForge.EVENT_BUS.addListener((EntityJoinLevelEvent event) -> {
             com.hbm.items.special.ItemNuclearWaste.preserveDroppedEntity(event.getEntity());

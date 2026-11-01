@@ -71,7 +71,6 @@ public class NeoForgeInit {
         // Hazard tooltips (radioactive/hot/etc. traits on items).
         NeoForge.EVENT_BUS.addListener((ItemTooltipEvent event) -> {
             TooltipColours.apply(event.getItemStack(), event.getToolTip());
-            HazardSystem.addHazardInfo(event.getItemStack(), event.getEntity(), event.getToolTip());
         });
         NeoForge.EVENT_BUS.addListener((EntityJoinLevelEvent event) -> {
             com.hbm.items.special.ItemNuclearWaste.preserveDroppedEntity(event.getEntity());
