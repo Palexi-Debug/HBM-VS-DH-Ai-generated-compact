@@ -41,6 +41,7 @@ public final class DhTorexClient {
     public static void onPacket(DhTorexPacket packet) {
         ClientLevel level = Minecraft.getInstance().level;
         if (level == null) return;
+        if (!packet.entries.isEmpty() && STATES.isEmpty()) com.hbm.Constants.LOG.info("DH torex: first packet, {} cloud(s)", packet.entries.size());
         long now = level.getGameTime();
         Map<Integer, State> next = new HashMap<>();
         for (DhTorexPacket.Entry e : packet.entries) {

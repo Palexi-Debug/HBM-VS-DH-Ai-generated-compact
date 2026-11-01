@@ -52,6 +52,7 @@ final class DhTorexRenderer {
         IDhApiRenderableBoxGroup group = factory.createRelativePositionedGroup(
                 "hbm:torex_" + e.entityId(), new DhApiVec3d(e.x(), e.y(), e.z()), boxes);
         wrapper.getRenderRegister().add(group);
+        if (live == null) com.hbm.Constants.LOG.info("DH torex {} drawn at {} {} {} (scale {}, age {})", e.entityId(), (int) e.x(), (int) e.y(), (int) e.z(), e.scale(), age);
         LIVE.put(e.entityId(), new Live(group, wrapper, key));
     }
 
@@ -64,11 +65,29 @@ final class DhTorexRenderer {
         for (Integer id : new ArrayList<>(LIVE.keySet())) remove(id);
     }
 
+    private static boolean loggedMissing;
+
+    /**
+     * The DH wrapper of the level the player is in. In singleplayer DH wraps the integrated server's level, not the
+     * client level, so the identity check alone finds nothing: fall back to the same dimension.
+     */
     private static IDhApiLevelWrapper findWrapper(ClientLevel mcLevel) {
+        IDhApiLevelWrapper sameDimension = null;
+        StringBuilder seen = new StringBuilder();
         for (IDhApiLevelWrapper w : DhApi.Delayed.worldProxy.getAllLoadedLevelWrappers()) {
-            if (w.getWrappedMcObject() == mcLevel) return w;
+            Object o = w.getWrappedMcObject();
+            if (o == mcLevel) return w;
+            seen.append(' ').append(o);
+            if (sameDimension == null && o instanceof net.minecraft.world.level.Level l
+                    && l.dimension().equals(mcLevel.dimension())) {
+                sameDimension = w;
+            }
         }
-        return null;
+        if (sameDimension == null && !loggedMissing) {
+            loggedMissing = true;
+            com.hbm.Constants.LOG.warn("DH torex: no level wrapper for {}, DH has:{}", mcLevel.dimension(), seen);
+        }
+        return sameDimension;
     }
 
     // ----- geometry -----
