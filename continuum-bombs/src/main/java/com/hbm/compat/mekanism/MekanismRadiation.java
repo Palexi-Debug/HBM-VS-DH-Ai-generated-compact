@@ -75,22 +75,49 @@ public final class MekanismRadiation {
         }
     }
 
+    /** Supplies an argument for one constructor/factory parameter, or NO when the type is unknown. */
+    private static final Object NO = new Object();
+
+    private static Object arg(Class<?> t, ServerLevel level, BlockPos pos) {
+        if (t == BlockPos.class) return pos;
+        if (t == int.class) return NEXT_INT[0]++ % 3 == 0 ? pos.getX() : NEXT_INT[0] % 3 == 1 ? pos.getY() : pos.getZ();
+        if (t == double.class) return NEXT_INT[0]++ % 3 == 0 ? (double) pos.getX() : NEXT_INT[0] % 3 == 1 ? (double) pos.getY() : (double) pos.getZ();
+        if (t.isAssignableFrom(level.dimension().getClass())) return level.dimension();
+        if (t.isAssignableFrom(level.getClass())) return level;
+        if (t.isAssignableFrom(GlobalPos.class)) return GlobalPos.of(level.dimension(), pos);
+        return NO;
+    }
+
+    private static final int[] NEXT_INT = {0};
+
     /** Builds the first argument of the source overload from whatever type this Mekanism version expects. */
     private static Object where(Class<?> type, ServerLevel level, BlockPos pos) throws ReflectiveOperationException {
         if (type.isAssignableFrom(GlobalPos.class)) return GlobalPos.of(level.dimension(), pos);
         for (Constructor<?> c : type.getConstructors()) {
             Class<?>[] p = c.getParameterTypes();
-            if (p.length == 2 && p[0] == BlockPos.class && p[1].isAssignableFrom(level.dimension().getClass())) {
-                return c.newInstance(pos, level.dimension());
+            Object[] a = new Object[p.length];
+            NEXT_INT[0] = 0;
+            boolean ok = true;
+            for (int i = 0; i < p.length && ok; i++) {
+                // ints/doubles are x, y, z in order
+                if (p[i] == int.class) a[i] = NEXT_INT[0] == 0 ? pos.getX() : NEXT_INT[0] == 1 ? pos.getY() : pos.getZ();
+                else if (p[i] == double.class) a[i] = NEXT_INT[0] == 0 ? (double) pos.getX() : NEXT_INT[0] == 1 ? (double) pos.getY() : (double) pos.getZ();
+                else { a[i] = arg(p[i], level, pos); ok = a[i] != NO; continue; }
+                NEXT_INT[0]++;
             }
-            if (p.length == 2 && p[0] == BlockPos.class && p[1].isAssignableFrom(level.getClass())) {
-                return c.newInstance(pos, level);
-            }
-            if (p.length == 4 && p[0] == int.class && p[3].isAssignableFrom(level.dimension().getClass())) {
-                return c.newInstance(pos.getX(), pos.getY(), pos.getZ(), level.dimension());
-            }
+            if (ok && p.length > 0) return c.newInstance(a);
         }
-        throw new NoSuchMethodException("no usable constructor for " + type.getName());
+        for (java.lang.reflect.Method m : type.getMethods()) {
+            if (!java.lang.reflect.Modifier.isStatic(m.getModifiers()) || m.getReturnType() != type) continue;
+            Class<?>[] p = m.getParameterTypes();
+            Object[] a = new Object[p.length];
+            boolean ok = p.length > 0;
+            for (int i = 0; i < p.length && ok; i++) { NEXT_INT[0] = 0; a[i] = arg(p[i], level, pos); ok = a[i] != NO; }
+            if (ok) return m.invoke(null, a);
+        }
+        StringBuilder sb = new StringBuilder("no usable constructor for " + type.getName() + ":");
+        for (Constructor<?> c : type.getConstructors()) sb.append(' ').append(c);
+        throw new NoSuchMethodException(sb.toString());
     }
 
     /** Creates a decaying Mekanism radiation source, used for the fallout zone of a nuke. */
