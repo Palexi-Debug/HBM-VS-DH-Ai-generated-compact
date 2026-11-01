@@ -200,7 +200,7 @@ public final class ModTabs {
 
     /** The nukes ({@code nuke_*}) and the core, igniter, propellant and charge parts they are assembled from. */
     private static final java.util.regex.Pattern NUKE_ITEM = java.util.regex.Pattern.compile(
-            "nuke_.*|(boy|man|gadget|mike|tsar|fleija|solinium|prototype|n2|balefire)_.*");
+            "nuke_.*|bomb_casing|fissile_core|exotic_core|thermonuclear_stage|(boy|man|gadget|mike|tsar|fleija|solinium|prototype|n2|balefire)_.*");
 
     static boolean isNukeItem(Item item) {
         var id = BuiltInRegistries.ITEM.getKey(item); // `var`: the id type is ResourceLocation below 26.1 and Identifier from 26.1
