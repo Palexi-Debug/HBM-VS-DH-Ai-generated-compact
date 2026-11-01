@@ -40,7 +40,7 @@ final class DhTorexRenderer {
         IDhApiCustomRenderObjectFactory factory = DhApi.Delayed.customRenderObjectFactory;
         if (factory == null || DhApi.Delayed.worldProxy == null || !DhApi.Delayed.worldProxy.worldLoaded()) return;
 
-        int key = age / 10; // rebuild every half second
+        int key = age / DhQuality.current().updateTicks; // rebuild interval by quality
         if (live != null && live.stateKey == key) return;
 
         IDhApiLevelWrapper wrapper = findWrapper(mcLevel);
@@ -127,6 +127,7 @@ final class DhTorexRenderer {
      * cools to grey with age, a condensation skirt, a ground dust ring and the opening fireball.
      */
     static List<DhApiRenderableBox> buildBoxes(float scale, int age, int maxAge) {
+        DhQuality q = DhQuality.current();
         List<DhApiRenderableBox> out = new ArrayList<>(420);
         if (maxAge <= 0) maxAge = 900;
         double life = (double) age / maxAge;
@@ -139,7 +140,7 @@ final class DhTorexRenderer {
         double fire = 1.0 - smooth(age / 110.0);
         if (fire > 0.02) {
             double r = unit * (0.45 + 0.95 * smooth(age / 45.0));
-            int layers = 9;
+            int layers = q.fireLayers;
             for (int i = 0; i < layers; i++) {
                 double t = (i + 0.5) / layers * 2 - 1;     // -1 .. 1
                 double lr = r * Math.sqrt(Math.max(0.05, 1 - t * t));
@@ -153,7 +154,7 @@ final class DhTorexRenderer {
         double surge = smooth(age / (0.22 * maxAge));
         if (surge > 0.01 && surge < 1) {
             double rr = unit * (0.6 + 2.2 * surge), th = unit * 0.07;
-            int n = 20;
+            int n = q.dustBoxes;
             for (int i = 0; i < n; i++) {
                 double a = i * 2 * Math.PI / n;
                 double x = Math.cos(a) * rr, z = Math.sin(a) * rr, w = unit * 0.22;
@@ -166,7 +167,7 @@ final class DhTorexRenderer {
         Color stemC = lerp(WARM, SMOKE, cool, (int) (225 * fade));
 
         // stem: tapering round column with a slight bulge toward the top
-        int rings = 14;
+        int rings = q.stemRings;
         for (int i = 0; i < rings; i++) {
             double t = (i + 0.5) / rings;
             double y0 = h * 0.92 * i / rings, y1 = h * 0.92 * (i + 1) / rings;
@@ -183,8 +184,8 @@ final class DhTorexRenderer {
         double capY = h * 0.90;
         double major = unit * (0.30 + 0.58 * rise);        // ring radius
         double minor = unit * (0.16 + 0.22 * rise);        // tube radius
-        double cellH = minor * 0.60;
-        int around = 24, tube = 10;
+        double cellH = minor * (q == DhQuality.HIGH ? 0.60 : q == DhQuality.MEDIUM ? 0.75 : 1.0);
+        int around = q.torusAround, tube = q.torusTube;
         for (int i = 0; i < around; i++) {
             double a = i * 2 * Math.PI / around;
             double ca = Math.cos(a), sa = Math.sin(a);
