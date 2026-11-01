@@ -1,0 +1,19 @@
+{
+  "type": "mekanism:combining",
+  "mainInput": {
+    "amount": 6,
+    "ingredient": {
+      "item": "mekanism:ingot_uranium"
+    }
+  },
+  "extraInput": {
+    "amount": 2,
+    "ingredient": {
+      "item": "mekanism:ingot_steel"
+    }
+  },
+  "output": {
+    "item": "hbm:boy_target",
+    "count": 1
+  }
+}

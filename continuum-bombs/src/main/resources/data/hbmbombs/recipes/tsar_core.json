@@ -1,0 +1,19 @@
+{
+  "type": "mekanism:combining",
+  "mainInput": {
+    "amount": 2,
+    "ingredient": {
+      "item": "mekanism:pellet_antimatter"
+    }
+  },
+  "extraInput": {
+    "amount": 16,
+    "ingredient": {
+      "item": "mekanism:pellet_plutonium"
+    }
+  },
+  "output": {
+    "item": "hbm:tsar_core",
+    "count": 1
+  }
+}

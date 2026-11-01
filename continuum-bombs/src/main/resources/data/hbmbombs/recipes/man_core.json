@@ -1,0 +1,19 @@
+{
+  "type": "mekanism:combining",
+  "mainInput": {
+    "amount": 4,
+    "ingredient": {
+      "item": "mekanism:pellet_plutonium"
+    }
+  },
+  "extraInput": {
+    "amount": 2,
+    "ingredient": {
+      "item": "mekanism:ingot_lead"
+    }
+  },
+  "output": {
+    "item": "hbm:man_core",
+    "count": 1
+  }
+}

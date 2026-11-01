@@ -1,0 +1,19 @@
+{
+  "type": "mekanism:combining",
+  "mainInput": {
+    "amount": 4,
+    "ingredient": {
+      "item": "mekanism:pellet_polonium"
+    }
+  },
+  "extraInput": {
+    "amount": 2,
+    "ingredient": {
+      "item": "minecraft:tnt"
+    }
+  },
+  "output": {
+    "item": "hbm:n2_charge",
+    "count": 1
+  }
+}

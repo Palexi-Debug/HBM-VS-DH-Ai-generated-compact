@@ -1,0 +1,19 @@
+{
+  "type": "mekanism:combining",
+  "mainInput": {
+    "amount": 8,
+    "ingredient": {
+      "item": "minecraft:tnt"
+    }
+  },
+  "extraInput": {
+    "amount": 4,
+    "ingredient": {
+      "item": "mekanism:ingot_steel"
+    }
+  },
+  "output": {
+    "item": "hbm:gadget_explosive8",
+    "count": 1
+  }
+}

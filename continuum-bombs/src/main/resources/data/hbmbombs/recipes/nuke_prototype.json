@@ -1,0 +1,19 @@
+{
+  "type": "mekanism:combining",
+  "mainInput": {
+    "amount": 32,
+    "ingredient": {
+      "item": "mekanism:ingot_steel"
+    }
+  },
+  "extraInput": {
+    "amount": 2,
+    "ingredient": {
+      "item": "mekanism:pellet_antimatter"
+    }
+  },
+  "output": {
+    "item": "hbm:nuke_prototype",
+    "count": 1
+  }
+}

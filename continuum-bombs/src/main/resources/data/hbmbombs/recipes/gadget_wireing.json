@@ -1,0 +1,19 @@
+{
+  "type": "mekanism:combining",
+  "mainInput": {
+    "amount": 6,
+    "ingredient": {
+      "item": "mekanism:ingot_copper"
+    }
+  },
+  "extraInput": {
+    "amount": 4,
+    "ingredient": {
+      "item": "minecraft:redstone"
+    }
+  },
+  "output": {
+    "item": "hbm:gadget_wireing",
+    "count": 1
+  }
+}

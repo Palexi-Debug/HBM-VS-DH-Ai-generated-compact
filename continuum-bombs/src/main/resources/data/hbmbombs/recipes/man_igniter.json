@@ -1,0 +1,19 @@
+{
+  "type": "mekanism:combining",
+  "mainInput": {
+    "amount": 2,
+    "ingredient": {
+      "item": "mekanism:alloy_infused"
+    }
+  },
+  "extraInput": {
+    "amount": 4,
+    "ingredient": {
+      "item": "minecraft:redstone"
+    }
+  },
+  "output": {
+    "item": "hbm:man_igniter",
+    "count": 1
+  }
+}

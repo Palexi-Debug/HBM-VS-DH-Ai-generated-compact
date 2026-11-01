@@ -1,0 +1,19 @@
+{
+  "type": "mekanism:combining",
+  "mainInput": {
+    "amount": 8,
+    "ingredient": {
+      "item": "mekanism:ingot_steel"
+    }
+  },
+  "extraInput": {
+    "amount": 4,
+    "ingredient": {
+      "item": "mekanism:ingot_osmium"
+    }
+  },
+  "output": {
+    "item": "hbm:mike_cooling_unit",
+    "count": 1
+  }
+}

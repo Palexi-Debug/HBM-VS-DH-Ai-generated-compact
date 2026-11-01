@@ -1,0 +1,19 @@
+{
+  "type": "mekanism:combining",
+  "mainInput": {
+    "amount": 8,
+    "ingredient": {
+      "item": "minecraft:gunpowder"
+    }
+  },
+  "extraInput": {
+    "amount": 2,
+    "ingredient": {
+      "item": "mekanism:ingot_steel"
+    }
+  },
+  "output": {
+    "item": "hbm:boy_propellant",
+    "count": 1
+  }
+}

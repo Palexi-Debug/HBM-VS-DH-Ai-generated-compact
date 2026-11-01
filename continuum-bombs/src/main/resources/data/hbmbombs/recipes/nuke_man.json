@@ -1,0 +1,19 @@
+{
+  "type": "mekanism:combining",
+  "mainInput": {
+    "amount": 16,
+    "ingredient": {
+      "item": "mekanism:ingot_steel"
+    }
+  },
+  "extraInput": {
+    "amount": 8,
+    "ingredient": {
+      "item": "mekanism:ingot_refined_obsidian"
+    }
+  },
+  "output": {
+    "item": "hbm:nuke_man",
+    "count": 1
+  }
+}

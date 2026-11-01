@@ -1,0 +1,19 @@
+{
+  "type": "mekanism:combining",
+  "mainInput": {
+    "amount": 24,
+    "ingredient": {
+      "item": "mekanism:ingot_steel"
+    }
+  },
+  "extraInput": {
+    "amount": 1,
+    "ingredient": {
+      "item": "mekanism:pellet_antimatter"
+    }
+  },
+  "output": {
+    "item": "hbm:nuke_fleija",
+    "count": 1
+  }
+}
