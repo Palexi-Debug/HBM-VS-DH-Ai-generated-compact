@@ -1,19 +1,15 @@
 {
-  "type": "mekanism:combining",
-  "mainInput": {
-    "amount": 8,
+  "type": "mekanism:metallurgic_infusing",
+  "chemicalInput": {
+    "amount": 40,
+    "tag": "mekanism:refined_obsidian"
+  },
+  "itemInput": {
     "ingredient": {
       "item": "mekanism:ingot_steel"
     }
   },
-  "extraInput": {
-    "amount": 2,
-    "ingredient": {
-      "item": "mekanism:ingot_refined_obsidian"
-    }
-  },
   "output": {
-    "item": "hbm:bomb_casing",
-    "count": 1
+    "item": "hbm:bomb_casing"
   }
 }

@@ -1,19 +1,15 @@
 {
-  "type": "mekanism:combining",
-  "mainInput": {
-    "amount": 2,
+  "type": "mekanism:metallurgic_infusing",
+  "chemicalInput": {
+    "amount": 100,
+    "tag": "mekanism:diamond"
+  },
+  "itemInput": {
     "ingredient": {
       "item": "mekanism:pellet_antimatter"
     }
   },
-  "extraInput": {
-    "amount": 4,
-    "ingredient": {
-      "item": "mekanism:alloy_atomic"
-    }
-  },
   "output": {
-    "item": "hbm:exotic_core",
-    "count": 1
+    "item": "hbm:exotic_core"
   }
 }

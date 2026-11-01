@@ -1,19 +1,15 @@
 {
-  "type": "mekanism:combining",
-  "mainInput": {
-    "amount": 1,
+  "type": "mekanism:metallurgic_infusing",
+  "chemicalInput": {
+    "amount": 80,
+    "tag": "mekanism:refined_obsidian"
+  },
+  "itemInput": {
     "ingredient": {
       "item": "hbm:fissile_core"
     }
   },
-  "extraInput": {
-    "amount": 4,
-    "ingredient": {
-      "item": "mekanism:alloy_atomic"
-    }
-  },
   "output": {
-    "item": "hbm:thermonuclear_stage",
-    "count": 1
+    "item": "hbm:thermonuclear_stage"
   }
 }
