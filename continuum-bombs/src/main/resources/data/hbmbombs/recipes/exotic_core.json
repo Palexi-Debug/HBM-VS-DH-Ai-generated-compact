@@ -1,0 +1,19 @@
+{
+  "type": "mekanism:combining",
+  "mainInput": {
+    "amount": 2,
+    "ingredient": {
+      "item": "mekanism:pellet_antimatter"
+    }
+  },
+  "extraInput": {
+    "amount": 4,
+    "ingredient": {
+      "item": "mekanism:alloy_atomic"
+    }
+  },
+  "output": {
+    "item": "hbm:exotic_core",
+    "count": 1
+  }
+}

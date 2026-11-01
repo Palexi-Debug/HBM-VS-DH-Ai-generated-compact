@@ -1,15 +1,15 @@
 {
   "type": "mekanism:combining",
   "mainInput": {
-    "amount": 24,
+    "amount": 1,
     "ingredient": {
-      "item": "mekanism:ingot_steel"
+      "item": "hbm:bomb_casing"
     }
   },
   "extraInput": {
-    "amount": 8,
+    "amount": 12,
     "ingredient": {
-      "item": "mekanism:ingot_refined_obsidian"
+      "item": "mekanism:pellet_plutonium"
     }
   },
   "output": {

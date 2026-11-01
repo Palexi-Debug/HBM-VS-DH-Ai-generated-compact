@@ -1,15 +1,15 @@
 {
   "type": "mekanism:combining",
   "mainInput": {
-    "amount": 48,
+    "amount": 1,
     "ingredient": {
-      "item": "mekanism:ingot_steel"
+      "item": "hbm:bomb_casing"
     }
   },
   "extraInput": {
-    "amount": 16,
+    "amount": 1,
     "ingredient": {
-      "item": "mekanism:ingot_osmium"
+      "item": "hbm:thermonuclear_stage"
     }
   },
   "output": {

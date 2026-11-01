@@ -1,15 +1,15 @@
 {
   "type": "mekanism:combining",
   "mainInput": {
-    "amount": 16,
+    "amount": 1,
     "ingredient": {
-      "item": "mekanism:ingot_steel"
+      "item": "hbm:bomb_casing"
     }
   },
   "extraInput": {
-    "amount": 8,
+    "amount": 2,
     "ingredient": {
-      "item": "mekanism:ingot_refined_obsidian"
+      "item": "hbm:fissile_core"
     }
   },
   "output": {

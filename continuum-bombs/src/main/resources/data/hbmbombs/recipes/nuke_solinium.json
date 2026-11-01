@@ -1,15 +1,15 @@
 {
   "type": "mekanism:combining",
   "mainInput": {
-    "amount": 32,
+    "amount": 1,
     "ingredient": {
-      "item": "mekanism:ingot_steel"
+      "item": "hbm:exotic_core"
     }
   },
   "extraInput": {
-    "amount": 8,
+    "amount": 1,
     "ingredient": {
-      "item": "mekanism:alloy_atomic"
+      "item": "hbm:thermonuclear_stage"
     }
   },
   "output": {

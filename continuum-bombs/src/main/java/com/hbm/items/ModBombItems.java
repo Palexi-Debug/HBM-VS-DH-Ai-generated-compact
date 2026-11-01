@@ -95,4 +95,24 @@ public final class ModBombItems {
 
 
     public static void init() {}
+    /** Intermediate for the Mekanism Combiner recipes of the bombs. */
+    public static final RegistryObject<ItemCustomLore> bomb_casing =
+            REG.item("bomb_casing", ItemCustomLore::new, p -> p.stacksTo(64))
+                    .transform(Presets.sprite()).tab(HbmTab.BOMBS);
+
+    /** Intermediate for the Mekanism Combiner recipes of the bombs. */
+    public static final RegistryObject<ItemCustomLore> fissile_core =
+            REG.item("fissile_core", ItemCustomLore::new, p -> p.stacksTo(64))
+                    .transform(Presets.sprite()).tab(HbmTab.BOMBS);
+
+    /** Intermediate for the Mekanism Combiner recipes of the bombs. */
+    public static final RegistryObject<ItemCustomLore> exotic_core =
+            REG.item("exotic_core", ItemCustomLore::new, p -> p.stacksTo(64))
+                    .transform(Presets.sprite()).tab(HbmTab.BOMBS);
+
+    /** Intermediate for the Mekanism Combiner recipes of the bombs. */
+    public static final RegistryObject<ItemCustomLore> thermonuclear_stage =
+            REG.item("thermonuclear_stage", ItemCustomLore::new, p -> p.stacksTo(64))
+                    .transform(Presets.sprite()).tab(HbmTab.BOMBS);
+
 }

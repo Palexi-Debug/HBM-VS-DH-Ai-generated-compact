@@ -1,15 +1,15 @@
 {
   "type": "mekanism:combining",
   "mainInput": {
-    "amount": 32,
+    "amount": 2,
     "ingredient": {
-      "item": "mekanism:ingot_steel"
+      "item": "hbm:exotic_core"
     }
   },
   "extraInput": {
-    "amount": 2,
+    "amount": 1,
     "ingredient": {
-      "item": "mekanism:pellet_antimatter"
+      "item": "hbm:bomb_casing"
     }
   },
   "output": {

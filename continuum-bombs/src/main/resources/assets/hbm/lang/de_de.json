@@ -4200,5 +4200,9 @@
   "item.hbm.bedrock_ore.type.heavy": "Schwermetall",
   "item.hbm.bedrock_ore.type.light": "Leichtmetall",
   "item.hbm.bedrock_ore.type.nonmetal": "Nichtmetall",
-  "item.hbm.bedrock_ore.type.rare": "Seltenerden"
+  "item.hbm.bedrock_ore.type.rare": "Seltenerden",
+  "item.hbm.bomb_casing": "Bombenhülle",
+  "item.hbm.fissile_core": "Spaltkern",
+  "item.hbm.exotic_core": "Exotischer Kern",
+  "item.hbm.thermonuclear_stage": "Thermonukleare Stufe"
 }

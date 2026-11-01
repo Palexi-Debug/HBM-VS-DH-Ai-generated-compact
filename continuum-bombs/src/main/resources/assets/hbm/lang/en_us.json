@@ -7008,5 +7008,9 @@
   "chat.surveyScanner.foundDepthRock": "Found DEPTH ROCK!",
   "chat.surveyScanner.foundSchist": "Found SCHIST!",
   "chat.surveyScanner.foundAustralium": "Found AUSTRALIUM!",
-  "chat.surveyScanner.foundBedrockOreFor": "Found BEDROCK ORE for %s!"
+  "chat.surveyScanner.foundBedrockOreFor": "Found BEDROCK ORE for %s!",
+  "item.hbm.bomb_casing": "Bomb Casing",
+  "item.hbm.fissile_core": "Fissile Core",
+  "item.hbm.exotic_core": "Exotic Core",
+  "item.hbm.thermonuclear_stage": "Thermonuclear Stage"
 }
