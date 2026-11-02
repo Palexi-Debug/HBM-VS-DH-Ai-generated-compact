@@ -73,7 +73,7 @@ public class DroppedBomb extends Entity {
         setDeltaMovement(getDeltaMovement().scale(0.998D));
         if (level().isClientSide()) return;
 
-        if (this.isOnGround() || this.horizontalCollision || this.verticalCollision) {
+        if (this.onGround() || this.horizontalCollision || this.verticalCollision) {
             impact();
         } else if (this.tickCount > 20 * 60 * 10 || getY() < level().getMinBuildHeight() - 64) {
             discard();
