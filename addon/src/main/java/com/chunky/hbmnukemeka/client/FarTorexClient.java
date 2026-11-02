@@ -85,8 +85,8 @@ public final class FarTorexClient {
                 lastLevel = level;
             }
             if (level == null || !dhPresent || dhBroken) return;
-            // refresh the geometry once per second, the packets arrive every half second
-            if (level.getGameTime() % 20 != 0) return;
+            // refresh the geometry twice per second, the packets arrive every half second
+            if (level.getGameTime() % 10 != 0) return;
             final long now = level.getGameTime();
             for (State s : STATES.values()) {
                 final TorexPacket.Entry e = s.entry;
