@@ -4204,5 +4204,17 @@
   "item.hbm.bomb_casing": "Bombenhülle",
   "item.hbm.fissile_core": "Spaltkern",
   "item.hbm.exotic_core": "Exotischer Kern",
-  "item.hbm.thermonuclear_stage": "Thermonukleare Stufe"
+  "item.hbm.thermonuclear_stage": "Thermonukleare Stufe",
+  "desc.mekanism_radiation": "Strahlung: %s Sv/h am Explosionszentrum (Mekanism)",
+  "item.hbm.bomb_casing.desc.0": "Stahlhülle für Atombomben.",
+  "item.hbm.bomb_casing.desc.1": "Wird im Metallurgischen Infuser mit raffiniertem Obsidian hergestellt.",
+  "item.hbm.fissile_core.desc.0": "Spaltkern einer Atombombe.",
+  "item.hbm.fissile_core.desc.1": "Wird in der Druckreaktionskammer aus Plutonium hergestellt.",
+  "item.hbm.fissile_core.desc.2": "Radioaktiv: vorsichtig behandeln.",
+  "item.hbm.exotic_core.desc.0": "Antimaterie-geladener Kern für die extremsten Bomben.",
+  "item.hbm.exotic_core.desc.1": "Wird im Antiprotonischen Nukleosynthesizer hergestellt.",
+  "item.hbm.exotic_core.desc.2": "Radioaktiv: vorsichtig behandeln.",
+  "item.hbm.thermonuclear_stage.desc.0": "Fusionsstufe für thermonukleare Bomben.",
+  "item.hbm.thermonuclear_stage.desc.1": "Wird im Metallurgischen Infuser aus einem Spaltkern hergestellt.",
+  "item.hbm.thermonuclear_stage.desc.2": "Radioaktiv: vorsichtig behandeln."
 }

@@ -76,6 +76,11 @@ public enum BlastInfo {
         if (hasFallout() && !BombConfig.disableNuclear) {
             addHeading(tooltip, "trait.fallout", ChatFormatting.DARK_GREEN);
             addRadius(tooltip, falloutRadius());
+            // FORK: the fallout is a Mekanism radiation source at ground zero (see MekanismRadiation.field)
+            double sv = radius() * com.hbm.compat.mekanism.MekanismRadiation.FALLOUT_SV_PER_BLOCK;
+            tooltip.add(Component.literal(" ").append(Component.translatable("desc.mekanism_radiation",
+                    sv >= 10 ? String.valueOf(Math.round(sv)) : String.format(java.util.Locale.ROOT, "%.1f", sv)))
+                    .withStyle(ChatFormatting.DARK_GREEN));
         }
     }
 

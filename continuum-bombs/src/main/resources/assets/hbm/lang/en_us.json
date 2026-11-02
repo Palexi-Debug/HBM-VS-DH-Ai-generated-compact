@@ -7012,5 +7012,17 @@
   "item.hbm.bomb_casing": "Bomb Casing",
   "item.hbm.fissile_core": "Fissile Core",
   "item.hbm.exotic_core": "Exotic Core",
-  "item.hbm.thermonuclear_stage": "Thermonuclear Stage"
+  "item.hbm.thermonuclear_stage": "Thermonuclear Stage",
+  "desc.mekanism_radiation": "Radiation: %s Sv/h at ground zero (Mekanism)",
+  "item.hbm.bomb_casing.desc.0": "Steel shell for nuclear bombs.",
+  "item.hbm.bomb_casing.desc.1": "Made in the Metallurgic Infuser with refined obsidian.",
+  "item.hbm.fissile_core.desc.0": "Fissile core of a nuclear bomb.",
+  "item.hbm.fissile_core.desc.1": "Made in the Pressurized Reaction Chamber from plutonium.",
+  "item.hbm.fissile_core.desc.2": "Radioactive: handle with care.",
+  "item.hbm.exotic_core.desc.0": "Antimatter-charged core for the most extreme bombs.",
+  "item.hbm.exotic_core.desc.1": "Made in the Antiprotonic Nucleosynthesizer.",
+  "item.hbm.exotic_core.desc.2": "Radioactive: handle with care.",
+  "item.hbm.thermonuclear_stage.desc.0": "Fusion stage for thermonuclear bombs.",
+  "item.hbm.thermonuclear_stage.desc.1": "Made in the Metallurgic Infuser from a fissile core.",
+  "item.hbm.thermonuclear_stage.desc.2": "Radioactive: handle with care."
 }
