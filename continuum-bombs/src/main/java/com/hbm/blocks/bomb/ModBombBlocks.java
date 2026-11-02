@@ -147,7 +147,6 @@ public final class ModBombBlocks {
             .transform(tntFamily("c4"));
 
     static {
-        REG.blockItem(nuke_drop_rack, Compat::blockDescription).tab(HbmTab.BOMBS);
         REG.blockItem(balefire, Compat::blockDescription);
         REG.blockItem(fire_digamma, Compat::blockDescription).transform(Presets.sprite("hbm:blocks/fire_digamma"));
         REG.blockItem(digamma_matter, Compat::blockDescription);
