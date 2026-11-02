@@ -113,6 +113,8 @@ public class EntityNukeTorex extends CompatEntity {
     private long clientTimelineFingerprint = Long.MIN_VALUE;
     private final EntityChunkLoader chunkLoader = new EntityChunkLoader(this, 0);
     private boolean benchmarkFixture;
+    /** A hidden client-side copy that only simulates cloudlets (for Distant Horizons); never added to a level. */
+    private boolean ghost;
 
     public EntityNukeTorex(EntityType<?> type, Level level) {
         super(type, level);
@@ -183,7 +185,8 @@ public class EntityNukeTorex extends CompatEntity {
             prepareClientAnimation();
             if (!advanceClientReplay()) return;
             if (this.tickCount >= maxAge && authoritativeAnimationAge() >= maxAge) return;
-            simulateClientTick(true);
+            simulateClientTick(!ghost);
+            if (ghost) return; // no entity base tick, no effects: it only moves cloudlets
         } else {
             chunkLoader.tick();
             detectTerrainChange();
@@ -243,7 +246,7 @@ public class EntityNukeTorex extends CompatEntity {
                 double[] vec = rotateAroundY(vx, 0, 0, rot);
                 // 1.7 reads this client's own heightmap per cloud, so the ring follows the terrain it crosses
                 this.cloudlets.add(new Cloudlet(vec[0] + getX(),
-                        level().getHeight(Heightmap.Types.MOTION_BLOCKING, (int) (vec[0] + getX()) + 1, (int) (vec[2] + getZ())),
+                        ghost ? ghostGround() : level().getHeight(Heightmap.Types.MOTION_BLOCKING, (int) (vec[0] + getX()) + 1, (int) (vec[2] + getZ())),
                         vec[2] + getZ(), rot, 0, shockLife, TorexType.SHOCK)
                         .setScale(7F, 2F)
                         .setMotion(this.tickCount > 15 ? 0.75 : 0));
@@ -350,6 +353,38 @@ public class EntityNukeTorex extends CompatEntity {
                 cloudlets.add(cloud);
             }
         }
+    }
+
+    /** Ground height for a ghost: the far chunks are not loaded, so use the height captured at detonation. */
+    private int ghostGround() {
+        int initial = this.entityData.get(INITIAL_SPAWN_TARGET);
+        return initial == Integer.MIN_VALUE ? (int) getY() : initial + 3;
+    }
+
+    /** Builds the hidden simulation copy of a cloud the client does not track (Distant Horizons "HIGH_PLUS"). */
+    public static EntityNukeTorex ghostFac(Level level, double x, double y, double z) {
+        EntityNukeTorex torex = new EntityNukeTorex(ModEntities.NUKE_TOREX.get(), level);
+        torex.ghost = true;
+        torex.setPos(x, y, z);
+        return torex;
+    }
+
+    /** Copies the synced timeline of the real cloud onto a ghost so it replays the very same animation. */
+    public void syncGhost(float scale, byte type, int age, int seedLow, int seedHigh, int startLow, int startHigh,
+                          int initialTarget, int finalTarget, int terrainAge, float humidity, boolean vacuum) {
+        this.entityData.set(SCALE, scale);
+        this.entityData.set(TYPE, type);
+        this.entityData.set(ANIMATION_AGE, age);
+        this.entityData.set(RANDOM_SEED_LOW, seedLow);
+        this.entityData.set(RANDOM_SEED_HIGH, seedHigh);
+        this.entityData.set(START_TIME_LOW, startLow);
+        this.entityData.set(START_TIME_HIGH, startHigh);
+        this.entityData.set(INITIAL_SPAWN_TARGET, initialTarget);
+        this.entityData.set(FINAL_SPAWN_TARGET, finalTarget);
+        this.entityData.set(TERRAIN_CHANGE_AGE, terrainAge);
+        this.entityData.set(HUMIDITY, humidity);
+        this.entityData.set(VACUUM, vacuum);
+        this.maxAge = getMaxAge();
     }
 
     private int replaySpawnTarget() {

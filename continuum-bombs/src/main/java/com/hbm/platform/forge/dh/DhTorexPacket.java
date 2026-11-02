@@ -7,7 +7,10 @@ import net.minecraft.network.FriendlyByteBuf;
 /** Server to client: the state of every active nuke torex in the player's dimension (for Distant Horizons). */
 public final class DhTorexPacket {
 
-    public record Entry(int entityId, double x, double y, double z, float scale, int age, int maxAge, byte type) {}
+    /** The timeline fields (seed .. vacuum) let a client rebuild the identical cloud animation for HIGH_PLUS. */
+    public record Entry(int entityId, double x, double y, double z, float scale, int age, int maxAge, byte type,
+                        int seedLow, int seedHigh, int startLow, int startHigh,
+                        int initialTarget, int finalTarget, int terrainAge, float humidity, boolean vacuum) {}
 
     public final List<Entry> entries;
 
@@ -26,6 +29,15 @@ public final class DhTorexPacket {
             buf.writeVarInt(e.age);
             buf.writeVarInt(e.maxAge);
             buf.writeByte(e.type);
+            buf.writeInt(e.seedLow);
+            buf.writeInt(e.seedHigh);
+            buf.writeInt(e.startLow);
+            buf.writeInt(e.startHigh);
+            buf.writeInt(e.initialTarget);
+            buf.writeInt(e.finalTarget);
+            buf.writeInt(e.terrainAge);
+            buf.writeFloat(e.humidity);
+            buf.writeBoolean(e.vacuum);
         }
     }
 
@@ -34,7 +46,9 @@ public final class DhTorexPacket {
         List<Entry> list = new ArrayList<>(n);
         for (int i = 0; i < n; i++) {
             list.add(new Entry(buf.readVarInt(), buf.readDouble(), buf.readDouble(), buf.readDouble(),
-                    buf.readFloat(), buf.readVarInt(), buf.readVarInt(), buf.readByte()));
+                    buf.readFloat(), buf.readVarInt(), buf.readVarInt(), buf.readByte(),
+                    buf.readInt(), buf.readInt(), buf.readInt(), buf.readInt(),
+                    buf.readInt(), buf.readInt(), buf.readInt(), buf.readFloat(), buf.readBoolean()));
         }
         return new DhTorexPacket(list);
     }

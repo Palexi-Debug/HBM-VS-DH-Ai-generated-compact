@@ -10,16 +10,21 @@ import net.minecraftforge.fml.loading.FMLPaths;
 
 /**
  * Detail level of the Distant Horizons nuke cloud. {@code config/hbm_dh_cloud.properties} holds {@code quality}:
- * {@code AUTO} (default, chosen from the machine), {@code LOW}, {@code MEDIUM} or {@code HIGH}. AUTO picks LOW on
+ * {@code AUTO} (default, chosen from the machine), {@code LOW}, {@code MEDIUM}, {@code HIGH} or {@code HIGH_PLUS}. AUTO picks LOW on
  * integrated Intel graphics or four cores and fewer, MEDIUM below eight cores or 4 GB heap, and HIGH otherwise.
  */
 public enum DhQuality {
     //  stem rings, torus around, torus tube, fireball layers, dust boxes, ticks between rebuilds
     LOW(5, 12, 5, 4, 8, 20),
     MEDIUM(9, 18, 7, 6, 14, 10),
-    HIGH(14, 24, 10, 9, 20, 10);
+    HIGH(14, 24, 10, 9, 20, 10),
+    /** The real cloud simulated on your client, every cloudlet drawn as a box (heavy; never picked by AUTO). */
+    HIGH_PLUS(0, 0, 0, 0, 0, 5);
 
     public final int stemRings, torusAround, torusTube, fireLayers, dustBoxes, updateTicks;
+
+    /** HIGH_PLUS: most boxes handed to Distant Horizons per cloud. */
+    public static final int PLUS_MAX_BOXES = 2800;
 
     DhQuality(int stemRings, int torusAround, int torusTube, int fireLayers, int dustBoxes, int updateTicks) {
         this.stemRings = stemRings;
@@ -39,7 +44,7 @@ public enum DhQuality {
         DhQuality q = null;
         if (!setting.equals("AUTO")) {
             try {
-                q = valueOf(setting);
+                q = valueOf(setting.replace("+", "_PLUS"));
             } catch (IllegalArgumentException ignored) {}
         }
         String gpu = "unknown";
@@ -71,7 +76,7 @@ public enum DhQuality {
             } else {
                 p.setProperty("quality", "AUTO");
                 try (var out = Files.newOutputStream(file)) {
-                    p.store(out, "Distant Horizons nuke cloud detail: AUTO, LOW, MEDIUM or HIGH (AUTO picks from your hardware)");
+                    p.store(out, "Distant Horizons nuke cloud detail: AUTO, LOW, MEDIUM, HIGH or HIGH_PLUS (AUTO picks from your hardware, never HIGH_PLUS)");
                 }
             }
         } catch (IOException e) {

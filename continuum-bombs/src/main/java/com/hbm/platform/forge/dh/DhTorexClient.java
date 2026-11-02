@@ -23,7 +23,12 @@ public final class DhTorexClient {
     static final class State {
         DhTorexPacket.Entry entry;
         long receivedAt;
+        boolean dirty; // a new packet arrived: refresh the ghost's synced timeline
     }
+
+    /** HIGH_PLUS: hidden simulation copies of the far clouds, by entity id. */
+    private static final Map<Integer, com.hbm.entity.effect.EntityNukeTorex> GHOSTS = new HashMap<>();
+    private static boolean plusBroken;
 
     private static final Map<Integer, State> STATES = new HashMap<>();
     private static boolean dhPresent;
@@ -52,6 +57,7 @@ public final class DhTorexClient {
             }
             s.entry = e;
             s.receivedAt = now;
+            s.dirty = true;
             next.put(e.entityId(), s);
         }
         // anything the server no longer lists is gone
@@ -89,6 +95,31 @@ public final class DhTorexClient {
         }
     }
 
+    /** Creates, syncs and advances the hidden copies one client tick; copies of tracked (real) clouds are dropped. */
+    private static void tickGhosts(ClientLevel level, long now) {
+        GHOSTS.keySet().removeIf(id -> !STATES.containsKey(id));
+        for (State s : STATES.values()) {
+            DhTorexPacket.Entry e = s.entry;
+            if (level.getEntity(e.entityId()) != null) {
+                GHOSTS.remove(e.entityId());
+                continue;
+            }
+            com.hbm.entity.effect.EntityNukeTorex g = GHOSTS.get(e.entityId());
+            if (g == null) {
+                g = com.hbm.entity.effect.EntityNukeTorex.ghostFac(level, e.x(), e.y(), e.z());
+                GHOSTS.put(e.entityId(), g);
+                s.dirty = true;
+            }
+            if (s.dirty) {
+                s.dirty = false;
+                g.syncGhost(e.scale(), e.type(), e.age(), e.seedLow(), e.seedHigh(), e.startLow(), e.startHigh(),
+                        e.initialTarget(), e.finalTarget(), e.terrainAge(), e.humidity(), e.vacuum());
+            }
+            g.tickCount++; // the level does this for real entities
+            g.tick();
+        }
+    }
+
     public static final class Ticker {
         @SubscribeEvent
         public void onClientTick(TickEvent.ClientTickEvent event) {
@@ -99,18 +130,34 @@ public final class DhTorexClient {
                 // dimension change or disconnect: forget everything
                 if (dhPresent && !dhBroken) safe(DhTorexRenderer::clear);
                 STATES.clear();
+                GHOSTS.clear();
                 lastLevel = level;
             }
             if (level == null || !dhPresent || dhBroken) return;
-            // refresh the geometry once per second, the packets arrive every half second
-            if (level.getGameTime() % 10 != 0) return;
             final long now = level.getGameTime();
+            boolean plus = !plusBroken && DhQuality.current() == DhQuality.HIGH_PLUS;
+            if (plus) {
+                try {
+                    tickGhosts(level, now);
+                } catch (Throwable t) {
+                    plusBroken = true;
+                    GHOSTS.clear();
+                    com.hbm.Constants.LOG.error("DH torex HIGH_PLUS disabled after an error, falling back to HIGH", t);
+                }
+            } else if (!GHOSTS.isEmpty()) {
+                GHOSTS.clear();
+            }
+            plus = plus && !plusBroken;
+            // rebuild interval: HIGH_PLUS every few ticks, the box approximation once per half second
+            if (level.getGameTime() % (plus ? DhQuality.HIGH_PLUS.updateTicks : 10) != 0) return;
             for (State s : STATES.values()) {
                 final DhTorexPacket.Entry e = s.entry;
                 // the real entity renders while the client tracks it, Distant Horizons only draws the far ones
                 final boolean nearAndRendered = level.getEntity(e.entityId()) != null;
                 final int age = e.age() + (int) (now - s.receivedAt);
-                safe(() -> DhTorexRenderer.update(level, e, age, nearAndRendered));
+                final com.hbm.entity.effect.EntityNukeTorex ghost = plus ? GHOSTS.get(e.entityId()) : null;
+                if (ghost != null) safe(() -> DhTorexRenderer.updatePlus(level, e, ghost, nearAndRendered));
+                else safe(() -> DhTorexRenderer.update(level, e, age, nearAndRendered));
             }
         }
     }

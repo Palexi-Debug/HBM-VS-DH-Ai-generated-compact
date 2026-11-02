@@ -42,9 +42,14 @@ public final class DhTorexServer {
         if (level.getGameTime() % SEND_INTERVAL != 0) return;
         List<DhTorexPacket.Entry> entries = new ArrayList<>(list.size());
         for (EntityNukeTorex e : list) {
+            var d = e.getEntityData();
             entries.add(new DhTorexPacket.Entry(e.getId(), e.getX(), e.getY(), e.getZ(),
-                    e.getEntityData().get(EntityNukeTorex.SCALE), e.tickCount, e.getMaxAge(),
-                    e.getEntityData().get(EntityNukeTorex.TYPE)));
+                    d.get(EntityNukeTorex.SCALE), e.tickCount, e.getMaxAge(), d.get(EntityNukeTorex.TYPE),
+                    d.get(EntityNukeTorex.RANDOM_SEED_LOW), d.get(EntityNukeTorex.RANDOM_SEED_HIGH),
+                    d.get(EntityNukeTorex.START_TIME_LOW), d.get(EntityNukeTorex.START_TIME_HIGH),
+                    d.get(EntityNukeTorex.INITIAL_SPAWN_TARGET), d.get(EntityNukeTorex.FINAL_SPAWN_TARGET),
+                    d.get(EntityNukeTorex.TERRAIN_CHANGE_AGE), d.get(EntityNukeTorex.HUMIDITY),
+                    d.get(EntityNukeTorex.VACUUM)));
         }
         DhTorexNet.CHANNEL.send(PacketDistributor.DIMENSION.with(level::dimension), new DhTorexPacket(entries));
     }

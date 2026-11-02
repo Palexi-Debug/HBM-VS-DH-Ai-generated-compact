@@ -56,6 +56,64 @@ final class DhTorexRenderer {
         LIVE.put(e.entityId(), new Live(group, wrapper, key));
     }
 
+    /**
+     * HIGH_PLUS: every cloudlet of the hidden simulation copy becomes one box. The copy is the real
+     * {@link com.hbm.entity.effect.EntityNukeTorex} code run on this client with the server's seed, so the shape,
+     * rolling and colours are the real ones. Above {@link DhQuality#PLUS_MAX_BOXES} cloudlets a stable subset is
+     * drawn with larger boxes.
+     */
+    static void updatePlus(ClientLevel mcLevel, DhTorexPacket.Entry e, com.hbm.entity.effect.EntityNukeTorex ghost, boolean hide) {
+        Live live = LIVE.get(e.entityId());
+        if (hide) {
+            if (live != null) remove(e.entityId());
+            return;
+        }
+        IDhApiCustomRenderObjectFactory factory = DhApi.Delayed.customRenderObjectFactory;
+        if (factory == null || DhApi.Delayed.worldProxy == null || !DhApi.Delayed.worldProxy.worldLoaded()) return;
+        if (!ghost.isClientAnimationReady()) return; // still replaying up to the current age
+
+        IDhApiLevelWrapper wrapper = findWrapper(mcLevel);
+        if (wrapper == null) return;
+
+        List<DhApiRenderableBox> boxes = buildCloudletBoxes(ghost);
+        if (live != null) remove(e.entityId());
+        if (boxes.isEmpty()) return;
+        IDhApiRenderableBoxGroup group = factory.createRelativePositionedGroup(
+                "hbm:torex_" + e.entityId(), new DhApiVec3d(ghost.getX(), ghost.getY(), ghost.getZ()), boxes);
+        wrapper.getRenderRegister().add(group);
+        if (live == null) com.hbm.Constants.LOG.info("DH torex {} HIGH_PLUS drawn: {} boxes from {} cloudlets (age {})",
+                e.entityId(), boxes.size(), ghost.cloudlets.size(), ghost.tickCount);
+        LIVE.put(e.entityId(), new Live(group, wrapper, ghost.tickCount));
+    }
+
+    private static List<DhApiRenderableBox> buildCloudletBoxes(com.hbm.entity.effect.EntityNukeTorex ghost) {
+        int n = ghost.cloudlets.size();
+        int stride = Math.max(1, (n + DhQuality.PLUS_MAX_BOXES - 1) / DhQuality.PLUS_MAX_BOXES);
+        double grow = 1.0 + 0.30 * (stride - 1);
+        List<DhApiRenderableBox> out = new ArrayList<>(Math.min(n, DhQuality.PLUS_MAX_BOXES) + 16);
+        double ox = ghost.getX(), oy = ghost.getY(), oz = ghost.getZ();
+        for (com.hbm.entity.effect.EntityNukeTorex.Cloudlet c : ghost.cloudlets) {
+            if (c.isDead || c.getCreationOrdinal() % stride != 0) continue;
+            float alpha = c.getAlpha();
+            if (alpha < 0.05F) continue;
+            boolean cond = c.type == com.hbm.entity.effect.EntityNukeTorex.TorexType.CONDENSATION;
+            float bright = cond ? 0.9F : 0.75F * c.colorMod;
+            int r = channel(c.getInterpColor(0, 1F), bright);
+            int g = channel(c.getInterpColor(1, 1F), bright);
+            int b = channel(c.getInterpColor(2, 1F), bright);
+            double h = Math.max(0.5, c.getScale() * 0.85 * grow);
+            double x = c.getInterpX(1F) - ox, y = c.getInterpY(1F) - oy, z = c.getInterpZ(1F) - oz;
+            out.add(box(x - h, y - h, z - h, x + h, y + h, z + h,
+                    new Color(r, g, b, Math.max(0, Math.min(255, (int) (alpha * 235))))));
+        }
+        return out;
+    }
+
+    private static int channel(double color, float brightness) {
+        double v = color * brightness;
+        return (int) (Math.max(0D, Math.min(1D, v)) * 255D);
+    }
+
     static void remove(int entityId) {
         Live live = LIVE.remove(entityId);
         if (live != null) live.level.getRenderRegister().remove(live.group.getId());
@@ -128,6 +186,7 @@ final class DhTorexRenderer {
      */
     static List<DhApiRenderableBox> buildBoxes(float scale, int age, int maxAge) {
         DhQuality q = DhQuality.current();
+        if (q == DhQuality.HIGH_PLUS) q = DhQuality.HIGH; // fallback shape when the simulation is unavailable
         List<DhApiRenderableBox> out = new ArrayList<>(420);
         if (maxAge <= 0) maxAge = 900;
         double life = (double) age / maxAge;
