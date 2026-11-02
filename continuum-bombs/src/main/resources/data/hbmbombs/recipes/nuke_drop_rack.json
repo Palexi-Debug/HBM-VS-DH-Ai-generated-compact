@@ -1,0 +1,19 @@
+{
+  "type": "mekanism:combining",
+  "mainInput": {
+    "amount": 4,
+    "ingredient": {
+      "item": "mekanism:ingot_steel"
+    }
+  },
+  "extraInput": {
+    "amount": 2,
+    "ingredient": {
+      "item": "mekanism:alloy_infused"
+    }
+  },
+  "output": {
+    "item": "hbm:nuke_drop_rack",
+    "count": 1
+  }
+}

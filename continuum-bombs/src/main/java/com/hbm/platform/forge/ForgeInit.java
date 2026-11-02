@@ -51,6 +51,8 @@ public final class ForgeInit {
         // Distant Horizons: the nuke torex is sent to every player of the dimension and drawn through DH's renderer
         com.hbm.platform.forge.dh.DhTorexNet.register();
         MinecraftForge.EVENT_BUS.register(new com.hbm.platform.forge.dh.DhTorexServer());
+        // Drop system: the falling bomb entity and the rack's release hook (Valkyrien Skies is optional)
+        com.hbm.platform.forge.drop.DropBombs.register(modBus);
 
         if (FMLEnvironment.dist == Dist.CLIENT) {
             ForgeClientInit.init(modBus);

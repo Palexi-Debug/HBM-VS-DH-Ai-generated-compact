@@ -43,6 +43,12 @@ public final class ModBombBlocks {
                 .and(handle -> handle.loot(Loot.selfAlways()));
     }
 
+    /** The drop rack: a bomb hung underneath is released by redstone and falls (see BombDropHook). */
+    public static final RegistryObject<BlockBombRack> nuke_drop_rack = REG.block("nuke_drop_rack", BlockBombRack::new,
+                    p -> p.strength(5.0F, 60.0F).sound(SoundType.METAL).requiresCorrectToolForDrops())
+            .transform(Presets.cubeAll().states(Variants.uniform("powered", "false", "true")))
+            .loot(Loot.self()).tag(BlockTag.PICKAXE);
+
     /** Taint residue: a hard, spreading block with a shallow collision box. */
     public static final RegistryObject<BlockTaint> taint = REG.block("taint", BlockTaint::new,
                     p -> p.requiresCorrectToolForDrops().mapColor(MapColor.COLOR_GRAY).strength(15.0F, 6.0F).sound(SoundType.METAL)
@@ -141,6 +147,7 @@ public final class ModBombBlocks {
             .transform(tntFamily("c4"));
 
     static {
+        REG.blockItem(nuke_drop_rack, Compat::blockDescription).tab(HbmTab.BOMBS);
         REG.blockItem(balefire, Compat::blockDescription);
         REG.blockItem(fire_digamma, Compat::blockDescription).transform(Presets.sprite("hbm:blocks/fire_digamma"));
         REG.blockItem(digamma_matter, Compat::blockDescription);
@@ -158,6 +165,7 @@ public final class ModBombBlocks {
                 Compat::blockDescription).tab(HbmTab.BOMBS);
         REG.blockItem(nuke_mike, (b, p) -> new ItemNukeBlock(b, p, BlastInfo.IVY_MIKE),
                 Compat::blockDescription).tab(HbmTab.BOMBS);
+        REG.blockItem(nuke_drop_rack, Compat::blockDescription).tab(HbmTab.BOMBS);
         REG.blockItem(fireworks).tab(HbmTab.BOMBS);
         REG.blockItem(tnt).tab(HbmTab.BOMBS);
         REG.blockItem(dynamite).tab(HbmTab.BOMBS);
