@@ -11,14 +11,14 @@ import net.minecraftforge.fml.loading.FMLPaths;
 /**
  * Detail level of the Distant Horizons nuke cloud. {@code config/hbm_dh_cloud.properties} holds {@code quality}:
  * {@code AUTO} (default, chosen from the machine), {@code LOW}, {@code MEDIUM}, {@code HIGH} or {@code HIGH_PLUS}. AUTO picks LOW on
- * integrated Intel graphics or four cores and fewer, MEDIUM below eight cores or 4 GB heap, and HIGH otherwise.
+ * integrated Intel graphics or four cores and fewer, MEDIUM below eight cores or 4 GB heap, HIGH_PLUS from 12 cores and 6 GB heap, and HIGH otherwise.
  */
 public enum DhQuality {
     //  stem rings, torus around, torus tube, fireball layers, dust boxes, ticks between rebuilds
     LOW(5, 12, 5, 4, 8, 20),
     MEDIUM(9, 18, 7, 6, 14, 10),
     HIGH(14, 24, 10, 9, 20, 10),
-    /** The real cloud simulated on your client, every cloudlet drawn as a box (heavy; never picked by AUTO). */
+    /** The real cloud simulated on your client, every cloudlet drawn as a box (heavy; picked by AUTO from 12 cores and 6 GB heap). */
     HIGH_PLUS(0, 0, 0, 0, 0, 5);
 
     public final int stemRings, torusAround, torusTube, fireLayers, dustBoxes, updateTicks;
@@ -58,6 +58,7 @@ public enum DhQuality {
             boolean integratedIntel = g.contains("intel") && (g.contains("uhd") || g.contains("hd graphics") || g.contains("iris"));
             if (integratedIntel || cores <= 4) q = LOW;
             else if (cores < 8 || heapMb < 4096) q = MEDIUM;
+            else if (cores >= 12 && heapMb >= 6144) q = HIGH_PLUS;
             else q = HIGH;
         }
         com.hbm.Constants.LOG.info("DH torex quality {} (setting {}, gpu '{}', {} cores, {} MB heap)", q, setting, gpu, cores, heapMb);
@@ -76,7 +77,7 @@ public enum DhQuality {
             } else {
                 p.setProperty("quality", "AUTO");
                 try (var out = Files.newOutputStream(file)) {
-                    p.store(out, "Distant Horizons nuke cloud detail: AUTO, LOW, MEDIUM, HIGH or HIGH_PLUS (AUTO picks from your hardware, never HIGH_PLUS)");
+                    p.store(out, "Distant Horizons nuke cloud detail: AUTO, LOW, MEDIUM, HIGH or HIGH_PLUS (AUTO picks from your hardware)");
                 }
             }
         } catch (IOException e) {
