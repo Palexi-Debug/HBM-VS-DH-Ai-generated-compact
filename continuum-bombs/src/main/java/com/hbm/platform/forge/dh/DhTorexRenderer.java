@@ -28,6 +28,7 @@ final class DhTorexRenderer {
     private record Live(IDhApiRenderableBoxGroup group, IDhApiLevelWrapper level, int stateKey) {}
 
     private static final Map<Integer, Live> LIVE = new HashMap<>();
+    private static int serial;
 
     private DhTorexRenderer() {}
 
@@ -45,13 +46,17 @@ final class DhTorexRenderer {
 
         IDhApiLevelWrapper wrapper = findWrapper(mcLevel);
         if (wrapper == null) return;
-        if (live != null) remove(e.entityId());
 
         List<DhApiRenderableBox> boxes = buildBoxes(e.scale(), age, e.maxAge());
-        if (boxes.isEmpty()) return;
+        if (boxes.isEmpty()) {
+            if (live != null) remove(e.entityId());
+            return;
+        }
+        // add the new group first and only then remove the old one, so the cloud never blinks out between rebuilds
         IDhApiRenderableBoxGroup group = factory.createRelativePositionedGroup(
-                "hbm:torex_" + e.entityId(), new DhApiVec3d(e.x(), e.y(), e.z()), boxes);
+                "hbm:torex_" + e.entityId() + "_" + (++serial), new DhApiVec3d(e.x(), e.y(), e.z()), boxes);
         wrapper.getRenderRegister().add(group);
+        if (live != null) remove(e.entityId());
         if (live == null) com.hbm.Constants.LOG.info("DH torex {} drawn at {} {} {} (scale {}, age {})", e.entityId(), (int) e.x(), (int) e.y(), (int) e.z(), e.scale(), age);
         LIVE.put(e.entityId(), new Live(group, wrapper, key));
     }
@@ -76,11 +81,14 @@ final class DhTorexRenderer {
         if (wrapper == null) return;
 
         List<DhApiRenderableBox> boxes = buildCloudletBoxes(ghost);
-        if (live != null) remove(e.entityId());
-        if (boxes.isEmpty()) return;
+        if (boxes.isEmpty()) {
+            if (live != null) remove(e.entityId());
+            return;
+        }
         IDhApiRenderableBoxGroup group = factory.createRelativePositionedGroup(
-                "hbm:torex_" + e.entityId(), new DhApiVec3d(ghost.getX(), ghost.getY(), ghost.getZ()), boxes);
+                "hbm:torex_" + e.entityId() + "_" + (++serial), new DhApiVec3d(ghost.getX(), ghost.getY(), ghost.getZ()), boxes);
         wrapper.getRenderRegister().add(group);
+        if (live != null) remove(e.entityId()); // new group first, so the cloud never blinks out
         if (live == null) com.hbm.Constants.LOG.info("DH torex {} HIGH_PLUS drawn: {} boxes from {} cloudlets (age {})",
                 e.entityId(), boxes.size(), ghost.cloudlets.size(), ghost.tickCount);
         LIVE.put(e.entityId(), new Live(group, wrapper, ghost.tickCount));

@@ -29,6 +29,7 @@ final class DhTorexRenderer {
     private record Live(IDhApiRenderableBoxGroup group, IDhApiLevelWrapper level, int stateKey) {}
 
     private static final Map<Integer, Live> LIVE = new HashMap<>();
+    private static int serial;
 
     private DhTorexRenderer() {}
 
@@ -46,13 +47,17 @@ final class DhTorexRenderer {
 
         IDhApiLevelWrapper wrapper = findWrapper(mcLevel);
         if (wrapper == null) return;
-        if (live != null) remove(e.entityId());
 
         List<DhApiRenderableBox> boxes = buildBoxes(e.scale(), age, e.maxAge());
-        if (boxes.isEmpty()) return;
+        if (boxes.isEmpty()) {
+            if (live != null) remove(e.entityId());
+            return;
+        }
+        // add the new group first and only then remove the old one, so the cloud never blinks out between rebuilds
         IDhApiRenderableBoxGroup group = factory.createRelativePositionedGroup(
-                "hbmnukemeka:torex_" + e.entityId(), new DhApiVec3d(e.x(), e.y(), e.z()), boxes);
+                "hbmnukemeka:torex_" + e.entityId() + "_" + (++serial), new DhApiVec3d(e.x(), e.y(), e.z()), boxes);
         wrapper.getRenderRegister().add(group);
+        if (live != null) remove(e.entityId());
         if (live == null) HbmNukeMeka.LOGGER.info("DH torex {} drawn at {} {} {} (scale {}, age {})", e.entityId(), (int) e.x(), (int) e.y(), (int) e.z(), e.scale(), age);
         LIVE.put(e.entityId(), new Live(group, wrapper, key));
     }
