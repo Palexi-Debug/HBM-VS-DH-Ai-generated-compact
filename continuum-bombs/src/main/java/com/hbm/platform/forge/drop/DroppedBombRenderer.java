@@ -45,7 +45,15 @@ public class DroppedBombRenderer extends EntityRenderer<DroppedBomb> {
             }
             if (cached == null) return;
             pose.pushPose();
-            pose.translate(-0.5D, 0.0D, -0.5D);
+            // the bomb lies along its facing: tip it so that axis points straight down, about the block centre
+            pose.translate(0.0D, 0.5D, 0.0D);
+            if (state.hasProperty(com.hbm.blocks.bomb.NukeBombBlock.FACING)) {
+                int facing = state.getValue(com.hbm.blocks.bomb.NukeBombBlock.FACING);
+                float fx = facing == 4 ? -1F : facing == 5 ? 1F : 0F;
+                float fz = facing == 2 ? -1F : facing == 3 ? 1F : 0F;
+                pose.mulPose(new org.joml.Quaternionf().rotationTo(fx, 0F, fz, 0F, -1F, 0F));
+            }
+            pose.translate(-0.5D, -0.5D, -0.5D);
             Minecraft.getInstance().getBlockEntityRenderDispatcher()
                     .renderItem(cached, pose, buffers, light, OverlayTexture.NO_OVERLAY);
             pose.popPose();
