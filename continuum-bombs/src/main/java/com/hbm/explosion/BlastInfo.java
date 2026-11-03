@@ -65,8 +65,24 @@ public enum BlastInfo {
         return BombConfig.n2Radius / 12;
     }
 
+    /** Real-world mass in kg (also the Valkyrien Skies block mass, data/hbm/vs_mass); 0 for the invented bombs. */
+    public int weightKg() {
+        return switch (this) {
+            case LITTLE_BOY -> 4400;
+            case FAT_MAN -> 4670;
+            case GADGET -> 5400;
+            case IVY_MIKE -> 82000;
+            case TSAR -> 27000;
+            default -> 0;
+        };
+    }
+
     public void addTo(List<Component> tooltip) {
         addHeading(tooltip, kind.key, kind.color);
+        if (weightKg() > 0) {
+            tooltip.add(Component.literal(" ").append(Component.translatable("desc.bomb_weight",
+                    String.format(java.util.Locale.ROOT, "%,d", weightKg()))).withStyle(ChatFormatting.GRAY));
+        }
         addRadius(tooltip, radius());
         if (this == N2) {
             tooltip.add(Component.empty());

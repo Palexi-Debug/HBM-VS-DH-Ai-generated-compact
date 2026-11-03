@@ -7029,5 +7029,6 @@
   "block.hbm.nuke_drop_rack.desc.0": "Place a bomb directly underneath.",
   "block.hbm.nuke_drop_rack.desc.1": "A redstone signal releases it into free fall.",
   "block.hbm.nuke_drop_rack.desc.2": "Mount it on a Valkyrien Skies ship to bomb from the air.",
-  "entity.hbm.dropped_bomb": "Falling Bomb"
+  "entity.hbm.dropped_bomb": "Falling Bomb",
+  "desc.bomb_weight": "Weight: %s kg"
 }

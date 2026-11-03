@@ -4221,5 +4221,6 @@
   "block.hbm.nuke_drop_rack.desc.0": "Bombe direkt darunter platzieren.",
   "block.hbm.nuke_drop_rack.desc.1": "Ein Redstone-Signal lässt sie frei fallen.",
   "block.hbm.nuke_drop_rack.desc.2": "Auf ein Valkyrien-Skies-Schiff bauen, um aus der Luft abzuwerfen.",
-  "entity.hbm.dropped_bomb": "Fallende Bombe"
+  "entity.hbm.dropped_bomb": "Fallende Bombe",
+  "desc.bomb_weight": "Gewicht: %s kg"
 }
