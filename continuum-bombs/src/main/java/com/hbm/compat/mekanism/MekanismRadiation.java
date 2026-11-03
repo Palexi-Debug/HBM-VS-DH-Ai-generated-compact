@@ -123,18 +123,30 @@ public final class MekanismRadiation {
     /** Extra distance in blocks the fallout field reaches beyond the centre source (rings of extra sources). */
     public static int FALLOUT_EXTRA_BLOCKS = 20;
 
-    /** The centre source plus two rings of weaker sources, so the radiation reaches about FALLOUT_EXTRA_BLOCKS further out. */
+    /** Most sources one blast may create (each is tracked by Mekanism until it decays). */
+    private static final int MAX_SOURCES = 360;
+
+    /**
+     * The whole fallout zone: a centre source plus rings of weaker sources every FALLOUT_EXTRA_BLOCKS out to
+     * {@code maxRadius} (the fallout radius), so the radiation covers the fallout area and not only the crater.
+     * The strength falls off towards the edge; each source sits on the surface where its chunk is loaded.
+     */
     public static void field(ServerLevel level, BlockPos centre, double svPerHour, int maxRadius) {
         source(level, centre, svPerHour);
-        int ring = Math.min(FALLOUT_EXTRA_BLOCKS, Math.max(1, maxRadius));
-        for (int r = 1; r <= 2; r++) {
-            int dist = ring * r;
-            if (dist > Math.max(maxRadius, ring)) break;
-            double strength = svPerHour * (r == 1 ? 0.5D : 0.25D);
-            for (int i = 0; i < 8; i++) {
-                double a = i * Math.PI / 4.0D;
-                BlockPos p = centre.offset((int) Math.round(Math.cos(a) * dist), 0, (int) Math.round(Math.sin(a) * dist));
-                source(level, p, strength);
+        int step = Math.max(1, FALLOUT_EXTRA_BLOCKS);
+        int created = 1;
+        for (int dist = step; dist <= maxRadius && created < MAX_SOURCES; dist += step) {
+            double strength = svPerHour * Math.max(0.04D, 0.5D * (1.0D - (double) dist / Math.max(1, maxRadius)));
+            int points = Math.max(8, (int) Math.ceil(2.0D * Math.PI * dist / 40.0D));
+            for (int i = 0; i < points && created < MAX_SOURCES; i++, created++) {
+                double a = i * 2.0D * Math.PI / points;
+                int x = centre.getX() + (int) Math.round(Math.cos(a) * dist);
+                int z = centre.getZ() + (int) Math.round(Math.sin(a) * dist);
+                BlockPos column = new BlockPos(x, centre.getY(), z);
+                int y = level.hasChunkAt(column)
+                        ? level.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, x, z)
+                        : centre.getY();
+                source(level, new BlockPos(x, y, z), strength);
             }
         }
     }
