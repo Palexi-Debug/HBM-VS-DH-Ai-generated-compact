@@ -36,6 +36,29 @@ versionRange = "[0.1.20,)"
 ordering = "NONE"
 side = "CLIENT"
 
+# FORK (bombs only): every HBM recipe is removed and the bombs are crafted with Mekanism machines, and the fallout
+# radiation is a Mekanism radiation source, so Mekanism is required. Distant Horizons and Valkyrien Skies are optional.
+[[dependencies.${mod_id}]]
+modId = "mekanism"
+mandatory = true
+versionRange = "[10.4,)"
+ordering = "AFTER"
+side = "BOTH"
+
+[[dependencies.${mod_id}]]
+modId = "distanthorizons"
+mandatory = false
+versionRange = "[2.0,)"
+ordering = "NONE"
+side = "CLIENT"
+
+[[dependencies.${mod_id}]]
+modId = "valkyrienskies"
+mandatory = false
+versionRange = "[2.0,)"
+ordering = "NONE"
+side = "BOTH"
+
 [[dependencies.${mod_id}]]
 modId = "minecraft"
 mandatory = true
