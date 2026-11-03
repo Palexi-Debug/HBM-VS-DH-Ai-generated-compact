@@ -1,0 +1,7 @@
+[
+  { "block": "hbm:nuke_boy",    "mass": 4400.0,  "priority": 101 },
+  { "block": "hbm:nuke_man",    "mass": 4670.0,  "priority": 101 },
+  { "block": "hbm:nuke_gadget", "mass": 5400.0,  "priority": 101 },
+  { "block": "hbm:nuke_mike",   "mass": 82000.0, "priority": 101 },
+  { "block": "hbm:nuke_tsar",   "mass": 27000.0, "priority": 101 }
+]

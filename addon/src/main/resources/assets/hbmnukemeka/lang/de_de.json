@@ -3,5 +3,8 @@
   "item.hbmnukemeka.fissile_core": "Spaltkern",
   "item.hbmnukemeka.thermonuclear_stage": "Thermonukleare Stufe",
   "item.hbmnukemeka.exotic_core": "Exotischer Kern",
-  "itemGroup.hbmnukemeka": "HBM Nukes (Mekanism)"
+  "itemGroup.hbmnukemeka": "HBM Nukes (Mekanism)",
+  "block.hbmnukemeka.bomb_drop_rack": "Bombenabwurfhalterung",
+  "block.hbmnukemeka.bomb_drop_rack.desc": "Bombe direkt darunter platzieren. Ein Redstone-Signal lässt sie fallen.",
+  "entity.hbmnukemeka.dropped_bomb": "Fallende Bombe"
 }

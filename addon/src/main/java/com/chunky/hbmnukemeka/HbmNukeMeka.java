@@ -21,8 +21,8 @@ import com.mojang.logging.LogUtils;
 
 /**
  * Addon for HBM's Nuclear Tech Mod: Continuum. Adds Mekanism Combiner recipes for the Continuum nukes
- * (the recipes are plain data, see data/hbmnukemeka/recipes) plus four intermediate items, and draws the
- * explosion cloud in Distant Horizons LODs.
+ * (the recipes are plain data, see data/hbmnukemeka/recipes) plus four intermediate items, draws the
+ * explosion cloud in Distant Horizons LODs and adds a bomb drop rack (works with Valkyrien Skies).
  */
 @Mod(HbmNukeMeka.MOD_ID)
 public final class HbmNukeMeka {
@@ -42,6 +42,7 @@ public final class HbmNukeMeka {
 
     public HbmNukeMeka() {
         IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
+        com.chunky.hbmnukemeka.drop.DropSystem.register(modBus); // adds the rack item to ITEMS first
         ITEMS.register(modBus);
         modBus.addListener(this::commonSetup);
         modBus.addListener(this::addToTabs);
@@ -51,6 +52,7 @@ public final class HbmNukeMeka {
 
         if (FMLEnvironment.dist == Dist.CLIENT) {
             FarTorexClient.init();
+            modBus.addListener(com.chunky.hbmnukemeka.drop.DropSystemClient::registerRenderers);
         }
     }
 
@@ -64,6 +66,9 @@ public final class HbmNukeMeka {
             event.accept(FISSILE_CORE);
             event.accept(THERMONUCLEAR_STAGE);
             event.accept(EXOTIC_CORE);
+        }
+        if (event.getTabKey() == CreativeModeTabs.REDSTONE_BLOCKS) {
+            event.accept(com.chunky.hbmnukemeka.drop.DropSystem.RACK_ITEM);
         }
     }
 }

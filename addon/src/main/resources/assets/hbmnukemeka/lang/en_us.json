@@ -3,5 +3,8 @@
   "item.hbmnukemeka.fissile_core": "Fissile Core",
   "item.hbmnukemeka.thermonuclear_stage": "Thermonuclear Stage",
   "item.hbmnukemeka.exotic_core": "Exotic Core",
-  "itemGroup.hbmnukemeka": "HBM Nukes (Mekanism)"
+  "itemGroup.hbmnukemeka": "HBM Nukes (Mekanism)",
+  "block.hbmnukemeka.bomb_drop_rack": "Bomb Drop Rack",
+  "block.hbmnukemeka.bomb_drop_rack.desc": "Place a bomb directly underneath. A redstone signal drops it.",
+  "entity.hbmnukemeka.dropped_bomb": "Falling Bomb"
 }
