@@ -37,6 +37,17 @@ public class DroppedBombRenderer extends EntityRenderer<DroppedBomb> {
         if (failed) return;
         try {
             BlockState state = entity.getBombState();
+            String name = String.valueOf(net.minecraftforge.registries.ForgeRegistries.BLOCKS.getKey(state.getBlock()));
+            // Long, horizontal bombs fall nose down. Per model (measured from the OBJ at yaw 0): the facing that gives
+            // yaw 0, the model centre relative to the block centre, and which end is the nose (+1 = +X).
+            //                       facing  centreX  centreY  nose
+            float[] pose0 = name.endsWith(":nuke_boy") ? new float[] {2, -0.75F, 0.425F, 1}
+                    : name.endsWith(":nuke_man") ? new float[] {4, 0.405F, 0.75F, -1}
+                    : name.endsWith(":nuke_tsar") ? new float[] {2, -1.23F, 1.27F, 1}
+                    : null;
+            if (pose0 != null && state.hasProperty(com.hbm.blocks.bomb.NukeBombBlock.FACING)) {
+                state = state.setValue(com.hbm.blocks.bomb.NukeBombBlock.FACING, (int) pose0[0]);
+            }
             int id = net.minecraft.world.level.block.Block.getId(state);
             if (cached == null || cachedId != id) {
                 cached = state.getBlock() instanceof EntityBlock eb ? eb.newBlockEntity(BlockPos.ZERO, state) : null;
@@ -45,15 +56,14 @@ public class DroppedBombRenderer extends EntityRenderer<DroppedBomb> {
             }
             if (cached == null) return;
             pose.pushPose();
-            // the bomb lies along its facing: tip it so that axis points straight down, about the block centre
-            pose.translate(0.0D, 0.5D, 0.0D);
-            if (state.hasProperty(com.hbm.blocks.bomb.NukeBombBlock.FACING)) {
-                int facing = state.getValue(com.hbm.blocks.bomb.NukeBombBlock.FACING);
-                float fx = facing == 4 ? -1F : facing == 5 ? 1F : 0F;
-                float fz = facing == 2 ? -1F : facing == 3 ? 1F : 0F;
-                pose.mulPose(new org.joml.Quaternionf().rotationTo(fx, 0F, fz, 0F, -1F, 0F));
+            if (pose0 != null) {
+                // about the hit box centre: nose to straight down, then move the model centre onto that point
+                pose.translate(0.0D, 0.49D, 0.0D);
+                pose.mulPose(com.mojang.math.Axis.ZP.rotationDegrees(-90F * pose0[3]));
+                pose.translate(-(0.5D + pose0[1]), -pose0[2], -0.5D);
+            } else {
+                pose.translate(-0.5D, 0.0D, -0.5D); // upright bombs (gadget, N2, ...) just fall as they stand
             }
-            pose.translate(-0.5D, -0.5D, -0.5D);
             Minecraft.getInstance().getBlockEntityRenderDispatcher()
                     .renderItem(cached, pose, buffers, light, OverlayTexture.NO_OVERLAY);
             pose.popPose();
