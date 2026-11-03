@@ -202,9 +202,15 @@ public final class ModTabs {
     private static final java.util.regex.Pattern NUKE_ITEM = java.util.regex.Pattern.compile(
             "nuke_.*|bomb_casing|fissile_core|exotic_core|thermonuclear_stage|(boy|man|gadget|mike|tsar|fleija|solinium|prototype|n2|balefire)_.*");
 
+    /** Shown only with {@code missiles=true} in config/hbm_bombs.properties: missiles, warheads, launchers, designators. */
+    private static final java.util.regex.Pattern MISSILE_ITEM = java.util.regex.Pattern.compile(
+            "missile_.*|mp_.*|.*warhead.*|designator.*|launch_pad.*|launch_table.*|compact_launcher.*|.*_launcher");
+
     static boolean isNukeItem(Item item) {
         var id = BuiltInRegistries.ITEM.getKey(item); // `var`: the id type is ResourceLocation below 26.1 and Identifier from 26.1
-        return id != null && Constants.MOD_ID.equals(id.getNamespace()) && NUKE_ITEM.matcher(id.getPath()).matches();
+        if (id == null || !Constants.MOD_ID.equals(id.getNamespace())) return false;
+        if (NUKE_ITEM.matcher(id.getPath()).matches()) return true;
+        return com.hbm.compat.BombsForkConfig.missilesEnabled() && MISSILE_ITEM.matcher(id.getPath()).matches();
     }
 
     /** Forces class initialization so the static registrations above run. */
