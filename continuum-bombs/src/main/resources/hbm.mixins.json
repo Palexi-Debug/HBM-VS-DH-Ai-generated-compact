@@ -7,13 +7,10 @@
   "mixins": [
     "FireBlockAccessor",
     "MixinItemEntity",
-    "MixinLivingEntity",
-    "MixinPlayer",
     "MixinServerLevel"
   ],
   "client": [
     "MixinGui",
-    "MixinHumanoidModel",
     "MixinBiome"
   ],
   "server": [],
