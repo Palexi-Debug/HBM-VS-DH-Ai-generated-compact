@@ -14,7 +14,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: Warfactory-Official/Golem-Core
-          ref: main
+          ref: 5675ea76693dc0300a4c9fb59af032da5ab4825a # pinned: newer Golem-Core main changed PeripheralExposure and broke the build
           path: Golem-Core
       - uses: actions/setup-java@v4
         with:
