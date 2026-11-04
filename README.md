@@ -5,8 +5,8 @@ This is a specialized, compact fork of **Hbm's Nuclear Tech Mod: Continuum** (or
 ## ⚙️ Features & Scope
 This fork isolates specific content from the original HBM mod to create a lightweight, combat-focused experience:
 * **Bombs Only:** Heavily focused on the core bombs and destructive elements of HBM.
-* **Missiles (Disabled):** The missile systems are present in the codebase but are currently completely deactivated.
-* **VS Drop Block:** Added a dedicated Drop Block functionality designed to work with Valkyrien Skies or custom drop mechanics.
+* **Missiles (Disabled):** The missile systems are present in the codebase but are currently completely deactivated             **Mekanism Radiation System**. Explosions and nuclear materials now emit Mekanism-compatible radiation, utilizing its lingering environmental mechanics, dosimeters, and hazmat protections.
+**VS Drop Block:** Added a dedicated Drop Block functionality designed to work with Valkyrien Skies or custom drop mechanics.
 * **Distant Horizons (DH) Explosion Rendering:** Enhanced rendering hooks specifically optimized to update and force chunk re-renders smoothly when using the Distant Horizons LOD mod during massive detonations.
 
 ## 🤖 AI Disclosure & Modification Notice
