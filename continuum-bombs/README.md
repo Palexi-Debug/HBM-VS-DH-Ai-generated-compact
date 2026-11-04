@@ -1,4 +1,16 @@
-# NTM - Continuum
+# NTM Continuum - Bombs (Mekanism fork)
+
+Fork of HBM's Nuclear Tech Mod: Continuum (Forge 1.20.1) focused on the bombs.
+
+- **Crafting:** bombs and parts are made with Mekanism machines (Mekanism is required).
+- **Radiation:** fallout over the whole fallout zone uses Mekanism radiation (Sv/h shown in tooltips together with the bomb weight).
+- **Distant Horizons:** mushroom cloud visible from far away. Quality LOW / MEDIUM / HIGH / HIGH_PLUS (AUTO picks by hardware).
+- **Bomb Drop Rack:** hang a bomb under the rack, a redstone signal drops it. Works on Valkyrien Skies ships (keeps ship velocity); bomb masses follow real values.
+- **Missiles:** kept but disabled; set `missiles=true` in `config/hbm_bombs.properties` to enable.
+- **Removed:** HBM movement/keybinds (jetpack, dash, duck), player pose hooks. All HBM keys are hidden from the Controls screen.
+- Needs Golem Core pinned to the commit in `.github/workflows/continuum.yml`.
+
+---
 
 ## Setting up the project
 
