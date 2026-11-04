@@ -31,7 +31,7 @@ public final class MobConfig {
     public static int elementalAmount = 10;
     public static int elementalDistance = 32;
 
-    public static boolean enableDucks = true;
+    public static boolean enableDucks = false;
     public static boolean enableMobGear = true;
     public static boolean enableMobWeapons = true;
     public static double mobWeaponSootReduction = 0;
@@ -103,7 +103,7 @@ public final class MobConfig {
         elementalAmount = CommonConfig.createConfigInt(config, CATEGORY, "12.E03_elementalAmount", "How many elementals are spawned each raid", 10);
         elementalDistance = CommonConfig.createConfigInt(config, CATEGORY, "12.E04_elementalAttackDistance", "How far away elementals will spawn from the targeted player", 32);
         
-        enableDucks = CommonConfig.createConfigBool(config, CATEGORY, "12.D00_enableDucks", "Whether pressing O should allow the player to duck", true);
+        enableDucks = CommonConfig.createConfigBool(config, CATEGORY, "12.D00_enableDucks", "Whether pressing O should allow the player to duck", false);
         enableMobGear = CommonConfig.createConfigBool(config, CATEGORY, "12.D01_enableMobGear", "Whether zombies and skeletons should have additional gear when spawning", true);
         enableMobWeapons = CommonConfig.createConfigBool(config, CATEGORY, "12.D02_enableMobWeapons", "Whether skeletons should have bows replaced with guns when spawning at higher soot levels", true);
         mobWeaponSootReduction = CommonConfig.createConfigDouble(config, CATEGORY, "12.D03_mobWeaponSootReduction", "Reduces the amount of soot needed for skeleton guns to appear", 0D);

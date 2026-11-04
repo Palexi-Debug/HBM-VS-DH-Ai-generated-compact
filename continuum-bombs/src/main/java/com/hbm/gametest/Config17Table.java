@@ -111,7 +111,7 @@ final class Config17Table {
             new Key("12_mobs", "12.E02_elementalChance", "I", "2", null),
             new Key("12_mobs", "12.E03_elementalAmount", "I", "10", null),
             new Key("12_mobs", "12.E04_elementalAttackDistance", "I", "32", null),
-            new Key("12_mobs", "12.D00_enableDucks", "B", "true", null),
+            new Key("12_mobs", "12.D00_enableDucks", "B", "false", null),
             new Key("12_mobs", "12.D01_enableMobGear", "B", "true", null),
             new Key("12_mobs", "12.D02_enableMobWeapons", "B", "true", null),
             new Key("12_mobs", "12.D03_mobWeaponSootReduction", "D", "0.0", null),

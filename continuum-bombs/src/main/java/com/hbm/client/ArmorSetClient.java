@@ -49,7 +49,7 @@ public final class ArmorSetClient {
     /** 1.7 {@code HbmKeybinds.dashKey}: "hbm.key.dash" on left Shift. */
     public static void registerKeys() {
         dashKey = KeyMappings.register("hbm", "key.hbm.dash", InputConstants.KEY_LSHIFT, "hbm");
-        ClientTicks.onEndTick(ArmorSetClient::onEndTick);
+        // FORK (bombs only): the bismuth dash tick is not registered (movement handling conflicted with ParCool)
         HarnessQueryRegistry.register("hbm_armor_set", (mc, params) -> query(mc));
     }
 

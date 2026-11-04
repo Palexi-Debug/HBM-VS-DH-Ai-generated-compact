@@ -79,8 +79,8 @@ public final class HbmKeybindsClient {
         toggleHeadKey = KeyMappings.register(CATEGORY, "key.hbm.toggleHUD", InputConstants.KEY_V, CATEGORY);
         calculatorKey = KeyMappings.register(CATEGORY, "key.hbm.calculator", InputConstants.KEY_N, CATEGORY);
 
-        MouseInput.onButton(HbmKeybindsClient::onMouseButton);
-        ClientTicks.onEndTick(HbmKeybindsClient::onEndTick);
+        // FORK (bombs only): no movement, jetpack, duck (O) or gun input handling. It only conflicted with parkour mods
+        // (ParCool), and the bombs need none of it. The key mappings stay registered so nothing reads a null key.
     }
 
     private static void onEndTick() {
