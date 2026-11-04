@@ -1,4 +1,4 @@
-# HBM-VS-DH-Ai-generated-compact
+# NTM-VS-DH-Ai-generated-compact
 
 This is a specialized, compact fork of **Hbm's Nuclear Tech Mod: Continuum** (originally by Warfactory-Official), stripped down and focused purely on explosive mechanics and modern rendering compatibility.
 
