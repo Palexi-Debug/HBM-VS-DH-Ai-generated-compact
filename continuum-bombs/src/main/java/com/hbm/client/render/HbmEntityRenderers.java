@@ -123,7 +123,8 @@ public final class HbmEntityRenderers {
         List<String> missing = new ArrayList<>();
         for (EntityType<?> type : BuiltInRegistries.ENTITY_TYPE) {
             String id = EntityType.getKey(type).toString();
-            if (id.startsWith(Constants.MOD_ID + ":") && !bound.contains(type)) missing.add(id);
+            // FORK: dropped_bomb is bound by the fork's own renderer event, not through this sink.
+            if (id.startsWith(Constants.MOD_ID + ":") && !bound.contains(type) && !id.equals("hbm:dropped_bomb")) missing.add(id);
         }
         if (missing.isEmpty()) {
             Constants.LOG.info("Entity renderers: every hbm entity type has a renderer ({} bound)", bound.size());
