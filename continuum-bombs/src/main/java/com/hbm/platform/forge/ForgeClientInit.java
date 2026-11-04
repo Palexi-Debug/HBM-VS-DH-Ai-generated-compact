@@ -59,6 +59,8 @@ final class ForgeClientInit {
                         (net.minecraft.server.packs.resources.ResourceManagerReloadListener) resources -> {
                             com.hbm.client.render.MachineItemModels.reload(resources);
                         }));
+        // FORK: hide every HBM key binding from the Controls screen (ParCool / clean controls).
+        modBus.addListener((FMLClientSetupEvent event) -> event.enqueueWork(ForgeClientInit::hideHbmKeys));
         HbmClientRegistrations.registerBlockColors();
         HbmClientRegistrations.installScreensAndRenderers();
         // Core's Hud.draw owns the per-layer composition rule: on 1.20.1 each layer must start on a clear
@@ -69,6 +71,24 @@ final class ForgeClientInit {
                     event.registerAboveAll(id, (gui, graphics, partialTick, width, height) ->
                             dev.golem.core.client.Hud.draw(graphics, renderer::accept)));
         });
+    }
+
+    /^* Removes all HBM key mappings from {@code Options.keyMappings} (found by type, so it survives obfuscation). ^/
+    private static void hideHbmKeys() {
+        try {
+            net.minecraft.client.Options options = Minecraft.getInstance().options;
+            for (java.lang.reflect.Field f : net.minecraft.client.Options.class.getDeclaredFields()) {
+                if (f.getType() != net.minecraft.client.KeyMapping[].class) continue;
+                f.setAccessible(true);
+                net.minecraft.client.KeyMapping[] all = (net.minecraft.client.KeyMapping[]) f.get(options);
+                net.minecraft.client.KeyMapping[] kept = java.util.Arrays.stream(all)
+                        .filter(k -> !(k.getName().startsWith("key.hbm.") || k.getName().startsWith("key.jetpack_")))
+                        .toArray(net.minecraft.client.KeyMapping[]::new);
+                if (kept.length != all.length) f.set(options, kept);
+            }
+        } catch (Throwable t) {
+            // purely cosmetic; leave the bindings visible if this loader refuses
+        }
     }
 }
 *///?}
