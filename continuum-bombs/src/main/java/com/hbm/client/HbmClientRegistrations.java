@@ -540,21 +540,10 @@ public final class HbmClientRegistrations {
                 });
         // HBM's player hooks run in the phase hbm:player, before the default phase addons register in (their
         // listeners see HBM's pose, as when HBM's was a single slot run first).
-        PlayerRenderHooks.POSE.addPhaseOrdering("hbm:player", Hook.DEFAULT_PHASE);
-        PlayerRenderHooks.POSE.register("hbm:player",
-                JetpackClientVisuals::applyPlayerPose);
-        PlayerRenderHooks.flightPose(JetpackClientVisuals::directionalRenderPose);
-        PlayerRenderHooks.POSE.register("hbm:player", (player, pose, partialTick) -> ModelMan.posing(player));
+        // FORK: HBM's player pose / flight pose / camera hooks removed (they fight ParCool's animations and
+        // add a flying pose in creative). Only the gun arm pose is kept.
         PlayerRenderHooks.MODEL.addPhaseOrdering("hbm:player", Hook.DEFAULT_PHASE);
-        PlayerRenderHooks.MODEL.register("hbm:player", parts -> {
-            // The source applies gun aimedBow during model setup; keep its arm pose after the glider's
-            // flight freeze while retaining the glider's body, head and leg precedence.
-            JetpackClientVisuals.applyPlayerModelPose(parts);
-            GunPlayerPose.apply(parts);
-        });
-        CameraHooks.LOWER_THIRD_PERSON.addPhaseOrdering("hbm:player", Hook.DEFAULT_PHASE);
-        CameraHooks.LOWER_THIRD_PERSON.register("hbm:player",
-                JetpackClientVisuals::lowerThirdPersonCamera);
+        PlayerRenderHooks.MODEL.register("hbm:player", GunPlayerPose::apply);
         HumanoidLayers.register(
                 ArmorRenderLayer::new);
         HumanoidLayers.register(
