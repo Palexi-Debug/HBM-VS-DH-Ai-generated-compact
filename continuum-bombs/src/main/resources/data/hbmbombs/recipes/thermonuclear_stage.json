@@ -1,7 +1,7 @@
 {
   "type": "mekanism:metallurgic_infusing",
   "chemicalInput": {
-    "amount": 80,
+    "amount": 240,
     "tag": "mekanism:refined_obsidian"
   },
   "itemInput": {

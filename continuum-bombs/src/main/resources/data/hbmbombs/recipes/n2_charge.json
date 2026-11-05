@@ -1,16 +1,16 @@
 {
   "type": "mekanism:reaction",
-  "duration": 100,
+  "duration": 200,
   "fluidInput": {
     "amount": 500,
     "tag": "minecraft:water"
   },
   "gasInput": {
-    "amount": 500,
+    "amount": 1000,
     "gas": "mekanism:polonium"
   },
   "gasOutput": {
-    "amount": 500,
+    "amount": 1000,
     "gas": "mekanism:spent_nuclear_waste"
   },
   "itemInput": {

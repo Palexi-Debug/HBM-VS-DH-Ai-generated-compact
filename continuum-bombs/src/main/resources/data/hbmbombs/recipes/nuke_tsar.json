@@ -1,13 +1,13 @@
 {
   "type": "mekanism:combining",
   "mainInput": {
-    "amount": 2,
+    "amount": 4,
     "ingredient": {
       "item": "hbm:thermonuclear_stage"
     }
   },
   "extraInput": {
-    "amount": 2,
+    "amount": 4,
     "ingredient": {
       "item": "hbm:bomb_casing"
     }

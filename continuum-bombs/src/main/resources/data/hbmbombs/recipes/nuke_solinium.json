@@ -1,13 +1,13 @@
 {
   "type": "mekanism:combining",
   "mainInput": {
-    "amount": 1,
+    "amount": 2,
     "ingredient": {
       "item": "hbm:exotic_core"
     }
   },
   "extraInput": {
-    "amount": 1,
+    "amount": 2,
     "ingredient": {
       "item": "hbm:thermonuclear_stage"
     }

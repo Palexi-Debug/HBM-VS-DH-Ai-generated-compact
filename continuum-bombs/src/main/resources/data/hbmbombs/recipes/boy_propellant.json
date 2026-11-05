@@ -1,13 +1,13 @@
 {
   "type": "mekanism:combining",
   "mainInput": {
-    "amount": 8,
+    "amount": 16,
     "ingredient": {
       "item": "minecraft:gunpowder"
     }
   },
   "extraInput": {
-    "amount": 2,
+    "amount": 4,
     "ingredient": {
       "item": "mekanism:ingot_steel"
     }

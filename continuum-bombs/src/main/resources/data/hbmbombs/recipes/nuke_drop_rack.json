@@ -1,7 +1,7 @@
 {
   "type": "mekanism:combining",
   "mainInput": {
-    "amount": 4,
+    "amount": 8,
     "ingredient": {
       "item": "mekanism:ingot_steel"
     }
@@ -9,7 +9,7 @@
   "extraInput": {
     "amount": 2,
     "ingredient": {
-      "item": "mekanism:alloy_infused"
+      "item": "mekanism:alloy_reinforced"
     }
   },
   "output": {

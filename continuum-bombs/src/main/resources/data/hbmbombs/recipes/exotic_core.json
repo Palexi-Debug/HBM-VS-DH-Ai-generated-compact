@@ -2,7 +2,7 @@
   "type": "mekanism:nucleosynthesizing",
   "duration": 600,
   "gasInput": {
-    "amount": 10,
+    "amount": 50,
     "gas": "mekanism:antimatter"
   },
   "itemInput": {

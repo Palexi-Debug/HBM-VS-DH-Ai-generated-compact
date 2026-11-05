@@ -1,13 +1,13 @@
 {
   "type": "mekanism:combining",
   "mainInput": {
-    "amount": 3,
+    "amount": 6,
     "ingredient": {
       "item": "hbm:exotic_core"
     }
   },
   "extraInput": {
-    "amount": 8,
+    "amount": 32,
     "ingredient": {
       "item": "mekanism:pellet_polonium"
     }

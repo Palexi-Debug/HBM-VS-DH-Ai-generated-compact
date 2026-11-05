@@ -7,7 +7,7 @@
     }
   },
   "extraInput": {
-    "amount": 2,
+    "amount": 4,
     "ingredient": {
       "item": "hbm:fissile_core"
     }

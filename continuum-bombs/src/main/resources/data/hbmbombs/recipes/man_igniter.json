@@ -3,11 +3,11 @@
   "mainInput": {
     "amount": 2,
     "ingredient": {
-      "item": "mekanism:alloy_infused"
+      "item": "mekanism:alloy_reinforced"
     }
   },
   "extraInput": {
-    "amount": 4,
+    "amount": 8,
     "ingredient": {
       "item": "minecraft:redstone"
     }

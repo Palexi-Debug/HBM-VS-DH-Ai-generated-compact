@@ -7,7 +7,7 @@
     }
   },
   "extraInput": {
-    "amount": 16,
+    "amount": 48,
     "ingredient": {
       "item": "mekanism:pellet_polonium"
     }

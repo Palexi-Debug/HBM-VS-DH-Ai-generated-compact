@@ -1,13 +1,13 @@
 {
   "type": "mekanism:combining",
   "mainInput": {
-    "amount": 6,
+    "amount": 12,
     "ingredient": {
       "item": "mekanism:ingot_uranium"
     }
   },
   "extraInput": {
-    "amount": 2,
+    "amount": 4,
     "ingredient": {
       "item": "mekanism:ingot_steel"
     }
