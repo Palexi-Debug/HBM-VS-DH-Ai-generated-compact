@@ -8,6 +8,8 @@ modId = "${mod_id}"
 version = "${mod_version}"
 displayName = "${mod_name}"
 displayURL = "@golem.homepage@"
+# FORK: Forge shows a notice in the mod list when update.json on GitHub lists a newer version.
+updateJSONURL = "https://raw.githubusercontent.com/Palexi-Debug/NTM-VS-DH-Ai-generated-compact/main/continuum-bombs/update.json"
 logoFile = "assets/${mod_id}/icon.png"
 authors = "${mod_author}"
 description = '''${mod_description}@golem.credits@'''

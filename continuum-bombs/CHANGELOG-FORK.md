@@ -33,6 +33,10 @@ Base: upstream NTM Continuum 1.0.3, Minecraft 1.20.1 Forge, built against Golem 
   dungeons, hostile HBM mobs and their gear, hives, raids, gas pockets, pollution and other environment hazards
   (`compat/BombsForkConfig.applyOverrides`, applied after `hbm.cfg` is read and not written back).
 
+- Carried item hazards (radiation in hand, coal particles) are not applied (`hazard/HazardSystem`); all HBM
+  advancements are removed after the advancement reload (`platform/forge/ForgeInit`).
+- Version 1.0.1 of the fork, with an update check (`updateJSONURL` in `mods.toml`, `update.json`).
+
 ### Rendering
 - Mushroom clouds are rendered in Distant Horizons (optional): quality LOW / MEDIUM / HIGH / HIGH_PLUS, AUTO chooses by
   hardware (`platform/forge/dh/*`, ghost client simulation in `entity/effect/EntityNukeTorex`).
