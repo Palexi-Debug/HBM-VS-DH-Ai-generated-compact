@@ -109,7 +109,7 @@ public class HazardSystem {
 
     /** Puts the carried-hazard scan on the server tick. Called once, from {@link Hazards#init()}. */
     public static void install() {
-        CARRIED.install();
+        // FORK (bombs only): carried item hazards (radiation, fire, coal particles, ...) are not applied to holders.
     }
 
     public static void register(TagKey<Item> tag, HazardData data) {

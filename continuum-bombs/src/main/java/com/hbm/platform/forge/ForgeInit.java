@@ -97,6 +97,27 @@ public final class ForgeInit {
                 com.hbm.Constants.LOG.info("[HBM] Removed {} HBM crafting recipes, Mekanism recipes only", removed);
             });
         });
+        // FORK (bombs only): no HBM advancements (and no toasts for them): they are dropped after the advancement reload.
+        MinecraftForge.EVENT_BUS.addListener((net.minecraftforge.event.AddReloadListenerEvent event) -> {
+            var manager = event.getServerResources().getAdvancements();
+            event.addListener((net.minecraft.server.packs.resources.ResourceManagerReloadListener) rm -> {
+                try {
+                    for (java.lang.reflect.Field f : manager.getClass().getDeclaredFields()) {
+                        if (f.getType() != net.minecraft.advancements.AdvancementList.class) continue;
+                        f.setAccessible(true);
+                        var list = (net.minecraft.advancements.AdvancementList) f.get(manager);
+                        var drop = new java.util.HashSet<net.minecraft.resources.ResourceLocation>();
+                        for (var adv : list.getAllAdvancements()) {
+                            if (com.hbm.Constants.MOD_ID.equals(adv.getId().getNamespace())) drop.add(adv.getId());
+                        }
+                        list.remove(drop);
+                        com.hbm.Constants.LOG.info("[HBM] Removed {} HBM advancements", drop.size());
+                    }
+                } catch (Throwable t) {
+                    com.hbm.Constants.LOG.warn("[HBM] Could not remove HBM advancements: {}", t.toString());
+                }
+            });
+        });
         MinecraftForge.EVENT_BUS.addListener((ItemTooltipEvent event) -> {
             TooltipColours.apply(event.getItemStack(), event.getToolTip());
         });
