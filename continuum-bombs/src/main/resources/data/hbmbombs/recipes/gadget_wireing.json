@@ -3,7 +3,7 @@
   "mainInput": {
     "amount": 6,
     "ingredient": {
-      "item": "mekanism:ingot_copper"
+      "item": "minecraft:copper_ingot"
     }
   },
   "extraInput": {

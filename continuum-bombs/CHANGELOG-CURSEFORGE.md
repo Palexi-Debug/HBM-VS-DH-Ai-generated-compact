@@ -21,6 +21,10 @@ Optional: Distant Horizons, Valkyrien Skies.
 - HBM advancements.
 - HBM machine recipe categories in JEI (faster loading).
 
+### Fixes
+- Gadget wiring recipe used a copper ingot item that does not exist (now the vanilla copper ingot).
+- The Balefire Bomb recipe pointed at a wrong item and did not load. It works now and is listed in the creative tab.
+
 ### Other
 - New textures for the Gadget, Fat Man, Mike and Tsar Bomba cores: each has its own glow colour (green, orange, blue, red) so they no longer look the same. New Bomb Drop Rack texture.
 - Update check: the mod list shows a notice when a newer version exists.

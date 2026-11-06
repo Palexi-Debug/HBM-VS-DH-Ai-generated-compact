@@ -29,6 +29,8 @@ Base: upstream NTM Continuum 1.0.3, Minecraft 1.20.1 Forge, built against Golem 
 - Fleija removed from the tab and its recipe deleted; coal dust gas on coal ore break and lead poisoning on block
   break removed (`main/ModEventHandlerHooks`); new drop rack texture; recoloured
   gadget/man/mike/tsar core item textures (`assets/hbm/textures/items`).
+- Recipe fixes: gadget_wireing uses `minecraft:copper_ingot`; the balefire bomb recipe outputs `hbm:nuke_fstbmb`
+  (file `nuke_fstbmb.json`).
 - No HBM mob drops and no HBM gear on spawned mobs (`main/ModEventHandlerMobs`); HBM's machine recipe categories are
   not registered in JEI (`handler/jei/HbmJeiPluginForgelike`).
 
