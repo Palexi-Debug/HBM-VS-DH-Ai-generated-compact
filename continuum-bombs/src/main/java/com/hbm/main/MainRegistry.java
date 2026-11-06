@@ -272,12 +272,12 @@ public final class MainRegistry {
         ModRailBlocks.init(); // the folded rails the ntm-next trains run on
         ModCustomMissileContent.init(); // custom missile parts, assembly station, compact launcher, launch table, large/rusted pads
         // FORK shrink: ModRadarUtilityContent.init(); // radars, radar screen/linker, forcefield, teleporter/anchor, orbus, silo hatch, Soyuz capsule
-        // FORK shrink: ModDecoCrateContent.init(); // storage crates, bobbleheads/plushies/snowglobes, radios, emitters, coils, cap blocks, absorbers, glyphid hive blocks
+        ModDecoCrateContent.init(); // storage crates, bobbleheads/plushies/snowglobes, radios, emitters, coils, cap blocks, absorbers, glyphid hive blocks
         // FORK shrink: ModGapsBContent.init(); // G-B: crates opened from the hand (CRATE_OPEN_HELD menus)
         // FORK shrink: ModRenderInputContent.init(); // G-C: tool animation cues, equip edge, rendering/input gap content
         // FORK shrink: ModIcfContent.init(); // ICF reactor, seed, vessel components, laser controller/array, pellet maker, fuel pellet
         // FORK shrink: ModEnergyBedrockContent.init(); // boxcable, coated wire, charging station, HE/RF converters, bedrock ore grades
-        // FORK shrink: ModDungeonContent.init(); // dungeon/structure bricks, keyholes, pedestal, skeleton holder, loot pile, old lantern, action blocks, cart rails, rebar + placer
+        ModDungeonContent.init(); // dungeon/structure bricks, keyholes, pedestal, skeleton holder, loot pile, old lantern, action blocks, cart rails, rebar + placer
         ModStructureWandBlocks.init(); // structure wand blocks: wand_air/loot/jigsaw/logic/tandem/structure (NBTStructure editing)
         ModHazardBlocks.init(); // radioactive / rad-resistant blocks (radiation emitters)
         ModFalloutBlocks.init(); // fallout layer + waste/sellafite terrain (nuke aftermath)
