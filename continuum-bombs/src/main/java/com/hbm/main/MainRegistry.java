@@ -244,20 +244,20 @@ public final class MainRegistry {
         ModMobSpawns.init(); // 1.7 EntityMappings natural spawns + placements (before BiomeFeatures.install)
         BiomeFeatures.install(); // Fabric: the same biome modifiers through BiomeModifications (no-op elsewhere)
         ModCraftingRecipes.declare();
-        ModArmorTableBlocks.init();
+        // FORK shrink: ModArmorTableBlocks.init();
         ModWeaponTableBlocks.init();
-        ModBeaconBlocks.init(); // plain beacon-base storage blocks
+        // FORK shrink: ModBeaconBlocks.init(); // plain beacon-base storage blocks
         ModMachineBlocks.init();   // machine blocks, Redstone-over-Radio included (must precede block entities, which reference them)
-        ModConveyorContent.init(); // conveyor belts, cranes, piston inserter, wand
+        // FORK shrink: ModConveyorContent.init(); // conveyor belts, cranes, piston inserter, wand
         ModPneumaticContent.init(); // pneumatic tube storage system
         ModDroneContent.init(); // delivery drone blocks, linker, request network sweep
-        ModProductionContent.init(); // production machines A: rotary furnace, thresher, microwave, autocrafter, conveyor press
-        ModProduction2Content.init(); // production machines B: excavator, ore slopper, annihilator, old boiler, RTG furnaces
+        // FORK shrink: ModProductionContent.init(); // production machines A: rotary furnace, thresher, microwave, autocrafter, conveyor press
+        // FORK shrink: ModProduction2Content.init(); // production machines B: excavator, ore slopper, annihilator, old boiler, RTG furnaces
         ModEnergyNetContent.init(); // pylons/wires, cable variants, legacy storage tiers, HEV battery, tesla
-        ModDoorContent.init(); // generic OBJ doors, the old blast door, mod doors and the steel trapdoor
+        // FORK shrink: ModDoorContent.init(); // generic OBJ doors, the old blast door, mod doors and the steel trapdoor
         ModSecurityContent.init(); // barbed wire, spikes, fences, barricade, locksmith table, padlocks
         ModPwrContent.init(); // pressurized water reactor: parts, controller, fuel rods, printer
-        ModPowerGenContent.init(); // Leviathan turbine, LPW-2, geothermal exchanger, IGen memorial, siren + tracks
+        // FORK shrink: ModPowerGenContent.init(); // Leviathan turbine, LPW-2, geothermal exchanger, IGen memorial, siren + tracks
         ModDecoContent.init(); // structural/decorative blocks: pipes, pillars, lamps, spotlights, bricks, asphalt, crates, poles
         ModTerrainContent.init(); // natural/terrain/hazard blocks: plants, frozen ground, biome stone, fissure, volcano, geysers, vents, storage blocks
         ModPileBlocks.init();
@@ -271,13 +271,13 @@ public final class MainRegistry {
         ModBombs2Content.init(); // special bombs: custom nuke, F.L.E.I.J.A., Blue Rinse, Prototype, balefire bomb, thermo/EMP/float/flame war
         ModRailBlocks.init(); // the folded rails the ntm-next trains run on
         ModCustomMissileContent.init(); // custom missile parts, assembly station, compact launcher, launch table, large/rusted pads
-        ModRadarUtilityContent.init(); // radars, radar screen/linker, forcefield, teleporter/anchor, orbus, silo hatch, Soyuz capsule
-        ModDecoCrateContent.init(); // storage crates, bobbleheads/plushies/snowglobes, radios, emitters, coils, cap blocks, absorbers, glyphid hive blocks
-        ModGapsBContent.init(); // G-B: crates opened from the hand (CRATE_OPEN_HELD menus)
-        ModRenderInputContent.init(); // G-C: tool animation cues, equip edge, rendering/input gap content
-        ModIcfContent.init(); // ICF reactor, seed, vessel components, laser controller/array, pellet maker, fuel pellet
-        ModEnergyBedrockContent.init(); // boxcable, coated wire, charging station, HE/RF converters, bedrock ore grades
-        ModDungeonContent.init(); // dungeon/structure bricks, keyholes, pedestal, skeleton holder, loot pile, old lantern, action blocks, cart rails, rebar + placer
+        // FORK shrink: ModRadarUtilityContent.init(); // radars, radar screen/linker, forcefield, teleporter/anchor, orbus, silo hatch, Soyuz capsule
+        // FORK shrink: ModDecoCrateContent.init(); // storage crates, bobbleheads/plushies/snowglobes, radios, emitters, coils, cap blocks, absorbers, glyphid hive blocks
+        // FORK shrink: ModGapsBContent.init(); // G-B: crates opened from the hand (CRATE_OPEN_HELD menus)
+        // FORK shrink: ModRenderInputContent.init(); // G-C: tool animation cues, equip edge, rendering/input gap content
+        // FORK shrink: ModIcfContent.init(); // ICF reactor, seed, vessel components, laser controller/array, pellet maker, fuel pellet
+        // FORK shrink: ModEnergyBedrockContent.init(); // boxcable, coated wire, charging station, HE/RF converters, bedrock ore grades
+        // FORK shrink: ModDungeonContent.init(); // dungeon/structure bricks, keyholes, pedestal, skeleton holder, loot pile, old lantern, action blocks, cart rails, rebar + placer
         ModStructureWandBlocks.init(); // structure wand blocks: wand_air/loot/jigsaw/logic/tandem/structure (NBTStructure editing)
         ModHazardBlocks.init(); // radioactive / rad-resistant blocks (radiation emitters)
         ModFalloutBlocks.init(); // fallout layer + waste/sellafite terrain (nuke aftermath)
@@ -306,13 +306,13 @@ public final class MainRegistry {
         // FORK shrink: ModSelfchargerItems.init(); // deprecated powered-armour auxiliary batteries
         ModBatterySCItems.init(); // 1.7 ItemBatterySC radiovoltaic batteries (battery_sc_<variant>)
         ModRtgContent.init(); // RTG pellet state, block entity, and menu registrations
-        ModChemicalDyeItems.init(); // flattened chemical-dye and crayon variants
-        ModSpawnEggs.init(); // spawn eggs for the 29 1.7 addMob mobs
+        // FORK shrink: ModChemicalDyeItems.init(); // flattened chemical-dye and crayon variants
+        // FORK shrink: ModSpawnEggs.init(); // spawn eggs for the 29 1.7 addMob mobs
         ModStorageDrumItems.init();
         ModFoodItems.init();
         ModConsumableTailItems.init();
         ModFinalConsumableItems.init(); // food, consumables, records, batteries, loose materials, 5G/muffler upgrades
-        ModCatalystItems.init();
+        // FORK shrink: ModCatalystItems.init();
         ModMedicineItems.init();
         ModRBMKItems.init(); // RBMK rods/pellets and reactor tools
         ModZirnoxItems.init(); // component-backed reactor fuel and spent fuel
@@ -340,7 +340,7 @@ public final class MainRegistry {
         ModArmorModItems.init(); // remaining ItemMod* modules, PaA hazmat, liquidator, mask of infamy
         ModUtilityToolContent.init(); // utility/diagnostic tools, pipettes, guide/lore books, holotapes, tablets, Lemegeton, legacy manual block
         ModCustomMachineContent.init(); // custom machine system: controllers from hbmCustomMachines.json, cm_* components, anchor, structure wand
-        ModNuclearMiscContent.init(); // radiolysis RTG, legacy breeder/research reactors + controller, legacy graphite pile, breeding/pile rods, spent plate fuel
+        // FORK shrink: ModNuclearMiscContent.init(); // radiolysis RTG, legacy breeder/research reactors + controller, legacy graphite pile, breeding/pile rods, spent plate fuel
         ModExplosivesContent.init(); // landmines, timed charges, det blocks, plastic explosive blocks, duds, multi purpose bomb, detonators
         // Ammo, factories, and gun suppliers must all be declared before any loader flushes ITEMs.
         GunCatalogue.init();
