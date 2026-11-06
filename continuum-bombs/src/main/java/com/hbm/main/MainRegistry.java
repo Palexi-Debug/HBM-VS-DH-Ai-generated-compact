@@ -275,7 +275,7 @@ public final class MainRegistry {
         ModDecoCrateContent.init(); // storage crates, bobbleheads/plushies/snowglobes, radios, emitters, coils, cap blocks, absorbers, glyphid hive blocks
         // FORK shrink: ModGapsBContent.init(); // G-B: crates opened from the hand (CRATE_OPEN_HELD menus)
         // FORK shrink: ModRenderInputContent.init(); // G-C: tool animation cues, equip edge, rendering/input gap content
-        // FORK shrink: ModIcfContent.init(); // ICF reactor, seed, vessel components, laser controller/array, pellet maker, fuel pellet
+        ModIcfContent.init(); // ICF reactor, seed, vessel components, laser controller/array, pellet maker, fuel pellet
         ModEnergyBedrockContent.init(); // boxcable, coated wire, charging station, HE/RF converters, bedrock ore grades
         ModDungeonContent.init(); // dungeon/structure bricks, keyholes, pedestal, skeleton holder, loot pile, old lantern, action blocks, cart rails, rebar + placer
         ModStructureWandBlocks.init(); // structure wand blocks: wand_air/loot/jigsaw/logic/tandem/structure (NBTStructure editing)
@@ -306,7 +306,7 @@ public final class MainRegistry {
         // FORK shrink: ModSelfchargerItems.init(); // deprecated powered-armour auxiliary batteries
         ModBatterySCItems.init(); // 1.7 ItemBatterySC radiovoltaic batteries (battery_sc_<variant>)
         ModRtgContent.init(); // RTG pellet state, block entity, and menu registrations
-        // FORK shrink: ModChemicalDyeItems.init(); // flattened chemical-dye and crayon variants
+        ModChemicalDyeItems.init(); // flattened chemical-dye and crayon variants
         // FORK shrink: ModSpawnEggs.init(); // spawn eggs for the 29 1.7 addMob mobs
         ModStorageDrumItems.init();
         ModFoodItems.init();
@@ -340,7 +340,7 @@ public final class MainRegistry {
         ModArmorModItems.init(); // remaining ItemMod* modules, PaA hazmat, liquidator, mask of infamy
         ModUtilityToolContent.init(); // utility/diagnostic tools, pipettes, guide/lore books, holotapes, tablets, Lemegeton, legacy manual block
         ModCustomMachineContent.init(); // custom machine system: controllers from hbmCustomMachines.json, cm_* components, anchor, structure wand
-        // FORK shrink: ModNuclearMiscContent.init(); // radiolysis RTG, legacy breeder/research reactors + controller, legacy graphite pile, breeding/pile rods, spent plate fuel
+        ModNuclearMiscContent.init(); // radiolysis RTG, legacy breeder/research reactors + controller, legacy graphite pile, breeding/pile rods, spent plate fuel
         ModExplosivesContent.init(); // landmines, timed charges, det blocks, plastic explosive blocks, duds, multi purpose bomb, detonators
         // Ammo, factories, and gun suppliers must all be declared before any loader flushes ITEMs.
         GunCatalogue.init();
