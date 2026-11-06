@@ -198,9 +198,13 @@ public final class ModTabs {
         return isNukeItem(item);
     }
 
-    /** The nukes ({@code nuke_*}) and the core, igniter, propellant and charge parts they are assembled from. */
-    private static final java.util.regex.Pattern NUKE_ITEM = java.util.regex.Pattern.compile(
-            "nuke_.*|bomb_casing|fissile_core|exotic_core|thermonuclear_stage|(boy|man|gadget|mike|tsar|fleija|solinium|prototype|n2|balefire)_.*");
+    /** FORK: only the bombs and parts that can be crafted with the Mekanism recipes of this fork (no kits, no prototype). */
+    private static final java.util.Set<String> NUKE_ITEMS = java.util.Set.of(
+            "nuke_boy", "nuke_man", "nuke_gadget", "nuke_mike", "nuke_tsar", "nuke_n2", "nuke_fleija", "nuke_solinium",
+            "nuke_balefire", "nuke_drop_rack", "bomb_casing", "fissile_core", "exotic_core", "thermonuclear_stage",
+            "boy_bullet", "boy_igniter", "boy_propellant", "boy_shielding", "boy_target",
+            "gadget_core", "gadget_explosive8", "gadget_wireing", "man_core", "man_explosive8", "man_igniter",
+            "mike_cooling_unit", "mike_core", "mike_deut", "n2_charge", "tsar_core");
 
     /** Shown only with {@code missiles=true} in config/hbm_bombs.properties: missiles, warheads, launchers, designators. */
     private static final java.util.regex.Pattern MISSILE_ITEM = java.util.regex.Pattern.compile(
@@ -209,7 +213,7 @@ public final class ModTabs {
     static boolean isNukeItem(Item item) {
         var id = BuiltInRegistries.ITEM.getKey(item); // `var`: the id type is ResourceLocation below 26.1 and Identifier from 26.1
         if (id == null || !Constants.MOD_ID.equals(id.getNamespace())) return false;
-        if (NUKE_ITEM.matcher(id.getPath()).matches()) return true;
+        if (NUKE_ITEMS.contains(id.getPath())) return true;
         return com.hbm.compat.BombsForkConfig.missilesEnabled() && MISSILE_ITEM.matcher(id.getPath()).matches();
     }
 

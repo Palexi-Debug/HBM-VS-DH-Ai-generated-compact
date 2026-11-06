@@ -53,12 +53,12 @@ public class HbmJeiPluginForgelike implements IModPlugin {
 
     @Override
     public void registerCategories(IRecipeCategoryRegistration registration) {
-        HbmJeiPluginCommon.registerCategories(registration);
+        // FORK (bombs only): HBM's machine recipe categories are not shown in JEI (saves load time).
     }
 
     @Override
     public void registerRecipes(IRecipeRegistration registration) {
-        HbmJeiPluginCommon.registerRecipes(registration);
+        // FORK (bombs only): HBM's machine recipe categories are not shown in JEI (saves load time).
     }
 
     @Override
@@ -68,12 +68,12 @@ public class HbmJeiPluginForgelike implements IModPlugin {
 
     @Override
     public void registerRecipeTransferHandlers(IRecipeTransferRegistration registration) {
-        HbmJeiPluginCommon.registerRecipeTransferHandlers(registration);
+        // FORK (bombs only): HBM's machine recipe categories are not shown in JEI (saves load time).
     }
 
     @Override
     public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
-        HbmJeiPluginCommon.registerCatalysts(registration);
+        // FORK (bombs only): HBM's machine recipe categories are not shown in JEI (saves load time).
     }
 
     @Override

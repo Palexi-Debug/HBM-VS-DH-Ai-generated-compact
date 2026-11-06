@@ -24,6 +24,11 @@ Base: upstream NTM Continuum 1.0.3, Minecraft 1.20.1 Forge, built against Golem 
 - Missiles are kept but disabled by default (`config/hbm_bombs.properties`, `missiles=true` enables them).
   Not a recipe path anymore: see `compat/BombsForkConfig`, `creativetabs/ModTabs`.
 
+- The creative tab lists only the bombs and parts that can be crafted in this fork (no kits, no Prototype, no
+  uncraftable bombs); the Prototype recipe is removed (`creativetabs/ModTabs`, `data/hbmbombs/recipes`).
+- No HBM mob drops and no HBM gear on spawned mobs (`main/ModEventHandlerMobs`); HBM's machine recipe categories are
+  not registered in JEI (`handler/jei/HbmJeiPluginForgelike`).
+
 ### Rendering
 - Mushroom clouds are rendered in Distant Horizons (optional): quality LOW / MEDIUM / HIGH / HIGH_PLUS, AUTO chooses by
   hardware (`platform/forge/dh/*`, ghost client simulation in `entity/effect/EntityNukeTorex`).
