@@ -10,6 +10,8 @@ Fork of HBM's Nuclear Tech Mod: Continuum (Forge 1.20.1) focused on the bombs.
 - **Removed:** HBM movement/keybinds (jetpack, dash, duck), player pose hooks. All HBM keys are hidden from the Controls screen.
 - Needs Golem Core pinned to the commit in `.github/workflows/continuum.yml`.
 
+See [CHANGELOG-FORK.md](CHANGELOG-FORK.md) for every change from the original (LGPL-3.0, see `LICENSE`).
+
 ---
 
 ## Setting up the project
