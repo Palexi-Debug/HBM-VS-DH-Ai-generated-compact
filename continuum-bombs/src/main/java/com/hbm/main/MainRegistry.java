@@ -254,10 +254,10 @@ public final class MainRegistry {
         ModProductionContent.init(); // production machines A: rotary furnace, thresher, microwave, autocrafter, conveyor press
         ModProduction2Content.init(); // production machines B: excavator, ore slopper, annihilator, old boiler, RTG furnaces
         ModEnergyNetContent.init(); // pylons/wires, cable variants, legacy storage tiers, HEV battery, tesla
-        // FORK shrink: ModDoorContent.init(); // generic OBJ doors, the old blast door, mod doors and the steel trapdoor
+        ModDoorContent.init(); // generic OBJ doors, the old blast door, mod doors and the steel trapdoor
         ModSecurityContent.init(); // barbed wire, spikes, fences, barricade, locksmith table, padlocks
         ModPwrContent.init(); // pressurized water reactor: parts, controller, fuel rods, printer
-        // FORK shrink: ModPowerGenContent.init(); // Leviathan turbine, LPW-2, geothermal exchanger, IGen memorial, siren + tracks
+        ModPowerGenContent.init(); // Leviathan turbine, LPW-2, geothermal exchanger, IGen memorial, siren + tracks
         ModDecoContent.init(); // structural/decorative blocks: pipes, pillars, lamps, spotlights, bricks, asphalt, crates, poles
         ModTerrainContent.init(); // natural/terrain/hazard blocks: plants, frozen ground, biome stone, fissure, volcano, geysers, vents, storage blocks
         ModPileBlocks.init();
