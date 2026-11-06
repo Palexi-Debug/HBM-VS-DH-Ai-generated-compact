@@ -263,7 +263,7 @@ public final class MainRegistry {
         ModPileBlocks.init();
         ModDFCBlocks.init();
         ModSatelliteItems.init();
-        // FORK shrink: ModSatelliteContent.init(); // satellites: ID manager, cargo pad, orbital laser, /ntmsatellites
+        ModSatelliteContent.init(); // satellites: ID manager, cargo pad, orbital laser, /ntmsatellites
         ModBatteryBlocks.init();   // energy-storage machine blocks (battery socket)
         ModTurretBlocks.init(); // turret pad cell and the turrets on it
         ModStorageBlocks.init();   // storage crates (iron / steel / desh)
