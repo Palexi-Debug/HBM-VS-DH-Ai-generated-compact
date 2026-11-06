@@ -251,8 +251,8 @@ public final class MainRegistry {
         // FORK shrink: ModConveyorContent.init(); // conveyor belts, cranes, piston inserter, wand
         ModPneumaticContent.init(); // pneumatic tube storage system
         ModDroneContent.init(); // delivery drone blocks, linker, request network sweep
-        // FORK shrink: ModProductionContent.init(); // production machines A: rotary furnace, thresher, microwave, autocrafter, conveyor press
-        // FORK shrink: ModProduction2Content.init(); // production machines B: excavator, ore slopper, annihilator, old boiler, RTG furnaces
+        ModProductionContent.init(); // production machines A: rotary furnace, thresher, microwave, autocrafter, conveyor press
+        ModProduction2Content.init(); // production machines B: excavator, ore slopper, annihilator, old boiler, RTG furnaces
         ModEnergyNetContent.init(); // pylons/wires, cable variants, legacy storage tiers, HEV battery, tesla
         // FORK shrink: ModDoorContent.init(); // generic OBJ doors, the old blast door, mod doors and the steel trapdoor
         ModSecurityContent.init(); // barbed wire, spikes, fences, barricade, locksmith table, padlocks
