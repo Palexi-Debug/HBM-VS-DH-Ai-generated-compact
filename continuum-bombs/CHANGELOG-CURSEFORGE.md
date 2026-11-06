@@ -22,6 +22,7 @@ Optional: Distant Horizons, Valkyrien Skies.
 - HBM machine recipe categories in JEI (faster loading).
 
 ### Other
+- New textures for the Gadget, Fat Man, Mike and Tsar Bomba cores: each has its own glow colour (green, orange, blue, red) so they no longer look the same. New Bomb Drop Rack texture.
 - Update check: the mod list shows a notice when a newer version exists.
 - New name and description. Fork changelog with all changes: `CHANGELOG-FORK.md`.
 - ERROR line about the falling bomb renderer in the log is gone.
