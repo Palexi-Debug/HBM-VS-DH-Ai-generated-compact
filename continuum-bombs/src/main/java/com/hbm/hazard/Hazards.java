@@ -30,8 +30,8 @@ public final class Hazards {
         // (HazardDataMaps, ArmorDataMaps); what is left here is code: transformers, suit behaviour, the config layers
         ModArmorItems.configure();      // power-armour set bonuses, rad resistance, hazard classes
         ModArmorModItems.configure();   // PaA/liquidator suits, gas-mask attachment hazard class
-        ModArmorSetBItems.configure();  // final armor B: steam/diesel/env suits, masks, jackets
-        ModArmorSetItems.configure();   // final armor sets A: alloy, cmb, bismuth, euphemium, AJR/AJRO, HEV, Fau, trenchmaster
+        // FORK shrink: ModArmorSetBItems.configure();  // final armor B: steam/diesel/env suits, masks, jackets
+        // FORK shrink: ModArmorSetItems.configure();   // final armor sets A: alloy, cmb, bismuth, euphemium, AJR/AJRO, HEV, Fau, trenchmaster
         HazmatRegistry.registerHazmats(); // 1.7 hbmRadResist.json override (or its template)
         DamageResistanceHandler.init();  // threshold/resistance profiles + damage event seam
         HazardSystem.install();                       // carried hazards, resolved per slot edit
