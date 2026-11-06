@@ -2,6 +2,7 @@ name: Continuum bombs fork
 on:
   workflow_dispatch:
   push:
+    branches: ['**']
     paths: ['continuum-bombs/**', '.github/workflows/continuum.yml']
     tags: ['v*']
 
