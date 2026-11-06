@@ -29,6 +29,10 @@ Base: upstream NTM Continuum 1.0.3, Minecraft 1.20.1 Forge, built against Golem 
 - No HBM mob drops and no HBM gear on spawned mobs (`main/ModEventHandlerMobs`); HBM's machine recipe categories are
   not registered in JEI (`handler/jei/HbmJeiPluginForgelike`).
 
+- Everything of the normal HBM that is not a bomb is switched off at start: meteors, ore and structure generation,
+  dungeons, hostile HBM mobs and their gear, hives, raids, gas pockets, pollution and other environment hazards
+  (`compat/BombsForkConfig.applyOverrides`, applied after `hbm.cfg` is read and not written back).
+
 ### Rendering
 - Mushroom clouds are rendered in Distant Horizons (optional): quality LOW / MEDIUM / HIGH / HIGH_PLUS, AUTO chooses by
   hardware (`platform/forge/dh/*`, ghost client simulation in `entity/effect/EntityNukeTorex`).

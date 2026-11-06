@@ -222,6 +222,7 @@ public final class MainRegistry {
         StructureConfig.loadFromConfig(config);
 
         config.save();
+        com.hbm.compat.BombsForkConfig.applyOverrides(); // FORK: bombs only, nothing else of HBM is active
     }
 
     public static void bootstrap() {
