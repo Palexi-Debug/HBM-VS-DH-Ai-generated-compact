@@ -26,6 +26,8 @@ Base: upstream NTM Continuum 1.0.3, Minecraft 1.20.1 Forge, built against Golem 
 
 - The creative tab lists only the bombs and parts that can be crafted in this fork (no kits, no Prototype, no
   uncraftable bombs); the Prototype recipe is removed (`creativetabs/ModTabs`, `data/hbmbombs/recipes`).
+- Fleija removed from the tab and its recipe deleted; coal dust gas on coal ore break and lead poisoning on block
+  break removed (`main/ModEventHandlerHooks`); new drop rack texture.
 - No HBM mob drops and no HBM gear on spawned mobs (`main/ModEventHandlerMobs`); HBM's machine recipe categories are
   not registered in JEI (`handler/jei/HbmJeiPluginForgelike`).
 

@@ -12,6 +12,8 @@ Optional: Distant Horizons, Valkyrien Skies.
 
 ### Removed
 - HBM mob drops and HBM gear on mobs.
+- Fleija and Blue Rinse bombs.
+- Coal dust gas that appeared around broken coal ore.
 - Meteors, HBM ores, structures, ruins and dungeons.
 - Hostile HBM mobs, hives, raids, scouts, elementals.
 - Gas pockets, radon, asbestos, carbon monoxide, lead poison, soot and pollution.
