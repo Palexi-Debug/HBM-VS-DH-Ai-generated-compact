@@ -7,9 +7,9 @@
     }
   },
   "extraInput": {
-    "amount": 2,
+    "amount": 16,
     "ingredient": {
-      "item": "hbm:bomb_casing"
+      "item": "mekanism:pellet_plutonium"
     }
   },
   "output": {

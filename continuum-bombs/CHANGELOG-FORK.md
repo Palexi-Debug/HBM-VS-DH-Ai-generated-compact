@@ -14,7 +14,8 @@ Base: upstream NTM Continuum 1.0.3, Minecraft 1.20.1 Forge, built against Golem 
 ### Gameplay
 - Bombs are crafted with Mekanism machines (Mekanism is now a required dependency); HBM's own recipes are removed.
   Recipes are in `src/main/resources/data/hbmbombs/recipes/` and were made more expensive (more uranium, plutonium,
-  polonium, refined obsidian, longer reaction times and higher gas amounts).
+  polonium, refined obsidian, longer reaction times and higher gas amounts). Every bomb needs plutonium: directly
+  (Gadget, Fat Man, Fleija, Balefire, N2) or through the fissile core (Little Boy, Mike, Tsar Bomba, Solinium).
 - Fallout radiation is a Mekanism radiation source over the whole fallout zone (`compat/mekanism/MekanismRadiation`).
 - Tooltips show Mekanism radiation (Sv/h) and the bomb weight (`explosion/BlastInfo`).
 - Added the Bomb Drop Rack (`nuke_drop_rack`) and the falling bomb entity (`platform/forge/drop/*`,

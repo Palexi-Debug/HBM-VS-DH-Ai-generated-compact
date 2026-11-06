@@ -1,15 +1,15 @@
 {
   "type": "mekanism:combining",
   "mainInput": {
-    "amount": 1,
+    "amount": 4,
     "ingredient": {
-      "item": "hbm:bomb_casing"
+      "item": "hbm:n2_charge"
     }
   },
   "extraInput": {
-    "amount": 48,
+    "amount": 32,
     "ingredient": {
-      "item": "mekanism:pellet_polonium"
+      "item": "mekanism:pellet_plutonium"
     }
   },
   "output": {
