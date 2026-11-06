@@ -276,7 +276,7 @@ public final class MainRegistry {
         // FORK shrink: ModGapsBContent.init(); // G-B: crates opened from the hand (CRATE_OPEN_HELD menus)
         // FORK shrink: ModRenderInputContent.init(); // G-C: tool animation cues, equip edge, rendering/input gap content
         // FORK shrink: ModIcfContent.init(); // ICF reactor, seed, vessel components, laser controller/array, pellet maker, fuel pellet
-        // FORK shrink: ModEnergyBedrockContent.init(); // boxcable, coated wire, charging station, HE/RF converters, bedrock ore grades
+        ModEnergyBedrockContent.init(); // boxcable, coated wire, charging station, HE/RF converters, bedrock ore grades
         ModDungeonContent.init(); // dungeon/structure bricks, keyholes, pedestal, skeleton holder, loot pile, old lantern, action blocks, cart rails, rebar + placer
         ModStructureWandBlocks.init(); // structure wand blocks: wand_air/loot/jigsaw/logic/tandem/structure (NBTStructure editing)
         ModHazardBlocks.init(); // radioactive / rad-resistant blocks (radiation emitters)
