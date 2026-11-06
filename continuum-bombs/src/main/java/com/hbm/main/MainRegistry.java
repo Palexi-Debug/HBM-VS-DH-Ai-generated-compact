@@ -271,7 +271,7 @@ public final class MainRegistry {
         ModBombs2Content.init(); // special bombs: custom nuke, F.L.E.I.J.A., Blue Rinse, Prototype, balefire bomb, thermo/EMP/float/flame war
         ModRailBlocks.init(); // the folded rails the ntm-next trains run on
         ModCustomMissileContent.init(); // custom missile parts, assembly station, compact launcher, launch table, large/rusted pads
-        // FORK shrink: ModRadarUtilityContent.init(); // radars, radar screen/linker, forcefield, teleporter/anchor, orbus, silo hatch, Soyuz capsule
+        ModRadarUtilityContent.init(); // radars, radar screen/linker, forcefield, teleporter/anchor, orbus, silo hatch, Soyuz capsule
         ModDecoCrateContent.init(); // storage crates, bobbleheads/plushies/snowglobes, radios, emitters, coils, cap blocks, absorbers, glyphid hive blocks
         // FORK shrink: ModGapsBContent.init(); // G-B: crates opened from the hand (CRATE_OPEN_HELD menus)
         // FORK shrink: ModRenderInputContent.init(); // G-C: tool animation cues, equip edge, rendering/input gap content
