@@ -167,6 +167,8 @@ public final class ModEventHandlerHooks {
 
     /** 1.7 {@code onBlockBreak}, minus the gneiss achievement (see the class comment). */
     public static void onBlockBreak(ServerPlayer player, ServerLevel level, BlockPos pos, BlockState state) {
+        // FORK (bombs only): no coal dust gas around broken coal ore and no lead poisoning from block breaking.
+        if (true) return;
         Block block = state.getBlock();
 
         // coal dust around a broken coal ore, coal block or lignite. Deepslate coal ore is the modern spelling of the

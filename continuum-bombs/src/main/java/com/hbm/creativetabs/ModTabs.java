@@ -200,7 +200,7 @@ public final class ModTabs {
 
     /** FORK: only the bombs and parts that can be crafted with the Mekanism recipes of this fork (no kits, no prototype). */
     private static final java.util.Set<String> NUKE_ITEMS = java.util.Set.of(
-            "nuke_boy", "nuke_man", "nuke_gadget", "nuke_mike", "nuke_tsar", "nuke_n2", "nuke_fleija", "nuke_solinium",
+            "nuke_boy", "nuke_man", "nuke_gadget", "nuke_mike", "nuke_tsar", "nuke_n2", "nuke_solinium",
             "nuke_balefire", "nuke_drop_rack", "bomb_casing", "fissile_core", "exotic_core", "thermonuclear_stage",
             "boy_bullet", "boy_igniter", "boy_propellant", "boy_shielding", "boy_target",
             "gadget_core", "gadget_explosive8", "gadget_wireing", "man_core", "man_explosive8", "man_igniter",
