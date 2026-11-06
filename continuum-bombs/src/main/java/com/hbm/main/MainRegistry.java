@@ -263,7 +263,7 @@ public final class MainRegistry {
         ModPileBlocks.init();
         ModDFCBlocks.init();
         ModSatelliteItems.init();
-        // FORK stage2 (shrink): ModSatelliteContent.init(); // satellites: ID manager, cargo pad, orbital laser, /ntmsatellites
+        ModSatelliteContent.init(); // satellites: ID manager, cargo pad, orbital laser, /ntmsatellites
         ModBatteryBlocks.init();   // energy-storage machine blocks (battery socket)
         ModTurretBlocks.init(); // turret pad cell and the turrets on it
         ModStorageBlocks.init();   // storage crates (iron / steel / desh)
@@ -303,7 +303,7 @@ public final class MainRegistry {
         ModAbilityToolItems.init(); // ability tools/weapons, tool sets, meteorite sword chain
         ModMeleeKitItems.init(); // special melee weapons, novelty tools, starter kits, toolbox, loot, Bobmazon
         ModSingularityItems.init(); // dropped singularity capsules and Spark progression
-        // FORK stage2 (shrink): ModSelfchargerItems.init(); // deprecated powered-armour auxiliary batteries
+        ModSelfchargerItems.init(); // deprecated powered-armour auxiliary batteries
         ModBatterySCItems.init(); // 1.7 ItemBatterySC radiovoltaic batteries (battery_sc_<variant>)
         ModRtgContent.init(); // RTG pellet state, block entity, and menu registrations
         ModChemicalDyeItems.init(); // flattened chemical-dye and crayon variants
@@ -334,8 +334,8 @@ public final class MainRegistry {
         ModBombItems.init();       // hand-registered bomb components
         ModGearItems.init(); // radiation gear (geiger/dosimeter + hazmat armor)
         ModArmorItems.init(); // modelled power armour (T-51b)
-        // FORK stage2 (shrink): ModArmorSetBContent.init(); // final armor B: remaining ModItemsArmor ids, IV bags, statue_elb_f
-        // FORK stage2 (shrink): ModArmorSetContent.init(); // final armor sets A: alloy, cmb, bismuth, euphemium, zirconium, dnt, AJR/AJRO, HEV, Fau, trenchmaster
+        ModArmorSetBContent.init(); // final armor B: remaining ModItemsArmor ids, IV bags, statue_elb_f
+        ModArmorSetContent.init(); // final armor sets A: alloy, cmb, bismuth, euphemium, zirconium, dnt, AJR/AJRO, HEV, Fau, trenchmaster
         ModArmorModules.init(); // complete armor modules (storage, cladding, inserts)
         ModArmorModItems.init(); // remaining ItemMod* modules, PaA hazmat, liquidator, mask of infamy
         ModUtilityToolContent.init(); // utility/diagnostic tools, pipettes, guide/lore books, holotapes, tablets, Lemegeton, legacy manual block
