@@ -31,6 +31,8 @@ Base: upstream NTM Continuum 1.0.3, Minecraft 1.20.1 Forge, built against Golem 
   gadget/man/mike/tsar core item textures (`assets/hbm/textures/items`).
 - Recipe fixes: gadget_wireing uses `minecraft:copper_ingot`; the balefire bomb recipe outputs `hbm:nuke_fstbmb`
   (file `nuke_fstbmb.json`).
+- Added recipes for the missing bomb parts (solinium_core/igniter/propellant, egg_balefire, battery_spark); the drop
+  rack uses separate top/side/bottom textures (`ModBombBlocks`).
 - No HBM mob drops and no HBM gear on spawned mobs (`main/ModEventHandlerMobs`); HBM's machine recipe categories are
   not registered in JEI (`handler/jei/HbmJeiPluginForgelike`).
 

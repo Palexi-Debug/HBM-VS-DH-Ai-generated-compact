@@ -1,0 +1,19 @@
+{
+  "type": "mekanism:combining",
+  "mainInput": {
+    "amount": 1,
+    "ingredient": {
+      "item": "mekanism:alloy_atomic"
+    }
+  },
+  "extraInput": {
+    "amount": 2,
+    "ingredient": {
+      "item": "mekanism:alloy_reinforced"
+    }
+  },
+  "output": {
+    "item": "hbm:solinium_igniter",
+    "count": 1
+  }
+}

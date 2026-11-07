@@ -46,7 +46,8 @@ public final class ModBombBlocks {
     /** The drop rack: a bomb hung underneath is released by redstone and falls (see BombDropHook). */
     public static final RegistryObject<BlockBombRack> nuke_drop_rack = REG.block("nuke_drop_rack", BlockBombRack::new,
                     p -> p.strength(5.0F, 60.0F).sound(SoundType.METAL).requiresCorrectToolForDrops())
-            .transform(Presets.cubeAll().states(Variants.uniform("powered", "false", "true")))
+            .transform(Presets.cubeBottomTop("hbm:blocks/nuke_drop_rack_bottom", "hbm:blocks/nuke_drop_rack_side",
+                    "hbm:blocks/nuke_drop_rack_top").states(Variants.uniform("powered", "false", "true")))
             .loot(Loot.self()).tag(BlockTag.PICKAXE);
 
     /** Taint residue: a hard, spreading block with a shallow collision box. */

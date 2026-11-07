@@ -1,0 +1,19 @@
+{
+  "type": "mekanism:combining",
+  "mainInput": {
+    "amount": 1,
+    "ingredient": {
+      "item": "hbm:exotic_core"
+    }
+  },
+  "extraInput": {
+    "amount": 8,
+    "ingredient": {
+      "item": "mekanism:pellet_plutonium"
+    }
+  },
+  "output": {
+    "item": "hbm:solinium_core",
+    "count": 1
+  }
+}

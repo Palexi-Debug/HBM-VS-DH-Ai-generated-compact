@@ -1,0 +1,19 @@
+{
+  "type": "mekanism:combining",
+  "mainInput": {
+    "amount": 8,
+    "ingredient": {
+      "item": "mekanism:ingot_refined_glowstone"
+    }
+  },
+  "extraInput": {
+    "amount": 16,
+    "ingredient": {
+      "item": "minecraft:gunpowder"
+    }
+  },
+  "output": {
+    "item": "hbm:solinium_propellant",
+    "count": 1
+  }
+}

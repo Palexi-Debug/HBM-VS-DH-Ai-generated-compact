@@ -27,6 +27,8 @@ Optional: Distant Horizons, Valkyrien Skies.
 - The Balefire Bomb recipe pointed at a wrong item and did not load. It works now and is listed in the creative tab.
 
 ### Other
+- The Bomb Drop Rack has a new look: separate top, side and bottom textures (steel plate with warning light, hazard stripes, open bay with hook rail).
+- Recipes added for parts that were missing: Solinium core, igniter and propellant, the Balefire egg, and the Spark battery (needed to arm the Balefire Bomb).
 - New textures for the Gadget, Fat Man, Mike and Tsar Bomba cores: each has its own glow colour (green, orange, blue, red) so they no longer look the same. New Bomb Drop Rack texture.
 - Update check: the mod list shows a notice when a newer version exists.
 - New name and description. Fork changelog with all changes: `CHANGELOG-FORK.md`.

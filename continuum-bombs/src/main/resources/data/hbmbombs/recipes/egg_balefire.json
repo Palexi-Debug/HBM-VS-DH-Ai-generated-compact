@@ -1,0 +1,19 @@
+{
+  "type": "mekanism:combining",
+  "mainInput": {
+    "amount": 2,
+    "ingredient": {
+      "item": "hbm:exotic_core"
+    }
+  },
+  "extraInput": {
+    "amount": 16,
+    "ingredient": {
+      "item": "mekanism:pellet_polonium"
+    }
+  },
+  "output": {
+    "item": "hbm:egg_balefire",
+    "count": 1
+  }
+}
