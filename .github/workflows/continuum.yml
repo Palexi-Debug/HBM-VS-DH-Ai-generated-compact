@@ -70,4 +70,4 @@ jobs:
         run: |
           J=$(ls continuum-bombs/versions/1.20.1-forge/build/libs/*.jar | grep -v -e sources -e dev | head -1)
           echo "release jar: $J"
-          gh release create "${GITHUB_REF_NAME}" "$J" --title "NTM Continuum - Bombs ${GITHUB_REF_NAME}" --notes-file continuum-bombs/CHANGELOG-CURSEFORGE.md
+          gh release create "${GITHUB_REF_NAME}" "$J" --title "NTM-VS-DH ${GITHUB_REF_NAME}" --notes-file continuum-bombs/CHANGELOG-CURSEFORGE.md

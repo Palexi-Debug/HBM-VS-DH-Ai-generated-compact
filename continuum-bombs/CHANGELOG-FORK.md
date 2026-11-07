@@ -57,7 +57,7 @@ Base: upstream NTM Continuum 1.0.3, Minecraft 1.20.1 Forge, built against Golem 
 - The entity-renderer coverage check no longer reports `hbm:dropped_bomb` (`client/render/HbmEntityRenderers`).
 
 ### Metadata
-- Display name, description and README changed to describe the fork (`gradle.properties`, `README.md`).
+- Display name "NTM-VS-DH", description and README changed to describe the fork (`gradle.properties`, `README.md`).
   The mod id `hbm` is unchanged, so it cannot be loaded together with the original NTM Continuum.
 - `mods.toml`: Mekanism (required), Distant Horizons and Valkyrien Skies (optional) declared.
 - CI workflow `.github/workflows/continuum.yml` builds the fork against a pinned Golem Core commit.

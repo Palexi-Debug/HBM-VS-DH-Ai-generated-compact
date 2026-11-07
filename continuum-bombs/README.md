@@ -1,4 +1,4 @@
-# NTM Continuum - Bombs (Mekanism fork)
+# NTM-VS-DH (NTM Continuum bombs fork)
 
 Fork of HBM's Nuclear Tech Mod: Continuum (Forge 1.20.1) focused on the bombs.
 
