@@ -7,6 +7,7 @@ Optional: Distant Horizons, Valkyrien Skies.
 
 ### Crafting
 - All bomb recipes are now **harder**: more uranium, plutonium, polonium and refined obsidian, longer reaction times, double gas amounts, reinforced alloy for igniters.
+- Beginner bombs are cheaper: Little Boy uses 2 fissile cores (was 4), Fat Man 12 plutonium pellets (was 24), Gadget 16 (was 32).
 - **Every bomb needs plutonium** (directly, or through the fissile core).
 - The creative tab lists only bombs and parts you can really craft. Removed from the tab: Prototype, all kits, and every bomb without a recipe.
 
