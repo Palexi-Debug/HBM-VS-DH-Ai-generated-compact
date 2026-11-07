@@ -1,6 +1,11 @@
 name: Continuum bombs fork
 on:
   workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'Tag to publish as a GitHub release (e.g. v1.0.1); empty = build only'
+        required: false
+        default: ''
   push:
     branches: ['**']
     paths: ['continuum-bombs/**', '.github/workflows/continuum.yml']
@@ -64,10 +69,11 @@ jobs:
           path: continuum-bombs/**/build/libs/*.jar
       # A tag like v1.0.1 publishes a GitHub release with the jar and the CurseForge changelog as notes.
       - name: Publish release
-        if: startsWith(github.ref, 'refs/tags/v')
+        if: startsWith(github.ref, 'refs/tags/v') || inputs.release_tag != ''
         env:
           GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.release_tag || github.ref_name }}
         run: |
           J=$(ls continuum-bombs/versions/1.20.1-forge/build/libs/*.jar | grep -v -e sources -e dev | head -1)
           echo "release jar: $J"
-          gh release create "${GITHUB_REF_NAME}" "$J" --title "NTM-VS-DH ${GITHUB_REF_NAME}" --notes-file continuum-bombs/CHANGELOG-CURSEFORGE.md
+          gh release create "$TAG" "$J" --target "${GITHUB_SHA}" --title "NTM-VS-DH $TAG" --notes-file continuum-bombs/CHANGELOG-CURSEFORGE.md
