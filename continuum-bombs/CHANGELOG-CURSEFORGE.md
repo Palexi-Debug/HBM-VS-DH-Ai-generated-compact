@@ -23,6 +23,7 @@ Optional: Distant Horizons, Valkyrien Skies.
 - HBM machine recipe categories in JEI (faster loading).
 
 ### Fixes
+- JEI no longer logs an error about missing HBM recipe categories at startup.
 - Gadget wiring recipe used a copper ingot item that does not exist (now the vanilla copper ingot).
 - The Balefire Bomb recipe pointed at a wrong item and did not load. It works now and is listed in the creative tab.
 

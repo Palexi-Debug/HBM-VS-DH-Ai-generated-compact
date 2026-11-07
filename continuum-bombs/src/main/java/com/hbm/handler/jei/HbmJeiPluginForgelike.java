@@ -78,7 +78,7 @@ public class HbmJeiPluginForgelike implements IModPlugin {
 
     @Override
     public void onRuntimeAvailable(mezz.jei.api.runtime.IJeiRuntime runtime) {
-        HbmJeiPluginCommon.onRuntimeAvailable(runtime);
+        // FORK (bombs only): the recipe categories are not registered, so nothing is added to them at runtime either.
     }
 }
 //?}
