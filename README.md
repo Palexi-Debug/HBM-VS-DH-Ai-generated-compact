@@ -1,23 +1,44 @@
-# NTM-VS-DH-Ai-generated-compact
+# NTM-VS-DH
 
-This is a specialized, compact fork of **Hbm's Nuclear Tech Mod: Continuum** (originally by Warfactory-Official), stripped down and focused purely on explosive mechanics, modern cross-mod integrations, and rendering compatibility.
+**Nuclear bombs for Minecraft 1.20.1 (Forge): crafted with Mekanism, radiation from Mekanism, mushroom clouds in Distant Horizons, dropped from Valkyrien Skies ships.**
 
-## ⚙️ Features & Scope
-This fork isolates specific content from the original HBM mod to create a lightweight, performance-focused experience:
-* **Bombs Only:** Heavily focused on the core bombs and destructive elements of HBM.
-* **Missiles (Disabled):** The missile systems are present in the codebase but are currently completely deactivated.
-* **Mekanism Radiation Integration:** The native HBM radiation mechanic has been entirely swapped out. Detonations and nuclear materials now emit Mekanism-compatible radiation, fully utilizing Mekanism's lingering environmental mechanics, dosimeters, and hazmat protections.
-* **VS Drop Block:** Added a dedicated Drop Block functionality designed to work seamlessly with Valkyrien Skies physics or custom drop mechanics.
-* **Distant Horizons (DH) Explosion Rendering:** Enhanced rendering hooks specifically optimized to update and force chunk re-renders smoothly when using the Distant Horizons LOD mod during massive detonations.
+NTM-VS-DH is a compact fork of *HBM's Nuclear Tech Mod: Continuum*. It keeps the bombs and removes everything else of the original mod.
 
-## 🤖 AI Disclosure & Modification Notice
-In compliance with CurseForge and platform guidelines, please note that parts of the codebase—including the Distant Horizons rendering logic, the Mekanism radiation bridge, and the custom drop block mechanics within this repository—were generated or optimized using **Artificial Intelligence (AI) assistance**. All AI-generated code has been manually reviewed, debugged, and integrated to ensure stability.
+## Features
 
-## 📜 License
-This project is licensed under the **GNU Lesser General Public License version 3 (LGPLv3)**. 
-* You are free to modify and distribute this code under the same license terms.
-* Source code transparency is maintained entirely in this repository.
+- **Bombs only.** Little Boy, Fat Man, Gadget, Ivy Mike, Tsar Bomba, N2, Solinium and the Balefire Bomb, with all the parts they need.
+- **Crafted with Mekanism.** Every recipe is a Mekanism machine recipe (combining, infusing, chemical reaction, nucleosynthesizing). Every bomb needs plutonium, the big ones need a lot of it. Mekanism is required.
+- **Mekanism radiation.** Fallout contaminates the whole blast area with Mekanism radiation. Tooltips show the radiation (Sv/h) and the real weight of each bomb.
+- **Distant Horizons.** The mushroom cloud is visible from far away (LOW / MEDIUM / HIGH / HIGH_PLUS, automatic by default).
+- **Bomb Drop Rack.** Hang a bomb under the rack, send a redstone signal, it falls. On a Valkyrien Skies ship the bomb keeps the ship's speed. Bomb masses follow the real values.
+- **Nothing else of HBM.** No HBM ores, structures, meteors, hostile mobs, mob drops, gases, pollution, hazards, advancements, keybinds or movement hooks.
+- **Missiles** are still in the code but disabled. Set `missiles=true` in `config/hbm_bombs.properties` to show them again.
+
+## Requirements
+
+| Mod | Needed |
+|---|---|
+| Minecraft 1.20.1, Forge | required |
+| [Mekanism](https://www.curseforge.com/minecraft/mc-mods/mekanism) | **required** |
+| [Distant Horizons](https://www.curseforge.com/minecraft/mc-mods/distant-horizons) | optional (far cloud rendering) |
+| [Valkyrien Skies](https://www.curseforge.com/minecraft/mc-mods/valkyrien-skies) | optional (drop from ships) |
+
+The mod id is still `hbm`, so it cannot be loaded together with the original NTM Continuum.
+
+## Addon for the original HBM
+
+The folder [`addon/`](addon) is a small separate mod (`hbmnukemeka`) for people who run the **original** HBM: it adds the Distant Horizons cloud and the drop rack to it.
+
+## AI disclosure and modification notice
+
+Parts of this fork (the Distant Horizons rendering, the Mekanism radiation bridge, the drop rack and the recipes) were written with AI assistance (Claude by Anthropic) and tested by the author in a modpack. The original code is not written by the author of this fork. All changes to the original are listed in [`continuum-bombs/CHANGELOG-FORK.md`](continuum-bombs/CHANGELOG-FORK.md).
+
+## License
+
+GNU Lesser General Public License v3.0 (LGPL-3.0), see [`LICENSE`](LICENSE). This is a modified version of the original mod and is not affiliated with or endorsed by its authors. The source of this version is in this repository under [`continuum-bombs/`](continuum-bombs).
 
 ## Credits
-* Original Mod: *Hbm's Nuclear Tech Mod* by HBMBobact
-* Base Edition: *NTM: Continuum* by Warfactory-Official
+
+- *HBM's Nuclear Tech Mod* by HbmMods (Bob).
+- *NTM: Continuum* by Warfactory-Official ([source](https://github.com/Warfactory-Official/NTM-Continuum), with [Golem Core](https://github.com/Warfactory-Official/Golem-Core)).
+- Mekanism, Distant Horizons and Valkyrien Skies by their authors.
